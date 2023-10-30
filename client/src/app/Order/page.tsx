@@ -5,14 +5,11 @@
 import MenuItem from '../Components/MenuItem/MenuItem'
 import defualtDrinkImg from '../../../public/defualtDrinkImg.png'
 
-
-
-
 export default function Order() {
 
   function goToCategory(category){
     // alert("../" + category)
-    window.location.href = "../" + category;
+    window.location.href = "Order/Catagories/" + category;
   }
     return (
       <main className="bg-slate-400 bg-cover h-screen w-screen w-screenflex-row flex">

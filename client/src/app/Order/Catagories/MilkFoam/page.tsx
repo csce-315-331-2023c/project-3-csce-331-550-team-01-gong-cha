@@ -2,10 +2,10 @@
 
 import Image from 'next/image'
 import React from 'react'
-import MenuItem from '../Components/MenuItem/MenuItem'
+import MenuItem from '../../../Components/MenuItem/MenuItem'
 import defualtDrinkImg from '../../../public/defualtDrinkImg.png'
 
-export default function Coffee() {
+export default function MilkFoam() {
   function something(){
     alert("Something happens")
   }

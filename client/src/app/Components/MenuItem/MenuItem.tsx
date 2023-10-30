@@ -6,17 +6,17 @@ import Image from 'next/image'
 export default function MenuItem({drinkName, drinkImage, altTxt, thisOnClick}){
     
     return(
-        <main className='w-full h-full flex justify-start items-start bg-indigo-300'>
+        <button className='w-full h-full flex justify-start items-start bg-indigo-300' onClick={thisOnClick}>
             <Image
                 className='h-full'
                 src={drinkImage}
                 alt={altTxt}
             ></Image>
             <div className='bg-green-300 w-full'>
-                <button className='flex justify-center items-center w-full' onClick={thisOnClick}>
+                <div className='flex justify-center items-center w-full'>
                     {drinkName}
-                </button>
+                </div>
             </div>
-        </main>
+        </button>
     );
 }
