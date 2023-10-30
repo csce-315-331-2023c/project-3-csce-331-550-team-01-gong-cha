@@ -4,31 +4,33 @@ import defualtDrinkImg from '../../../public/defualtDrinkImg.png'
 export default function Order() {
     return (
       <main className="bg-slate-400 bg-cover h-screen w-screen w-screenflex-row flex">
-        <div className="grid grid-cols-2 gap-4 h-screen w-4/5 bg-white">
-          <div className="border-black border-2">
-            <MenuItem drinkName={"Test"} drinkImage={defualtDrinkImg} altTxt={"Defualt Drink Icon"}/>
-          </div>
-          <div className="border-black border-2">
-            <MenuItem drinkName={"Test"} drinkImage={defualtDrinkImg} altTxt={"Defualt Drink Icon"}/>
-          </div>
-          <div className=" border-black border-2">
-            <MenuItem drinkName={"Test"} drinkImage={defualtDrinkImg} altTxt={"Defualt Drink Icon"}/>
-          </div>
-          <div className=" border-black border-2">
-            <MenuItem drinkName={"Test"} drinkImage={defualtDrinkImg} altTxt={"Defualt Drink Icon"}/>
-          </div>
-          <div className=" border-black border-2">
-            <MenuItem drinkName={"Test"} drinkImage={defualtDrinkImg} altTxt={"Defualt Drink Icon"}/>
-          </div>
-          <div className=" border-black border-2">
-            <MenuItem drinkName={"Test"} drinkImage={defualtDrinkImg} altTxt={"Defualt Drink Icon"}/>
-          </div>
-          <div className=" border-black border-2">
-            <MenuItem drinkName={"Test"} drinkImage={defualtDrinkImg} altTxt={"Defualt Drink Icon"}/>
-          </div>
-          <div className="border-black border-2">
-            <MenuItem drinkName={"Test"} drinkImage={defualtDrinkImg} altTxt={"Defualt Drink Icon"}/>
-          </div>
+        <div className="flex flex-col items-center justify-start w-2/5 h-screen m-4">
+            <div className='h-1/5 w-full m-4'>
+                <MenuItem drinkName={"test"} drinkImage={defualtDrinkImg} altTxt={"Test Drink"}/>
+            </div>
+            <div className='h-1/5 w-full m-4'>
+                <MenuItem drinkName={"test"} drinkImage={defualtDrinkImg} altTxt={"Test Drink"}/>
+            </div>
+            <div className='h-1/5 w-full m-4'>
+                <MenuItem drinkName={"test"} drinkImage={defualtDrinkImg} altTxt={"Test Drink"}/>
+            </div>
+            <div className='h-1/5 w-full m-4'>
+                <MenuItem drinkName={"test"} drinkImage={defualtDrinkImg} altTxt={"Test Drink"}/>
+            </div>
+        </div>
+        <div className="flex flex-col items-center justify-start w-2/5 h-screen  m-4">
+            <div className='h-1/5 w-full m-4'>
+                <MenuItem drinkName={"test"} drinkImage={defualtDrinkImg} altTxt={"Test Drink"}/>
+            </div>
+            <div className='h-1/5 w-full m-4'>
+                <MenuItem drinkName={"test"} drinkImage={defualtDrinkImg} altTxt={"Test Drink"}/>
+            </div>
+            <div className='h-1/5 w-full m-4'>
+                <MenuItem drinkName={"test"} drinkImage={defualtDrinkImg} altTxt={"Test Drink"}/>
+            </div>
+            <div className='h-1/5 w-full m-4'>
+                <MenuItem drinkName={"test"} drinkImage={defualtDrinkImg} altTxt={"Test Drink"}/>
+            </div>
         </div>
 
         <div className="w-1/5 mx-14 my-10">
