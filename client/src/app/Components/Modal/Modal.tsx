@@ -5,7 +5,6 @@ import MenuItem from '../Topping/Topping'
 import Topping from '../Topping/Topping'
 
 const MODAL_STYLES = {
-  position : 'fixed',
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
@@ -15,14 +14,11 @@ const MODAL_STYLES = {
   height: '70%',
   width: '80%',
   display: 'flex',
-  flexDirection: 'column',
-  textAlign: "center",
   fontSize: "1.25rem"
   
 }
 
 const OVERLAY_STYLES = {
-  position: 'fixed',
   top: 0,
   left: 0,
   right: 0,
@@ -32,7 +28,13 @@ const OVERLAY_STYLES = {
 
   
 }
-export default function Modal({ open, children, onClose, updateOptions}) {
+interface ModalProps {
+  open: boolean;
+  children: React.ReactNode
+  onClose: () => void;
+}
+
+export default function Modal({ open, children, onClose}: ModalProps) {
   const [currentModal, setCurrentModal] = useState(0)
   const [totalPrice, setTotalPrice] = useState(0)
 
@@ -118,7 +120,7 @@ export default function Modal({ open, children, onClose, updateOptions}) {
       </div>
       </div>
 
-      <div class="flex justify-evenly">
+      <div className="flex justify-evenly">
       <button onClick={() => {setCurrentModal(0); onClose()}} className="border-white border-2 rounded-md w-1/4 bg-teal-300 hover:bg-white">Exit</button>
       <button  onClick={handleNext} className="border-white border-2 rounded-md w-1/4 bg-teal-300 hover:bg-white">Next</button>
       </div>
@@ -133,7 +135,7 @@ export default function Modal({ open, children, onClose, updateOptions}) {
       
       <>
       <div style={OVERLAY_STYLES}></div>
-    <div style={MODAL_STYLES} className="bg-slate-400 justify-evenly">
+    <div style={MODAL_STYLES} className="bg-slate-400 justify-evenly flex-col">
       { children }
 
       {/* Toppings list */}

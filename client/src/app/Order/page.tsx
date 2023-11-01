@@ -6,7 +6,7 @@ import './styles.css'
 
 export default function Order() {
 
-    function goToCategory(category){
+    function goToCategory(category: string){
         window.location.href = "Order/Catagories/" + category;
     }
     function goBack(){

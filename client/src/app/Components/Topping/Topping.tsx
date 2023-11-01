@@ -4,7 +4,14 @@ import Image from 'next/image'
 import React, { useState } from 'react'
 
 
-export default function Topping({toppingName, price, addTopping, removeTopping}){
+interface ToppingProps {
+  toppingName: string;
+  price: number;
+  addTopping: (price: number) => void;
+  removeTopping: (price: number) => void;
+}
+
+export default function Topping({toppingName, price, addTopping, removeTopping}: ToppingProps){
     const [totalAmount, setTotalAmount] = useState(0)
 
     const addOne = () => {

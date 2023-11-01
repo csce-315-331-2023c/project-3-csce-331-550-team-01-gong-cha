@@ -1,9 +1,16 @@
 "use client"
 
-import Image from 'next/image'
+import Image, { StaticImageData } from 'next/image'
 
+interface MenuItemProps {
+    drinkName: string;
+    drinkImage: StaticImageData;
+    altTxt: string;
+    thisOnClick: () => void;
+  }
+  
 
-export default function MenuItem({drinkName, drinkImage, altTxt, thisOnClick}){
+export default function MenuItem({drinkName, drinkImage, altTxt, thisOnClick}: MenuItemProps){
     
     return(
         <button className='w-full h-full flex justify-center items-center bg-indigo-300' onClick={thisOnClick}>
