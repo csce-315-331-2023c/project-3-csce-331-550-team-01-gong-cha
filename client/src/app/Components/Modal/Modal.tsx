@@ -57,7 +57,6 @@ export default function Modal({ open, children, onClose}: ModalProps) {
     }, [open, currentModal]);
   
 
-
   const handleSize = (size: number) => {
     setSelectedOptions({
       ...selectedOptions,
