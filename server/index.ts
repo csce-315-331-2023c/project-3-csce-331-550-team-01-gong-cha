@@ -757,6 +757,37 @@ app.get('/get-ideal-ingredients-amount', async (req, res) => {
     res.status(500).json({ error: 'An error occurred while fetching ideal ingredient amounts' });
   }
 });
+
+app.get('/report-restock', async (req, res) => {
+
+  pool
+  try {
+    const querySQL = `
+      SELECT ingredient_name, current_amount, ideal_amount
+      FROM ingredient
+      WHERE current_amount < (ideal_amount * 0.4)
+      `;
+
+    const client = await pool.connect();
+    const { rows } = await client.query(querySQL);
+    client.release();
+    var returnObject = [];
+
+    for (const row of rows) {
+      const name: string = row.ingredient_name;
+      const currentAmount: number = row.current_amount;
+      const idealAmount: number = row.ideal_amount;
+
+      returnObject.push({ingredient_name: name, current_amount: currentAmount, ideal_amount: idealAmount})
+    }
+
+    res.status(200).send(returnObject);
+  } catch (error) {
+    console.error('Error getting ingredients to restock:', error);
+    res.status(500).json({ error: 'Error getting ingredients to restock' });
+  }
+});
+
 //the listening happens here
 app.listen(port, () => {
 console.log(`Example listening at  http://localhost:${port}`);

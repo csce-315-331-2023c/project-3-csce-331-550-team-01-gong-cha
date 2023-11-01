@@ -11,7 +11,7 @@ export default function Manager(){
     }
 
     function goToReports(){
-        alert("Go to Reports");
+        window.location.href = "./Manager/Reports";
     }
 
 
