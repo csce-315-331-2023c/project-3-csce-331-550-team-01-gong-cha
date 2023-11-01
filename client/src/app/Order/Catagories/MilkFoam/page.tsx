@@ -51,7 +51,7 @@ export default function MilkFoam() {
 
       <div className="w-1/5 ml-14 my-10">
           <div className="bg-white h-full w-4/5 border-gray border-4 rounded-2xl text-center"> Orders </div>
-          <pre>{JSON.stringify(selectedOptions, null, 2)}</pre>
+          
       </div>
     </main>
   );
