@@ -1,38 +1,11 @@
 "use client"
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import MenuItem from '../Topping/Topping'
 import Topping from '../Topping/Topping'
 import './styles.css'
 
-// const MODAL_STYLES = {
-//   position : 'fixed',
-//   top: '50%',
-//   left: '50%',
-//   transform: 'translate(-50%, -50%)',
   
-//   padding: '50px',
-//   zIndex: 1000,
-//   height: '70%',
-//   width: '80%',
-//   display: 'flex',
-//   flexDirection: 'column',
-//   textAlign: "center",
-//   fontSize: "1.25rem"
-  
-// }
-
-// const OVERLAY_STYLES = {
-//   position: 'fixed',
-//   top: 0,
-//   left: 0,
-//   right: 0,
-//   bottom: 0,
-//   backgroundColor: 'rgba(0,0,0,.7)',
-//   zIndex: 50,
-
-  
-// }
 interface ModalProps {
   open: boolean;
   children: React.ReactNode
@@ -42,12 +15,15 @@ interface ModalProps {
 export default function Modal({ open, children, onClose}: ModalProps) {
   const [currentModal, setCurrentModal] = useState(0)
   const [totalPrice, setTotalPrice] = useState(0)
+ 
 
   const [selectedOptions, setSelectedOptions] = useState({
     size: 0,
     iceLevel: 0,
     sugarLevel: 0
   });
+
+  
 
 
   const handleSize = (size: number) => {
@@ -177,10 +153,6 @@ export default function Modal({ open, children, onClose}: ModalProps) {
     )
   ];
 
-
-  
-
-  
   if (!open) return null
   return modals[currentModal]
 }
