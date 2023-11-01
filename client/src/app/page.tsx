@@ -7,7 +7,7 @@ import React, { useState } from 'react';
 export default function Dashboard() {
 
   function managerLogin(){
-    alert("Add Manager Login");
+    window.location.href = "/Manager";
   }
 
   function gotToOrder(){
