@@ -24,26 +24,33 @@ export default function MilkFoam() {
           </div>
           <div className='h-1/5 w-full m-4'>
               <MenuItem drinkName={"Some Drink"} drinkImage={defualtDrinkImg} altTxt={"Test Drink"} thisOnClick={() => setIsOpen(true)}/>
+              <Modal open={isOpen} onClose={() => setIsOpen(false)} >Customize Ingredients</Modal>
           </div>
           <div className='h-1/5 w-full m-4'>
               <MenuItem drinkName={"Some Drink"} drinkImage={defualtDrinkImg} altTxt={"Test Drink"} thisOnClick={() => setIsOpen(true)}/>
+              <Modal open={isOpen} onClose={() => setIsOpen(false)} >Customize Ingredients</Modal>
           </div>
           <div className='h-1/5 w-full m-4'>
               <MenuItem drinkName={"Some Drink"} drinkImage={defualtDrinkImg} altTxt={"Test Drink"} thisOnClick={() => setIsOpen(true)}/>
+              <Modal open={isOpen} onClose={() => setIsOpen(false)} >Customize Ingredients</Modal>
           </div>
       </div>
       <div className="flex flex-col items-center justify-start w-2/5 h-screen  m-4">
           <div className='h-1/5 w-full m-4'>
               <MenuItem drinkName={"Some Drink"} drinkImage={defualtDrinkImg} altTxt={"Test Drink"} thisOnClick={() => setIsOpen(true)}/>
+              <Modal open={isOpen} onClose={() => setIsOpen(false)} >Customize Ingredients</Modal>
           </div>
           <div className='h-1/5 w-full m-4'>
               <MenuItem drinkName={"Some Drink"} drinkImage={defualtDrinkImg} altTxt={"Test Drink"} thisOnClick={() => setIsOpen(true)}/>
+              <Modal open={isOpen} onClose={() => setIsOpen(false)} >Customize Ingredients</Modal>
           </div>
           <div className='h-1/5 w-full m-4'>
               <MenuItem drinkName={"Some Drink"} drinkImage={defualtDrinkImg} altTxt={"Test Drink"} thisOnClick={() => setIsOpen(true)}/>
+              <Modal open={isOpen} onClose={() => setIsOpen(false)} >Customize Ingredients</Modal>
           </div>
           <div className='h-1/5 w-full m-4'>
               <MenuItem drinkName={"Some Drink"} drinkImage={defualtDrinkImg} altTxt={"Test Drink"} thisOnClick={() => setIsOpen(true)}/>
+              <Modal open={isOpen} onClose={() => setIsOpen(false)} >Customize Ingredients</Modal>
           </div>
       </div>
 

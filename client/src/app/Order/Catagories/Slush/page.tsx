@@ -1,10 +1,12 @@
 "use client"
-
+import Modal from '@/app/Components/Modal/Modal'
+import { useState } from 'react';
 import MenuItem from '../../../Components/MenuItem/MenuItem'
 import defualtDrinkImg from '../../../../../public/defualtDrinkImg.png'
 import '../../styles.css'
 
 export default function Order() {
+    const [isOpen, setIsOpen] = useState(false)
 
     function goToCustomization(){
         alert("Customization");
@@ -22,33 +24,42 @@ export default function Order() {
             <div className='catagoryContainer w-screen w-screenflex-row flex h-full'>
                 <div className="flex flex-col items-center justify-start w-2/5 h-full m-4">
                     <div className='h-1/5 w-full m-4'>
-                        <MenuItem drinkName={"Caramel Chocolate Slush"} drinkImage={defualtDrinkImg} altTxt={"Test Drink"} thisOnClick={goToCustomization}/>
+                        <MenuItem drinkName={"Caramel Chocolate Slush"} drinkImage={defualtDrinkImg} altTxt={"Test Drink"} thisOnClick={() => setIsOpen(true)}/>
+                        <Modal open={isOpen} onClose={() => setIsOpen(false)} >Customize Ingredients</Modal>
                     </div>
                     <div className='h-1/5 w-full m-4'>
-                        <MenuItem drinkName={"Mango Milk Slush"} drinkImage={defualtDrinkImg} altTxt={"Test Drink"} thisOnClick={goToCustomization}/>
+                        <MenuItem drinkName={"Mango Milk Slush"} drinkImage={defualtDrinkImg} altTxt={"Test Drink"} thisOnClick={() => setIsOpen(true)}/>
+                        <Modal open={isOpen} onClose={() => setIsOpen(false)} >Customize Ingredients</Modal>
                     </div>
                     <div className='h-1/5 w-full m-4'>
-                        <MenuItem drinkName={"Milk Foam Peach Slush Star Jelly"} drinkImage={defualtDrinkImg} altTxt={"Test Drink"} thisOnClick={goToCustomization}/>
+                        <MenuItem drinkName={"Milk Foam Peach Slush Star Jelly"} drinkImage={defualtDrinkImg} altTxt={"Test Drink"} thisOnClick={() => setIsOpen(true)}/>
+                        <Modal open={isOpen} onClose={() => setIsOpen(false)} >Customize Ingredients</Modal>
                     </div>
                     <div className='h-1/5 w-full m-4'>
-                        <MenuItem drinkName={"Peach Slush"} drinkImage={defualtDrinkImg} altTxt={"Test Drink"} thisOnClick={goToCustomization}/>
+                        <MenuItem drinkName={"Peach Slush"} drinkImage={defualtDrinkImg} altTxt={"Test Drink"} thisOnClick={() => setIsOpen(true)}/>
+                        <Modal open={isOpen} onClose={() => setIsOpen(false)} >Customize Ingredients</Modal>
                     </div>
                     <div className='h-1/5 w-full m-4'>
-                        <MenuItem drinkName={"Taro Milk Slush"} drinkImage={defualtDrinkImg} altTxt={"Test Drink"} thisOnClick={goToCustomization}/>
+                        <MenuItem drinkName={"Taro Milk Slush"} drinkImage={defualtDrinkImg} altTxt={"Test Drink"} thisOnClick={() => setIsOpen(true)}/>
+                        <Modal open={isOpen} onClose={() => setIsOpen(false)} >Customize Ingredients</Modal>
                     </div>
                 </div>
                 <div className="flex flex-col items-center justify-start w-2/5 h-full m-4">
                     <div className='h-1/5 w-full m-4'>
-                        <MenuItem drinkName={"Lychee Slush"} drinkImage={defualtDrinkImg} altTxt={"Test Drink"} thisOnClick={goToCustomization}/>
+                        <MenuItem drinkName={"Lychee Slush"} drinkImage={defualtDrinkImg} altTxt={"Test Drink"} thisOnClick={() => setIsOpen(true)}/>
+                        <Modal open={isOpen} onClose={() => setIsOpen(false)} >Customize Ingredients</Modal>
                     </div>
                     <div className='h-1/5 w-full m-4'>
-                        <MenuItem drinkName={"Matcha Milk Slush"} drinkImage={defualtDrinkImg} altTxt={"Test Drink"} thisOnClick={goToCustomization}/>
+                        <MenuItem drinkName={"Matcha Milk Slush"} drinkImage={defualtDrinkImg} altTxt={"Test Drink"} thisOnClick={() => setIsOpen(true)}/>
+                        <Modal open={isOpen} onClose={() => setIsOpen(false)} >Customize Ingredients</Modal>
                     </div>
                     <div className='h-1/5 w-full m-4'>
-                        <MenuItem drinkName={"Passionfruit Yogurt Slush"} drinkImage={defualtDrinkImg} altTxt={"Test Drinkx`"} thisOnClick={goToCustomization}/>
+                        <MenuItem drinkName={"Passionfruit Yogurt Slush"} drinkImage={defualtDrinkImg} altTxt={"Test Drinkx`"} thisOnClick={() => setIsOpen(true)}/>
+                        <Modal open={isOpen} onClose={() => setIsOpen(false)} >Customize Ingredients</Modal>
                     </div>
                     <div className='h-1/5 w-full m-4'>
-                        <MenuItem drinkName={"Strawberry Milk Slush"} drinkImage={defualtDrinkImg} altTxt={"Test Drink"} thisOnClick={goToCustomization}/>
+                        <MenuItem drinkName={"Strawberry Milk Slush"} drinkImage={defualtDrinkImg} altTxt={"Test Drink"} thisOnClick={() => setIsOpen(true)}/>
+                        <Modal open={isOpen} onClose={() => setIsOpen(false)} >Customize Ingredients</Modal>
                     </div>
                 </div>
 
