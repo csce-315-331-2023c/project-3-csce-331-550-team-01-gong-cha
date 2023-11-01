@@ -9,9 +9,10 @@ interface ToppingProps {
   price: number;
   addTopping: (price: number) => void;
   removeTopping: (price: number) => void;
+  toppingID: number;
 }
 
-export default function Topping({toppingName, price, addTopping, removeTopping}: ToppingProps){
+export default function Topping({toppingName, price, addTopping, removeTopping, toppingID}: ToppingProps){
     const [totalAmount, setTotalAmount] = useState(0)
 
     const addOne = () => {

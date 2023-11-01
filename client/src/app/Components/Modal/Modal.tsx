@@ -23,6 +23,38 @@ export default function Modal({ open, children, onClose}: ModalProps) {
     sugarLevel: 0
   });
 
+  interface Ingredient {
+    id: number;
+    name: string;
+    price: number;
+  }
+
+  const [ingredients, setIngredients] = useState<Ingredient[]>([]);
+  useEffect(() => {
+      if (open && currentModal == 1) {
+        fetch('http://18.191.166.59:5000/ingredients') // Replace with the actual API endpoint URL
+          .then((response) => {
+            if (!response.ok) {
+              alert("did not pass");
+              throw new Error('Network response was not ok');
+            }
+            return response.json();
+          })
+          .then((data) => {
+            // Process the data received from the API and store it in the state
+            
+            const ingredientData: Ingredient[] = data.map((item: any) => ({
+              id: item.id,
+              name: item.ingredient_name,
+              price: item.consumer_price
+            }));
+            setIngredients(ingredientData);
+          })
+          .catch((error) => {
+            console.error('There was a problem with the fetch operation:', error);
+          });
+      }
+    }, [open, currentModal]);
   
 
 
@@ -87,17 +119,17 @@ export default function Modal({ open, children, onClose}: ModalProps) {
       {/* ice and sugar divs */}
       <div className="flex-row flex h-1/5">
       <div className=" w-1/2 left-0 justify-evenly flex">
-        <button className="bg-cyan-200 rounded-lg w-1/5 p-5">No Ice</button>
-        <button className="bg-cyan-200 rounded-lg w-1/5 p-5">Less Ice</button>
-        <button className="bg-cyan-200 rounded-lg w-1/5 p-5">More Ice</button>
+        <button className="bg-cyan-200 rounded-lg w-1/5 p-2">No Ice</button>
+        <button className="bg-cyan-200 rounded-lg w-1/5 p-2">Less Ice</button>
+        <button className="bg-cyan-200 rounded-lg w-1/5 p-2">More Ice</button>
       </div>
 
       <div className=" w-1/2 left-0 justify-evenly flex">
-        <button className="bg-cyan-200 rounded-lg w-1/6 p-5">0% Sugar</button>
-        <button className="bg-cyan-200 rounded-lg w-1/6 p-5">30% Sugar</button>
-        <button className="bg-cyan-200 rounded-lg w-1/6 p-5">50% Sugar</button>
-        <button className="bg-cyan-200 rounded-lg w-1/6 p-5">70% Sugar</button>
-        <button className="bg-cyan-200 rounded-lg w-1/6 p-5">100% Sugar</button>
+        <button className="bg-cyan-200 rounded-lg w-1/6 p-2">0% Sugar</button>
+        <button className="bg-cyan-200 rounded-lg w-1/6 p-2">30% Sugar</button>
+        <button className="bg-cyan-200 rounded-lg w-1/6 p-2">50% Sugar</button>
+        <button className="bg-cyan-200 rounded-lg w-1/6 p-2">70% Sugar</button>
+        <button className="bg-cyan-200 rounded-lg w-1/6 p-2">100% Sugar</button>
       </div>
       </div>
 
@@ -123,15 +155,18 @@ export default function Modal({ open, children, onClose}: ModalProps) {
       
 
       <div className="flex-col justify-evenly border-white border-2 rounded-md" style={{ maxHeight: '200px', overflowY: 'auto' }}>
-        <Topping toppingName={"yogurt"} price={1} addTopping={addTopping} removeTopping={removeTopping} />
-        <Topping toppingName={"chocolate"} price={1} addTopping={addTopping} removeTopping={removeTopping}/>
-        <Topping toppingName={"strawberries"} price={1} addTopping={addTopping} removeTopping={removeTopping}/>
-        <Topping toppingName={"yogurt"} price={1} addTopping={addTopping} removeTopping={removeTopping}/>
-        <Topping toppingName={"chocolate"} price={1} addTopping={addTopping} removeTopping={removeTopping}/>
-        <Topping toppingName={"strawberries"} price={1} addTopping={addTopping} removeTopping={removeTopping}/>
-        <Topping toppingName={"yogurt"} price={1} addTopping={addTopping} removeTopping={removeTopping}/>
-        <Topping toppingName={"chocolate"} price={1} addTopping={addTopping} removeTopping={removeTopping}/>
-        <Topping toppingName={"strawberries"} price={1} addTopping={addTopping} removeTopping={removeTopping}/>
+       {ingredients.filter((ingredient) => ingredient.id >= 26 && ingredient.id <= 40 )
+        .map((ingredient, index) => (
+          <Topping
+            key={index}
+            toppingName={ingredient.name}
+            price={ingredient.price}
+            toppingID={ingredient.id}
+            addTopping={addTopping}
+            removeTopping={removeTopping}
+        />
+      ))}
+        
       </div>
      
 
