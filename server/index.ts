@@ -790,7 +790,179 @@ app.get('/report-restock', async (req, res) => {
   }
 });
 
+//get ingredient name given primary key
+app.get('/get-ingredient-name/:ingredientId', async (req, res) => {
+  const ingredientId = parseInt(req.params.ingredientId);
+
+  if (isNaN(ingredientId)) {
+    res.status(400).json({ error: 'Invalid ingredient ID' });
+    return;
+  }
+
+  try {
+    const querySQL = `
+      SELECT Ingredient_Name
+      FROM ingredient
+      WHERE ID = $1
+    `;
+
+    const client = await pool.connect();
+    const { rows } = await client.query(querySQL, [ingredientId]);
+    client.release();
+
+    if (rows.length > 0) {
+      const ingredientName: string = rows[0].ingredient_name;
+      res.status(200).json({ ingredientName });
+    } else {
+      res.status(404).json({ error: 'Ingredient not found' });
+    }
+  } catch (error) {
+    console.error('Error getting ingredient name:', error);
+    res.status(500).json({ error: 'An error occurred while fetching ingredient name' });
+  }
+});
+
+//getMenuDrinks for Order Drinks
+app.get('/get-menu-drinks-for-order-drinks', async (req, res) => {
+  const idTuple = req.query.idTuple as string;
+
+  if (!idTuple) {
+    res.status(400).json({ error: 'Missing or invalid "idTuple" query parameter' });
+    return;
+  }
+
+  try {
+    const querySQL = `
+      SELECT Menu_Drink_ID
+      FROM Order_Drink
+      WHERE ID IN (${idTuple})
+    `;
+
+    const client = await pool.connect();
+    const { rows } = await client.query(querySQL);
+    client.release();
+
+    const drinks: number[] = rows.map((row: any) => row.menu_drink_id);
+
+    res.status(200).json(drinks);
+  } catch (error) {
+    console.error('Error getting menu drinks for order drinks:', error);
+    res.status(500).json({ error: 'An error occurred while fetching menu drinks for order drinks' });
+  }
+});
+
+//get number of menu drinks
+app.get('/menu-drink-amount', async (req, res) => {
+  try {
+    const querySQL = 'SELECT COUNT(ID) FROM menu_drink';
+
+    const client = await pool.connect();
+    const { rows } = await client.query(querySQL);
+    client.release();
+
+    if (rows.length > 0) {
+      const amount: number = rows[0].count;
+      res.status(200).json({ amount });
+    } else {
+      res.status(404).json({ error: 'No menu drinks found' });
+    }
+  } catch (error) {
+    console.error('Error getting menu drink amount:', error);
+    res.status(500).json({ error: 'An error occurred while fetching menu drink amount' });
+  }
+});
+
+//get number of ingredients
+app.get('/ingredient-amount', async (req, res) => {
+  try {
+    const querySQL = 'SELECT COUNT(ID) FROM ingredient';
+
+    const client = await pool.connect();
+    const { rows } = await client.query(querySQL);
+    client.release();
+
+    if (rows.length > 0) {
+      const amount: number = rows[0].count;
+      res.status(200).json({ amount });
+    } else {
+      res.status(404).json({ error: 'No ingredients found' });
+    }
+  } catch (error) {
+    console.error('Error getting ingredient amount:', error);
+    res.status(500).json({ error: 'An error occurred while fetching ingredient amount' });
+  }
+});
+
+//order drink pairs
+app.get('/order-drink-pairs', async (req, res) => {
+  const startDate: string = req.query.startDate as string;
+
+  if (!startDate) {
+    res.status(400).json({ error: 'Missing or invalid "startDate" query parameter' });
+    return;
+  }
+
+  try {
+    const start: Date = new Date(startDate);
+    const query = `
+      SELECT O.ID AS OrderID, OD.ID AS OrderDrinkID
+      FROM Orders O
+      INNER JOIN Order_Order_Drink OOD ON O.ID = OOD.Order_ID
+      INNER JOIN Order_Drink OD ON OOD.Order_Drink_ID = OD.ID
+      WHERE Date >= $1 AND Date <= current_date`;
+
+    const client = await pool.connect();
+    const result = await client.query(query, [start]);
+    client.release();
+
+    res.status(200).json(result.rows);
+  } catch (error) {
+    console.error('Error getting order drink pairs:', error);
+    res.status(500).json({ error: 'An error occurred while fetching order drink pairs' });
+  }
+});
+
+//getIngredientsForMenuDrinks
 //the listening happens here
+
+app.get('/ingredients-for-menu-drinks', async (req, res) => {
+  const menuDrinkIDs: string = req.query.menuDrinkIDs as string;
+
+  if (!menuDrinkIDs) {
+    res.status(400).json({ error: 'Missing or invalid "menuDrinkIDs" query parameter' });
+    return;
+  }
+
+  // Split the menuDrinkIDs string into an array of integers
+  const menuDrinkIDsArray: number[] = menuDrinkIDs.split(',').map((id) => parseInt(id, 10));
+
+  try {
+    const ingsForMenuDrinks: Array<number[]> = new Array(menuDrinkIDsArray.length).fill(null).map(() => []);
+
+    const querySQL = `
+      SELECT i.ID AS Ingredient_ID, i.Ingredient_Name, mdi.Menu_Drink_ID
+      FROM Menu_Drink_Ingredient mdi
+      JOIN Ingredient i ON mdi.Ingredient_ID = i.ID
+      WHERE mdi.Menu_Drink_ID IN (${menuDrinkIDs})
+    `;
+
+    const client = await pool.connect();
+    const result = await client.query(querySQL);
+    client.release();
+
+    result.rows.forEach((row: any) => {
+      const menuDrinkID: number = row.menu_drink_id;
+      const ingredientID: number = row.ingredient_id;
+      ingsForMenuDrinks[menuDrinkIDsArray.indexOf(menuDrinkID)].push(ingredientID);
+    });
+
+    res.status(200).json(ingsForMenuDrinks);
+  } catch (error) {
+    console.error('Error getting ingredients for menu drinks:', error);
+    res.status(500).json({ error: 'An error occurred while fetching ingredients for menu drinks' });
+  }
+});
+
 app.listen(port, () => {
 console.log(`Example listening at  http://localhost:${port}`);
 });
