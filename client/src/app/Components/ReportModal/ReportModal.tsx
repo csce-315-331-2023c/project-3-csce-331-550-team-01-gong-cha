@@ -24,7 +24,7 @@ export default function ReportsModal({open, children, onClose}: ModalProps) {
     const [ingredients, setIngredients] = useState<Ingredient[]>([]);
     useEffect(() => {
         if (open) {
-            fetch('18.191.166.59:5000/report-restock') // Replace with the actual API endpoint URL
+            fetch('http://localhost:5000/report-restock') // Replace with the actual API endpoint URL
             .then((response) => {
                 if (!response.ok) {
                 alert("did not pass");
@@ -36,7 +36,6 @@ export default function ReportsModal({open, children, onClose}: ModalProps) {
                 // Process the data received from the API and store it in the state
                 
                 const ingredientData: Ingredient[] = data.map((item: any) => ({
-                pk: item.at(0),
                 name: item.ingredient_name,
                 currentAmount: item.current_amount,
                 idealAmount: item.ideal_amount
