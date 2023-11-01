@@ -1009,6 +1009,93 @@ app.post('/new-seasonal-menu-item', async (req, res) => {
   }
 });
 
+app.get('/soldTogether/:startDate/:endDate', async (req, res) => {
+  try {
+      const startDate = req.params.startDate;
+      const endDate = req.params.endDate;
+
+      const client = await pool.connect();
+
+      const querySQL = `
+          WITH OrdersOnDates AS (
+              SELECT
+                  o.ID AS OrderID,
+                  md.ID AS MenuDrinkID
+              FROM Orders o
+              JOIN Order_Order_Drink ood ON o.ID = ood.Order_ID
+              JOIN Order_Drink od ON ood.Order_Drink_ID = od.ID
+              JOIN Menu_Drink md ON od.Menu_Drink_ID = md.ID
+              WHERE o.Date BETWEEN $1 AND $2
+          )
+          SELECT
+              md1.Name AS MenuDrink1,
+              md2.Name AS MenuDrink2,
+              COUNT(*) AS SalesCount
+          FROM OrdersOnDates ood1
+          JOIN Menu_Drink md1 ON ood1.MenuDrinkID = md1.ID
+          JOIN OrdersOnDates ood2 ON ood1.OrderID = ood2.OrderID
+          JOIN Menu_Drink md2 ON ood2.MenuDrinkID = md2.ID
+          WHERE md1.ID < md2.ID
+          GROUP BY md1.Name, md2.Name
+          HAVING COUNT(*) > 1
+          ORDER BY SalesCount DESC
+      `;
+
+      const result = await client.query(querySQL, [startDate, endDate]);
+      client.release();
+
+      const salesInfo = result.rows.map((row) => ({
+          MenuDrink1: row.menudrink1,
+          MenuDrink2: row.menudrink2,
+          SalesCount: row.salescount,
+      }));
+
+      res.json(salesInfo);
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+app.get('/salesReport/:startDate/:endDate', async (req, res) => {
+  try {
+      const startDate = req.params.startDate;
+      const endDate = req.params.endDate;
+
+      const client = await pool.connect();
+
+      const querySQL = `
+          SELECT
+              MD.Name AS MenuDrinkName,
+              MD.Norm_Consumer_Price AS MenuDrinkPrice,
+              COUNT(OD.ID) AS AmountSold
+          FROM
+              Menu_Drink MD
+          LEFT JOIN Order_Drink OD ON MD.ID = OD.Menu_Drink_ID
+          LEFT JOIN Order_Order_Drink OOD ON OD.ID = OOD.Order_Drink_ID
+          LEFT JOIN Orders O ON OOD.Order_ID = O.ID
+          WHERE
+              O.Date BETWEEN $1 AND $2
+          GROUP BY
+              MD.Name, MD.Norm_Consumer_Price
+      `;
+
+      const result = await client.query(querySQL, [startDate, endDate]);
+      client.release();
+
+      const salesReport = result.rows.map((row) => ({
+          MenuDrinkName: row.menudrinkname,
+          MenuDrinkPrice: row.menudrinkprice,
+          AmountSold: row.amountsold,
+      }));
+
+      res.json(salesReport);
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
 app.listen(port, () => {
 console.log(`Example listening at  http://localhost:${port}`);
 });
