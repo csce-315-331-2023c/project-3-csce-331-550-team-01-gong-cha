@@ -70,6 +70,7 @@ export default function ReportsModal({open, children, onClose}: ModalProps) {
                     
                     {ingredients.map((ingredient, index) => (
                         <RestockReportIngredient
+                            key={index}
                             name={ingredient.name}
                             currentAmount={ingredient.currentAmount}
                             idealAmount={ingredient.idealAmount}
