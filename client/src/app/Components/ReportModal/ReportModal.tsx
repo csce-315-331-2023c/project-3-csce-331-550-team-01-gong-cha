@@ -15,6 +15,7 @@ interface ModalProps {
 export default function ReportsModal({open, children, onClose}: ModalProps) {
 
     interface Ingredient {
+        pk: number;
         name: string;
         currentAmount: number;
         idealAmount: number;
@@ -35,6 +36,7 @@ export default function ReportsModal({open, children, onClose}: ModalProps) {
                 // Process the data received from the API and store it in the state
                 
                 const ingredientData: Ingredient[] = data.map((item: any) => ({
+                pk: item.at(0),
                 name: item.ingredient_name,
                 currentAmount: item.current_amount,
                 idealAmount: item.ideal_amount
