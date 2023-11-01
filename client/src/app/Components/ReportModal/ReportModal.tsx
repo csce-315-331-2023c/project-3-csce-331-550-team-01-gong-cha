@@ -23,7 +23,7 @@ export default function ReportsModal({open, children, onClose}: ModalProps) {
     const [ingredients, setIngredients] = useState<Ingredient[]>([]);
     useEffect(() => {
         if (open) {
-            fetch('http://18.191.166.59:5000/ingredients') // Replace with the actual API endpoint URL
+            fetch('18.191.166.59:5000/report-restock') // Replace with the actual API endpoint URL
             .then((response) => {
                 if (!response.ok) {
                 alert("did not pass");
@@ -53,9 +53,21 @@ export default function ReportsModal({open, children, onClose}: ModalProps) {
         <div>
             <div className='Overlay_Styles'>
                 <div className='Modal_Styles bg-slate-400 flex items-center justify-start'>
-                    <button className='bg-cyan-200 h-1/6 w-1/6 mb-8' onClick={() => onClose()}>Exit</button>
-                    <div>{children}</div>
-                    <div className="flex-col justify-evenly border-white border-2 rounded-md h-4/6 w-4/5">
+                <div className='w-4/5'>
+                <div className='bg-cyan-300 font-bold w-full flex justify-evenly border-white border-2 h-10'>
+                        <div className='flex justify-center items-center w-4/6'>
+                            Topping Name
+                        </div>
+                        <div className="flex justify-evenly w-1/6">
+                            Current
+                        </div>
+                        <div className='w-1/6'>
+                            Ideal
+                        </div>
+                    </div>
+                </div>
+                    <div className="flex-col justify-evenly border-white border-2 rounded-md h-full w-4/5 overflow-auto">
+                    
                     {ingredients.map((ingredient, index) => (
                         <RestockReportIngredient
                             name={ingredient.name}
@@ -64,6 +76,7 @@ export default function ReportsModal({open, children, onClose}: ModalProps) {
                         />
                     ))}
                     </div>
+                    <button className='bg-cyan-200 h-1/6 w-1/6 mb-8 mt-10' onClick={() => onClose()}>Exit</button>
                 </div>
             </div>
         </div>
