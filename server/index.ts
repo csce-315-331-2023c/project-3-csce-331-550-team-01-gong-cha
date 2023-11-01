@@ -304,34 +304,30 @@ app.get('/createTables', async (req, res) => {
 });
 
 //create order
-app.post('/create-order', async (req, res) => {
-  const {serverID, total_cost, price, profit, tipped, takeout, date, time, name,} = req.body;
- 
-  if (serverID === undefined || total_cost === undefined || price === undefined || profit === undefined || tipped === undefined || takeout === undefined ||
-    date === undefined || time === undefined || name === undefined) {
+app.post('/create-order-drink', async (req, res) => {
+  console.log('Received request body:', req.body); // Add this line for debugging
+  const { Total_Price, Size, Menu_Drink_ID, Ice_Level, Sugar_Level } = req.body;
+  if (Total_Price === undefined || Size === undefined || Menu_Drink_ID === undefined || Ice_Level === undefined || Sugar_Level === undefined) {
     res.status(400).json({ error: 'Invalid parameters' });
     return;
   }
 
-  try {
-    const sID = serverID.toString();
-    const cost = total_cost.toString();
-    const prc = price.toString();
-    const prof = profit.toString();
-    const tip = tipped.toString();
-    const take = takeout ? 'TRUE' : 'FALSE';
+  const result = await createOrderDrink(
+    parseFloat(Total_Price),
+    parseInt(Size, 10),
+    parseInt(Menu_Drink_ID, 10),
+    parseInt(Ice_Level, 10),
+    parseInt(Sugar_Level, 10)
+  );
 
-    const SQL = `INSERT INTO orders (server_id, name, cost, price, profit, tip, takeout, date, time)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`;
-
-    const client = await pool.connect();
-    await client.query(SQL, [sID, name, cost, prc, prof, tip, take, date, time]);
-    client.release();
-
-    res.json({ message: 'Order created successfully' });
-  } catch (error) {
-    console.error('Error creating order:', error);
-    res.status(500).json({ error: (error as Error).message });
+  if (result[1] === -1) {
+    res.status(500).json({ error: 'Failed to create order drink' });
+  } else {
+    res.json({
+      Total_Price: result[0],
+      generatedKey: result[1],
+      make_cost: result[2],
+    });
   }
 });
 
