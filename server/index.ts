@@ -1011,6 +1011,44 @@ app.get('/soldTogether/:startDate/:endDate', async (req, res) => {
   }
 });
 
+app.get('/salesReport/:startDate/:endDate', async (req, res) => {
+  try {
+      const startDate = req.params.startDate;
+      const endDate = req.params.endDate;
+
+      const client = await pool.connect();
+
+      const querySQL = `
+          SELECT
+              MD.Name AS MenuDrinkName,
+              MD.Norm_Consumer_Price AS MenuDrinkPrice,
+              COUNT(OD.ID) AS AmountSold
+          FROM
+              Menu_Drink MD
+          LEFT JOIN Order_Drink OD ON MD.ID = OD.Menu_Drink_ID
+          LEFT JOIN Order_Order_Drink OOD ON OD.ID = OOD.Order_Drink_ID
+          LEFT JOIN Orders O ON OOD.Order_ID = O.ID
+          WHERE
+              O.Date BETWEEN $1 AND $2
+          GROUP BY
+              MD.Name, MD.Norm_Consumer_Price
+      `;
+
+      const result = await client.query(querySQL, [startDate, endDate]);
+      client.release();
+
+      const salesReport = result.rows.map((row) => ({
+          MenuDrinkName: row.menudrinkname,
+          MenuDrinkPrice: row.menudrinkprice,
+          AmountSold: row.amountsold,
+      }));
+
+      res.json(salesReport);
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
 
 app.listen(port, () => {
 console.log(`Example listening at  http://localhost:${port}`);
