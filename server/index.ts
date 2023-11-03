@@ -9,6 +9,11 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 const port: number = 5000;
 
+const cors = require('cors');
+app.use(cors({
+    origin: 'http://18.191.166.59:3000/'
+}));
+
 //create pool
 const pool = new Pool({
     user: process.env.PSQL_USER,
