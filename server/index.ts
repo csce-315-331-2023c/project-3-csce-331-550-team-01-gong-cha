@@ -72,7 +72,7 @@ app.get('/employees', (req, res) => {
 //gets all menu drinks
 app.get('/menu-drink', (req, res) => {
   pool
-    .query('SELECT * FROM Menu_Drink') // Use the correct table name
+    .query('SELECT * FROM menu_drink') // Use the correct table name
     .then((query_res) => {
       if (query_res.rows.length === 0) {
         res.status(404).json({ error: 'No menu drinks found' });

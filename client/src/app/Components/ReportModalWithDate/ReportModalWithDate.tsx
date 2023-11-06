@@ -7,7 +7,7 @@ import './styles.css'
 
 interface ModalProps {
     open: boolean;
-    children: React.ReactNode
+    children: React.ReactNode;
     onClose: () => void;
     whichReport: number;
 }
