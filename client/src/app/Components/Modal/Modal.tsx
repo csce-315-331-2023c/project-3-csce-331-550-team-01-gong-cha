@@ -1,8 +1,8 @@
 "use client"
 
 import React, { useState, useEffect } from 'react'
-import MenuItem from '../Topping/Topping'
-import Topping from '../Topping/Topping'
+import MenuItem from '../TabelItems/Topping/Topping'
+import Topping from '../TabelItems/Topping/Topping'
 import './styles.css'
 
   
