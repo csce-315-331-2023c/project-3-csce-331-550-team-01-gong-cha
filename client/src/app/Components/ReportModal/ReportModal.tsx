@@ -24,7 +24,7 @@ export default function ReportsModal({open, children, onClose}: ModalProps) {
     const [ingredients, setIngredients] = useState<Ingredient[]>([]);
     useEffect(() => {
         if (open) {
-            fetch('http://localhost:5000/report-restock') // Replace with the actual API endpoint URL
+            fetch('http://18.191.166.59:5000/report-restock') // Replace with the actual API endpoint URL
             .then((response) => {
                 if (!response.ok) {
                 alert("did not pass");
