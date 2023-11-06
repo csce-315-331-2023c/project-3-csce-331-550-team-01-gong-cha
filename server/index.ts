@@ -785,6 +785,7 @@ app.get('/report-restock', async (req, res) => {
     const client = await pool.connect();
     const { rows } = await client.query(querySQL);
     client.release();
+
     var returnObject = [];
 
     for (const row of rows) {
@@ -802,7 +803,313 @@ app.get('/report-restock', async (req, res) => {
   }
 });
 
+
+//get ingredient name given primary key
+app.get('/get-ingredient-name/:ingredientId', async (req, res) => {
+  const ingredientId = parseInt(req.params.ingredientId);
+
+  if (isNaN(ingredientId)) {
+    res.status(400).json({ error: 'Invalid ingredient ID' });
+    return;
+  }
+
+  try {
+    const querySQL = `
+      SELECT Ingredient_Name
+      FROM ingredient
+      WHERE ID = $1
+    `;
+
+    const client = await pool.connect();
+    const { rows } = await client.query(querySQL, [ingredientId]);
+    client.release();
+
+    if (rows.length > 0) {
+      const ingredientName: string = rows[0].ingredient_name;
+      res.status(200).json({ ingredientName });
+    } else {
+      res.status(404).json({ error: 'Ingredient not found' });
+    }
+  } catch (error) {
+    console.error('Error getting ingredient name:', error);
+    res.status(500).json({ error: 'An error occurred while fetching ingredient name' });
+  }
+});
+
+//getMenuDrinks for Order Drinks
+app.get('/get-menu-drinks-for-order-drinks', async (req, res) => {
+  const idTuple = req.query.idTuple as string;
+
+  if (!idTuple) {
+    res.status(400).json({ error: 'Missing or invalid "idTuple" query parameter' });
+    return;
+  }
+
+  try {
+    const querySQL = `
+      SELECT Menu_Drink_ID
+      FROM Order_Drink
+      WHERE ID IN (${idTuple})
+    `;
+
+    const client = await pool.connect();
+    const { rows } = await client.query(querySQL);
+    client.release();
+
+    const drinks: number[] = rows.map((row: any) => row.menu_drink_id);
+
+    res.status(200).json(drinks);
+  } catch (error) {
+    console.error('Error getting menu drinks for order drinks:', error);
+    res.status(500).json({ error: 'An error occurred while fetching menu drinks for order drinks' });
+  }
+});
+
+//get number of menu drinks
+app.get('/menu-drink-amount', async (req, res) => {
+  try {
+    const querySQL = 'SELECT COUNT(ID) FROM menu_drink';
+
+    const client = await pool.connect();
+    const { rows } = await client.query(querySQL);
+    client.release();
+
+    if (rows.length > 0) {
+      const amount: number = rows[0].count;
+      res.status(200).json({ amount });
+    } else {
+      res.status(404).json({ error: 'No menu drinks found' });
+    }
+  } catch (error) {
+    console.error('Error getting menu drink amount:', error);
+    res.status(500).json({ error: 'An error occurred while fetching menu drink amount' });
+  }
+});
+
+//get number of ingredients
+app.get('/ingredient-amount', async (req, res) => {
+  try {
+    const querySQL = 'SELECT COUNT(ID) FROM ingredient';
+
+    const client = await pool.connect();
+    const { rows } = await client.query(querySQL);
+    client.release();
+
+    if (rows.length > 0) {
+      const amount: number = rows[0].count;
+      res.status(200).json({ amount });
+    } else {
+      res.status(404).json({ error: 'No ingredients found' });
+    }
+  } catch (error) {
+    console.error('Error getting ingredient amount:', error);
+    res.status(500).json({ error: 'An error occurred while fetching ingredient amount' });
+  }
+});
+
+//order drink pairs
+app.get('/order-drink-pairs', async (req, res) => {
+  const startDate: string = req.query.startDate as string;
+
+  if (!startDate) {
+    res.status(400).json({ error: 'Missing or invalid "startDate" query parameter' });
+    return;
+  }
+
+  try {
+    const start: Date = new Date(startDate);
+    const query = `
+      SELECT O.ID AS OrderID, OD.ID AS OrderDrinkID
+      FROM Orders O
+      INNER JOIN Order_Order_Drink OOD ON O.ID = OOD.Order_ID
+      INNER JOIN Order_Drink OD ON OOD.Order_Drink_ID = OD.ID
+      WHERE Date >= $1 AND Date <= current_date`;
+
+    const client = await pool.connect();
+    const result = await client.query(query, [start]);
+    client.release();
+
+    res.status(200).json(result.rows);
+  } catch (error) {
+    console.error('Error getting order drink pairs:', error);
+    res.status(500).json({ error: 'An error occurred while fetching order drink pairs' });
+  }
+});
+
+//getIngredientsForMenuDrinks
 //the listening happens here
+
+app.get('/ingredients-for-menu-drinks', async (req, res) => {
+  const menuDrinkIDs: string = req.query.menuDrinkIDs as string;
+
+  if (!menuDrinkIDs) {
+    res.status(400).json({ error: 'Missing or invalid "menuDrinkIDs" query parameter' });
+    return;
+  }
+
+  // Split the menuDrinkIDs string into an array of integers
+  const menuDrinkIDsArray: number[] = menuDrinkIDs.split(',').map((id) => parseInt(id, 10));
+
+  try {
+    const ingsForMenuDrinks: Array<number[]> = new Array(menuDrinkIDsArray.length).fill(null).map(() => []);
+
+    const querySQL = `
+      SELECT i.ID AS Ingredient_ID, i.Ingredient_Name, mdi.Menu_Drink_ID
+      FROM Menu_Drink_Ingredient mdi
+      JOIN Ingredient i ON mdi.Ingredient_ID = i.ID
+      WHERE mdi.Menu_Drink_ID IN (${menuDrinkIDs})
+    `;
+
+    const client = await pool.connect();
+    const result = await client.query(querySQL);
+    client.release();
+
+    result.rows.forEach((row: any) => {
+      const menuDrinkID: number = row.menu_drink_id;
+      const ingredientID: number = row.ingredient_id;
+      ingsForMenuDrinks[menuDrinkIDsArray.indexOf(menuDrinkID)].push(ingredientID);
+    });
+
+    res.status(200).json(ingsForMenuDrinks);
+  } catch (error) {
+    console.error('Error getting ingredients for menu drinks:', error);
+    res.status(500).json({ error: 'An error occurred while fetching ingredients for menu drinks' });
+  }
+});
+//Make new seasonal menu drink
+app.post('/new-seasonal-menu-item', async (req, res) => {
+  const { name, normalCost, largeCost, normConsumerPrice, lgConsumerPrice, ingredientPKs } = req.body;
+
+  if (
+    !name ||
+    isNaN(normalCost) ||
+    isNaN(largeCost) ||
+    isNaN(normConsumerPrice) ||
+    isNaN(lgConsumerPrice) ||
+    !Array.isArray(ingredientPKs) ||
+    ingredientPKs.length === 0
+  ) {
+    res.status(400).json({ error: 'Invalid parameters in the request body' });
+    return;
+  }
+
+  try {
+    const client = await pool.connect();
+    client.query('BEGIN'); // Start a transaction
+
+    // Create the new menu drink
+    const insertMenuDrinkSQL = `
+      INSERT INTO Menu_Drink (Name, Normal_Cost, Large_Cost, Norm_Consumer_Price, Lg_Consumer_Price)
+      VALUES ($1, $2, $3, $4, $5)
+      RETURNING ID`;
+
+    const menuDrinkValues = [name, normalCost, largeCost, normConsumerPrice, lgConsumerPrice];
+    const menuDrinkResult = await client.query(insertMenuDrinkSQL, menuDrinkValues);
+    const menuDrinkId = menuDrinkResult.rows[0].id;
+
+    // Insert ingredients into the Menu_Drink_Ingredient junction table
+    const insertMenuDrinkIngredientSQL = 'INSERT INTO Menu_Drink_Ingredient (Menu_Drink_ID, Ingredient_ID) VALUES ($1, $2)';
+    for (const ingredientPK of ingredientPKs) {
+      await client.query(insertMenuDrinkIngredientSQL, [menuDrinkId, ingredientPK]);
+    }
+
+    client.query('COMMIT'); // Commit the transaction to save changes
+    client.release();
+
+    res.status(201).json({ message: 'Seasonal menu item added successfully' });
+  } catch (error) {
+    console.error('Error adding new seasonal menu item:', error);
+    res.status(500).json({ error: 'An error occurred while adding the seasonal menu item' });
+  }
+});
+
+app.get('/soldTogether/:startDate/:endDate', async (req, res) => {
+  try {
+      const startDate = req.params.startDate;
+      const endDate = req.params.endDate;
+
+      const client = await pool.connect();
+
+      const querySQL = `
+          WITH OrdersOnDates AS (
+              SELECT
+                  o.ID AS OrderID,
+                  md.ID AS MenuDrinkID
+              FROM Orders o
+              JOIN Order_Order_Drink ood ON o.ID = ood.Order_ID
+              JOIN Order_Drink od ON ood.Order_Drink_ID = od.ID
+              JOIN Menu_Drink md ON od.Menu_Drink_ID = md.ID
+              WHERE o.Date BETWEEN $1 AND $2
+          )
+          SELECT
+              md1.Name AS MenuDrink1,
+              md2.Name AS MenuDrink2,
+              COUNT(*) AS SalesCount
+          FROM OrdersOnDates ood1
+          JOIN Menu_Drink md1 ON ood1.MenuDrinkID = md1.ID
+          JOIN OrdersOnDates ood2 ON ood1.OrderID = ood2.OrderID
+          JOIN Menu_Drink md2 ON ood2.MenuDrinkID = md2.ID
+          WHERE md1.ID < md2.ID
+          GROUP BY md1.Name, md2.Name
+          HAVING COUNT(*) > 1
+          ORDER BY SalesCount DESC
+      `;
+
+      const result = await client.query(querySQL, [startDate, endDate]);
+      client.release();
+
+      const salesInfo = result.rows.map((row) => ({
+          MenuDrink1: row.menudrink1,
+          MenuDrink2: row.menudrink2,
+          SalesCount: row.salescount,
+      }));
+
+      res.json(salesInfo);
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+app.get('/salesReport/:startDate/:endDate', async (req, res) => {
+  try {
+      const startDate = req.params.startDate;
+      const endDate = req.params.endDate;
+
+      const client = await pool.connect();
+
+      const querySQL = `
+          SELECT
+              MD.Name AS MenuDrinkName,
+              MD.Norm_Consumer_Price AS MenuDrinkPrice,
+              COUNT(OD.ID) AS AmountSold
+          FROM
+              Menu_Drink MD
+          LEFT JOIN Order_Drink OD ON MD.ID = OD.Menu_Drink_ID
+          LEFT JOIN Order_Order_Drink OOD ON OD.ID = OOD.Order_Drink_ID
+          LEFT JOIN Orders O ON OOD.Order_ID = O.ID
+          WHERE
+              O.Date BETWEEN $1 AND $2
+          GROUP BY
+              MD.Name, MD.Norm_Consumer_Price
+      `;
+
+      const result = await client.query(querySQL, [startDate, endDate]);
+      client.release();
+
+      const salesReport = result.rows.map((row) => ({
+          MenuDrinkName: row.menudrinkname,
+          MenuDrinkPrice: row.menudrinkprice,
+          AmountSold: row.amountsold,
+      }));
+
+      res.json(salesReport);
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
 app.listen(port, () => {
 console.log(`Example listening at  http://localhost:${port}`);
 });
