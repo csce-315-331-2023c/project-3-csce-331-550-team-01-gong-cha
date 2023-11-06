@@ -69,6 +69,23 @@ app.get('/employees', (req, res) => {
       });
   });
 
+//gets all menu drinks
+app.get('/menu-drink', (req, res) => {
+  pool
+    .query('SELECT * FROM Menu_Drink') // Use the correct table name
+    .then((query_res) => {
+      if (query_res.rows.length === 0) {
+        res.status(404).json({ error: 'No menu drinks found' });
+      } else {
+        res.json(query_res.rows);
+      }
+    })
+    .catch((error) => {
+      console.error('Error executing the SQL query:', error);
+      res.status(500).json({ error: error.message });
+    });
+});
+
 //gets all the ingredients
 app.get('/ingredients', (req, res) => {
   pool
