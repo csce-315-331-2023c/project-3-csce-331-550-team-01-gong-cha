@@ -9,6 +9,20 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 const port: number = 5000;
 
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+  );
+if (req.method == "OPTIONS") {
+  res.header("Access-Control-Allow-Methods", "PUT, POST, PATCH, DELETE, GET");
+  return res.status(200).json({});
+}
+
+next();
+});
+
 //create pool
 const pool = new Pool({
     user: process.env.PSQL_USER,
@@ -757,38 +771,38 @@ app.get('/get-ideal-ingredients-amount', async (req, res) => {
     res.status(500).json({ error: 'An error occurred while fetching ideal ingredient amounts' });
   }
 });
-//restock Ingredients
+
 app.get('/report-restock', async (req, res) => {
-  var returnObject = []
+
+  pool
   try {
     const querySQL = `
       SELECT ingredient_name, current_amount, ideal_amount
       FROM ingredient
       WHERE current_amount < (ideal_amount * 0.4)
-    `;
+      `;
 
     const client = await pool.connect();
     const { rows } = await client.query(querySQL);
     client.release();
 
-    let result = "| Name of Ingredient                        | Current Amount  | Ideal Amount       |\n";
+    var returnObject = [];
 
     for (const row of rows) {
       const name: string = row.ingredient_name;
       const currentAmount: number = row.current_amount;
       const idealAmount: number = row.ideal_amount;
 
-      //result += `| ${name.padEnd(40)} | ${currentAmount.toString().padEnd(15)} | ${idealAmount.toString().padEnd(20)} |\n`;
       returnObject.push({ingredient_name: name, current_amount: currentAmount, ideal_amount: idealAmount})
     }
 
-    //res.status(200).send(result);
     res.status(200).send(returnObject);
   } catch (error) {
     console.error('Error getting ingredients to restock:', error);
     res.status(500).json({ error: 'Error getting ingredients to restock' });
   }
 });
+
 
 //get ingredient name given primary key
 app.get('/get-ingredient-name/:ingredientId', async (req, res) => {

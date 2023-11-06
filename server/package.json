@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "deployScript": "ts-node -T -P ./tsconfig.json ./index.ts"
   },
   "author": "",
   "license": "ISC",
