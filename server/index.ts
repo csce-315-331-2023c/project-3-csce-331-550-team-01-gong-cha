@@ -8,7 +8,7 @@ dotenv.config({path: 'Credentials.env'} );
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-const port: number = 5000;
+const port: number = 4000;
 const serverUrl: String = `http://localhost:${port}`;
 
 app.use((req, res, next) => {
@@ -361,6 +361,99 @@ app.post('/create-order-drink', async (req, res) => {
       generatedKey: result[1],
       make_cost: result[2],
     });
+  }
+});
+//Create Ingredient
+app.post('/create-ingredient', async (req, res) => {
+  const { name, currentAmount, idealAmount, restockPrice, consumerPrice, amountUsed } = req.body;
+
+  if (
+    !name ||
+    isNaN(currentAmount) ||
+    isNaN(idealAmount) ||
+    isNaN(restockPrice) ||
+    isNaN(consumerPrice) ||
+    isNaN(amountUsed)
+  ) {
+    res.status(400).json({ error: 'Invalid parameters in the request body' });
+    return;
+  }
+
+  try {
+    const SQL = `
+      INSERT INTO ingredient (Ingredient_Name, Current_Amount, Ideal_Amount, Restock_Price, Consumer_Price, Amount_Used)
+      VALUES ($1, $2, $3, $4, $5, $6)
+      RETURNING ID`;
+
+    const client = await pool.connect();
+    const result = await client.query(SQL, [name, currentAmount, idealAmount, restockPrice, consumerPrice, amountUsed]);
+    client.release();
+
+    if (result.rows.length > 0) {
+      res.status(201).json({ ingredientId: result.rows[0].id });
+    } else {
+      res.status(500).json({ error: 'Error creating ingredient' });
+    }
+  } catch (error) {
+    console.error('Error creating ingredient:', error);
+    res.status(500).json({ error: (error as Error).message });
+  }
+});
+//Create order
+app.post('/create-order', async (req, res) => {
+  const {
+    serverID,
+    total_cost,
+    price,
+    profit,
+    tipped,
+    takeout,
+    date,
+    time,
+    name,
+  } = req.body;
+
+  if (
+    serverID === undefined ||
+    isNaN(total_cost) ||
+    isNaN(price) ||
+    isNaN(profit) ||
+    isNaN(tipped) ||
+    typeof takeout !== 'boolean' ||
+    !date ||
+    !time ||
+    !name
+  ) {
+    res.status(400).json({ error: 'Invalid parameters in the request body' });
+    return;
+  }
+
+  try {
+    const client = await pool.connect();
+
+    const insertOrderSQL = `
+      INSERT INTO Orders (Server_ID, Name, Cost, Price, Profit, Tip, Takeout, Date, Time)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`;
+
+    const values = [
+      serverID,
+      name,
+      total_cost,
+      price,
+      profit,
+      tipped,
+      takeout,
+      date,
+      time,
+    ];
+
+    await client.query(insertOrderSQL, values);
+    client.release();
+
+    res.status(201).json({ message: 'Order created successfully' });
+  } catch (error) {
+    console.error('Error creating order:', error);
+    res.status(500).json({ error: 'An error occurred while creating the order' });
   }
 });
 
