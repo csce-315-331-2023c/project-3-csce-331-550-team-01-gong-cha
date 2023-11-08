@@ -3,6 +3,7 @@ import './styles.css'
 import React, { useState, useEffect } from 'react'
 
 interface IngredientProps {
+    pk: number;
     name: string;
     CurrentStock: string;
     IdealStock: string;
@@ -10,17 +11,17 @@ interface IngredientProps {
     ConsumerPrice: string;
 }
 
-export default function RestockReportIngredient({name, CurrentStock, IdealStock, AmountUsed, ConsumerPrice}: IngredientProps){
+export default function RestockReportIngredient({pk, name, CurrentStock, IdealStock, AmountUsed, ConsumerPrice}: IngredientProps){
 
     function updateIngredientData(){
         alert("Meer");
     }
 
-    const [Iname, setIName] = useState(name);
-    const [currentStock, setCurrentStock] = useState(CurrentStock);
-    const [idealStock, setIdealStock] = useState(IdealStock);
-    const [amountUsed, setAmountUsed] = useState(AmountUsed);
-    const [price, setPrice] = useState(ConsumerPrice);
+    const [Iname, setIName] = useState('');
+    const [currentStock, setCurrentStock] = useState('');
+    const [idealStock, setIdealStock] = useState('');
+    const [amountUsed, setAmountUsed] = useState('');
+    const [price, setPrice] = useState('');
 
     return(
         <div className='bg-cyan-200 w-full flex justify-start border-white border-2 h-10'>

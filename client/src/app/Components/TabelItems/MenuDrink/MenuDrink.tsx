@@ -1,12 +1,13 @@
 "use client"
 
 interface MenuDrinkProps {
+    pk: number;
     name: string;
     priceNormal: string;
     priceLarge: string;
   }
 
-export default function RestockReportIngredient({name, priceNormal, priceLarge}: MenuDrinkProps){
+export default function RestockReportIngredient({pk, name, priceNormal, priceLarge}: MenuDrinkProps){
 
     function updateIngredientData(){
         alert("Meer");

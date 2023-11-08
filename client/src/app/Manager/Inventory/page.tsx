@@ -11,6 +11,7 @@ export default function Dashboard() {
   }
 
   interface IngredientItem {
+    pk: number;
     name: string;
     CurrentStock: string;
     IdealStock: string;
@@ -19,6 +20,7 @@ export default function Dashboard() {
   }
 
   interface MenuDrink {
+    pk: number;
     name: string;
     priceNormal: string;
     priceLarge: string;
@@ -26,6 +28,16 @@ export default function Dashboard() {
 
   const [IngredientItems, setIngredientItems] = useState<IngredientItem[]>([]);
   const [menuDrinkItems, setmenuDrinkItems] = useState<MenuDrink[]>([]);
+
+  const [Iname, setIName] = useState('');
+  const [currentStock, setCurrentStock] = useState('');
+  const [idealStock, setIdealStock] = useState('');
+  const [amountUsed, setAmountUsed] = useState('');
+  const [price, setPrice] = useState('');
+
+  const [drinkName, setDrinkName] = useState('');
+  const [largePrice, setLargePrice] = useState('');
+  const [normalPrice, setNormalPrice] = useState('');
 
   function getIngredients(){
     fetch(`http://18.191.166.59:5000/ingredients`) // Replace with the actual API endpoint URL
@@ -40,6 +52,7 @@ export default function Dashboard() {
             // Process the data received from the API and store it in the state
             
             const ingredientData: IngredientItem[] = data.map((item: any) => ({
+                pk: item.id,
                 name: item.ingredient_name,
                 CurrentStock: item.current_amount,
                 IdealStock: item.ideal_amount,
@@ -49,6 +62,34 @@ export default function Dashboard() {
             setIngredientItems(ingredientData);
         })
   } 
+
+  function updateStock(){
+    fetch('http://18.191.166.59:5000/manager-update-ingredient', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ingredientID: 1, updateAmount: -100}),
+    })
+  }
+
+  function createIngredient(nameI: string, curA: string, idealA: string, consumP: string, amountU: string){
+    fetch('http://18.191.166.59:5000/create-ingredient', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({name: nameI, currentAmount: curA, idealAmount: idealA, restockPrice: 0, consumerPrice: consumP, amountUsed: amountU}),
+    })
+    .then(() => {
+      setIName("");
+      setCurrentStock("");
+      setIdealStock("");
+      setAmountUsed("");
+      setPrice("");
+      getIngredients();
+    })
+  }
 
   function getMenuDrinks(){
     fetch(`http://18.191.166.59:5000/menu-drink`) // Replace with the actual API endpoint URL
@@ -63,6 +104,7 @@ export default function Dashboard() {
             // Process the data received from the API and store it in the state
             
             const menuDrinkData: MenuDrink[] = data.map((item: any) => ({
+                pk: item.id,
                 name: item.name,
                 priceNormal: item.normal_cost,
                 priceLarge: item.large_cost,
@@ -110,6 +152,7 @@ export default function Dashboard() {
             {IngredientItems.map((ingredientItem, index) => (
                 <Ingredient
                     key={index}
+                    pk={ingredientItem.pk}
                     name={ingredientItem.name}
                     CurrentStock={ingredientItem.CurrentStock}
                     IdealStock={ingredientItem.IdealStock}
@@ -118,8 +161,13 @@ export default function Dashboard() {
                 />
             ))}
             </div>
-            <div className='flex align-center items-center justify-center h-1/6'>
-              <button className='w-3/6 h-4/6 bg-cyan-400'>Add Ingredient</button>
+            <div className='flex align-center items-center justify-center h-1/6 w-full'>
+              <input className='name h-2/5 mx-2 text-center' placeholder='Name' type='Iname' id='IName' value={Iname} onChange={(e) => setIName(e.target.value)}/>
+              <input className='currentStock h-2/5 mr-2 text-center' placeholder='Current' type='currentStock' id='currentStock' value={currentStock} onChange={(e) => setCurrentStock(e.target.value)}/>
+              <input  className='idealStock h-2/5 mr-2 text-center' placeholder='Ideal' type='idealStock' id='idealStock' value={idealStock} onChange={(e) => setIdealStock(e.target.value)}/>
+              <input  className='amountUsed h-2/5 mr-2 text-center'  placeholder='Used' type='amountUsed' id='amountUsed' value={amountUsed} onChange={(e) => setAmountUsed(e.target.value)}/>
+              <input  className='consumerPrice h-2/5 mr-2 text-center' placeholder='Price' type='price' id='price' value={price} onChange={(e) => setPrice(e.target.value)}/>
+              <button className='button h-2/5 bg-cyan-400 mr-2 text-center' onClick={() => createIngredient(Iname, currentStock, idealStock, price, amountUsed)}>Create Ingredient</button>
             </div>
           </div>
           <div className='flex-col w-full bg-slate-600 mx-6'>
@@ -144,6 +192,7 @@ export default function Dashboard() {
             {menuDrinkItems.map((menuDrinkItem, index) => (
                 <MenuItem
                     key={index}
+                    pk={menuDrinkItem.pk}
                     name={menuDrinkItem.name}
                     priceNormal={menuDrinkItem.priceNormal}
                     priceLarge={menuDrinkItem.priceLarge}
@@ -151,8 +200,11 @@ export default function Dashboard() {
             ))}
             </div>
             <div className='flex align-center items-center justify-center h-1/6'>
-              <button className='w-3/6 h-4/6 bg-cyan-400'>Add Drink</button>
-            </div>
+              <input className='w-2/5 h-2/5 mx-2 text-center' placeholder='Name' type='drinkName' id='drinkName' value={drinkName} onChange={(e) => setDrinkName(e.target.value)} />
+              <input className='w-1/5 h-2/5 mr-2 text-center' placeholder='Normal Price' type='normalPrice' id='normalPrice' value={normalPrice} onChange={(e) => setNormalPrice(e.target.value)} />
+              <input className='w-1/5 h-2/5 mr-2 text-center' placeholder='Large Price' type='largePrice' id='largePrice' value={largePrice} onChange={(e) => setLargePrice(e.target.value)} />
+              <button className='w-1/5 h-2/5 bg-cyan-400 mr-2'>Create Drink</button>
+            </div> 
           </div>
       </div>
     </main>
