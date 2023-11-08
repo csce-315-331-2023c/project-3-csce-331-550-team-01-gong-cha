@@ -4,6 +4,7 @@ import Modal from '@/app/Components/Modal/Modal'
 import { useState } from 'react';
 import MenuItem from '../../../Components/MenuItem/MenuItem'
 import defualtDrinkImg from '../../../../../public/defualtDrinkImg.png'
+import OrderDrink from '../../../Components/OrderDrink/OrderDrink'
 import '../../styles.css'
 
 export default function Order() {
@@ -15,6 +16,18 @@ export default function Order() {
     function goBack(){
         window.location.href = "../";
     }
+
+    interface orderDrink {
+        name: string;
+        ice: number;
+        sugar: number;
+        sz: number;
+      }
+    
+    const [drinksState, setDrinksState] = useState<orderDrink[]>([]);
+    const clearOrders = () => {
+      setDrinksState([]);
+    } 
     return (
         <main className="bg-slate-400 bg-cover h-screen w-screen w-screenflex-row flex flex-col">
             <button className='backContainter flex items-center' onClick={goBack}>
@@ -26,27 +39,43 @@ export default function Order() {
                 <div className="flex flex-col items-center justify-start w-2/5 h-full m-4">
                     <div className='h-1/5 w-full m-4'>
                         <MenuItem drinkName={"Coffee Milk Tea"} drinkImage={defualtDrinkImg} altTxt={"Test Drink"} thisOnClick={() => setIsOpen(true)}/>
-                        <Modal open={isOpen} onClose={() => setIsOpen(false)} >Customize Ingredients</Modal>
+                        <Modal open={isOpen} onClose={() => setIsOpen(false)} drinkName={"Coffee Milk Tea"} setDrinkState={setDrinksState} >Customize Ingredients</Modal>
                     </div>
                     <div className='h-1/5 w-full m-4'>
                         <MenuItem drinkName={"Milk Coffee"} drinkImage={defualtDrinkImg} altTxt={"Test Drink"} thisOnClick={() => setIsOpen(true)}/>
-                        <Modal open={isOpen} onClose={() => setIsOpen(false)} >Customize Ingredients</Modal>
+                        <Modal open={isOpen} onClose={() => setIsOpen(false)} drinkName={"Milk Coffee"} setDrinkState={setDrinksState} >Customize Ingredients</Modal>
                     </div>
                 </div>
                 <div className="flex flex-col items-center justify-start w-2/5 h-full m-4">
                     <div className='h-1/5 w-full m-4'>
                         <MenuItem drinkName={"Dolce Milk Coffee"} drinkImage={defualtDrinkImg} altTxt={"Test Drink"} thisOnClick={() => setIsOpen(true)}/>
-                        <Modal open={isOpen} onClose={() => setIsOpen(false)} >Customize Ingredients</Modal>
+                        <Modal open={isOpen} onClose={() => setIsOpen(false)} drinkName={"Dolce Milk Coffee"} setDrinkState={setDrinksState} >Customize Ingredients</Modal>
                     </div>
                     <div className='h-1/5 w-full m-4'>
-                        <MenuItem drinkName={"Milk Foam Balck Coffee"} drinkImage={defualtDrinkImg} altTxt={"Test Drink"} thisOnClick={() => setIsOpen(true)}/>
-                        <Modal open={isOpen} onClose={() => setIsOpen(false)} >Customize Ingredients</Modal>
+                        <MenuItem drinkName={"Milk Foam Black Coffee"} drinkImage={defualtDrinkImg} altTxt={"Test Drink"} thisOnClick={() => setIsOpen(true)}/>
+                        <Modal open={isOpen} onClose={() => setIsOpen(false)} drinkName={"Milk Foam Black Coffee"} setDrinkState={setDrinksState} >Customize Ingredients</Modal>
                     </div>
                 </div>
 
                 <div className="w-1/5 ml-14 my-10">
-                    <div className="bg-white h-full w-4/5 border-gray border-4 rounded-2xl text-center"> Orders </div>
-                </div>
+  <div className="bg-white h-full w-4/5 border-gray border-4 rounded-2xl text-center"> Orders 
+      {drinksState.length !== 0 && (
+        <>
+          {drinksState.map((drink, index) => (
+      <OrderDrink
+        key={index}
+        drinkName={drink.name}
+        sugar={drink.sugar}
+        ice={drink.ice}
+        size={drink.sz}
+      />
+          ))}
+          <button onClick={clearOrders}>Place Order</button>
+        </>
+      )}
+    
+  </div>
+  </div>
             </div>
         </main>
     );

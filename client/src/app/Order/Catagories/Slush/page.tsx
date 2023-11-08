@@ -3,6 +3,7 @@ import Modal from '@/app/Components/Modal/Modal'
 import { useState } from 'react';
 import MenuItem from '../../../Components/MenuItem/MenuItem'
 import defualtDrinkImg from '../../../../../public/defualtDrinkImg.png'
+import OrderDrink from '../../../Components/OrderDrink/OrderDrink';
 import '../../styles.css'
 
 export default function Order() {
@@ -13,6 +14,18 @@ export default function Order() {
     }
     function goBack(){
         window.location.href = "../";
+    }
+
+    interface orderDrink {
+        name: string;
+        ice: number;
+        sugar: number;
+        sz: number;
+      }
+    
+    const [drinksState, setDrinksState] = useState<orderDrink[]>([]);
+    const clearOrders = () => {
+      setDrinksState([]);
     }
     return (
         <main className="backgroundS bg-slate-400 bg-cover h-screen w-screen w-screenflex-row flex flex-col">
@@ -25,47 +38,63 @@ export default function Order() {
                 <div className="flex flex-col items-center justify-start w-2/5 h-full m-4">
                     <div className='h-1/5 w-full m-4'>
                         <MenuItem drinkName={"Caramel Chocolate Slush"} drinkImage={defualtDrinkImg} altTxt={"Test Drink"} thisOnClick={() => setIsOpen(true)}/>
-                        <Modal open={isOpen} onClose={() => setIsOpen(false)} >Customize Ingredients</Modal>
+                        <Modal open={isOpen} onClose={() => setIsOpen(false)} drinkName={"Caramel Chocolate Slush"} setDrinkState={setDrinksState} >Customize Ingredients</Modal>
                     </div>
                     <div className='h-1/5 w-full m-4'>
                         <MenuItem drinkName={"Mango Milk Slush"} drinkImage={defualtDrinkImg} altTxt={"Test Drink"} thisOnClick={() => setIsOpen(true)}/>
-                        <Modal open={isOpen} onClose={() => setIsOpen(false)} >Customize Ingredients</Modal>
+                        <Modal open={isOpen} onClose={() => setIsOpen(false)} drinkName={"Mango Milk Slush"} setDrinkState={setDrinksState} >Customize Ingredients</Modal>
                     </div>
                     <div className='h-1/5 w-full m-4'>
                         <MenuItem drinkName={"Milk Foam Peach Slush Star Jelly"} drinkImage={defualtDrinkImg} altTxt={"Test Drink"} thisOnClick={() => setIsOpen(true)}/>
-                        <Modal open={isOpen} onClose={() => setIsOpen(false)} >Customize Ingredients</Modal>
+                        <Modal open={isOpen} onClose={() => setIsOpen(false)} drinkName={"Milk Foam Peach Slush Star Jelly"} setDrinkState={setDrinksState} >Customize Ingredients</Modal>
                     </div>
                     <div className='h-1/5 w-full m-4'>
                         <MenuItem drinkName={"Peach Slush"} drinkImage={defualtDrinkImg} altTxt={"Test Drink"} thisOnClick={() => setIsOpen(true)}/>
-                        <Modal open={isOpen} onClose={() => setIsOpen(false)} >Customize Ingredients</Modal>
+                        <Modal open={isOpen} onClose={() => setIsOpen(false)} drinkName={"Peach Slush"} setDrinkState={setDrinksState} >Customize Ingredients</Modal>
                     </div>
                     <div className='h-1/5 w-full m-4'>
                         <MenuItem drinkName={"Taro Milk Slush"} drinkImage={defualtDrinkImg} altTxt={"Test Drink"} thisOnClick={() => setIsOpen(true)}/>
-                        <Modal open={isOpen} onClose={() => setIsOpen(false)} >Customize Ingredients</Modal>
+                        <Modal open={isOpen} onClose={() => setIsOpen(false)} drinkName={"Taro Milk Slush"} setDrinkState={setDrinksState} >Customize Ingredients</Modal>
                     </div>
                 </div>
                 <div className="flex flex-col items-center justify-start w-2/5 h-full m-4">
                     <div className='h-1/5 w-full m-4'>
                         <MenuItem drinkName={"Lychee Slush"} drinkImage={defualtDrinkImg} altTxt={"Test Drink"} thisOnClick={() => setIsOpen(true)}/>
-                        <Modal open={isOpen} onClose={() => setIsOpen(false)} >Customize Ingredients</Modal>
+                        <Modal open={isOpen} onClose={() => setIsOpen(false)} drinkName={"Lychee Slush"} setDrinkState={setDrinksState} >Customize Ingredients</Modal>
                     </div>
                     <div className='h-1/5 w-full m-4'>
                         <MenuItem drinkName={"Matcha Milk Slush"} drinkImage={defualtDrinkImg} altTxt={"Test Drink"} thisOnClick={() => setIsOpen(true)}/>
-                        <Modal open={isOpen} onClose={() => setIsOpen(false)} >Customize Ingredients</Modal>
+                        <Modal open={isOpen} onClose={() => setIsOpen(false)} drinkName={"Matcha Milk Slush"} setDrinkState={setDrinksState} >Customize Ingredients</Modal>
                     </div>
                     <div className='h-1/5 w-full m-4'>
                         <MenuItem drinkName={"Passionfruit Yogurt Slush"} drinkImage={defualtDrinkImg} altTxt={"Test Drinkx`"} thisOnClick={() => setIsOpen(true)}/>
-                        <Modal open={isOpen} onClose={() => setIsOpen(false)} >Customize Ingredients</Modal>
+                        <Modal open={isOpen} onClose={() => setIsOpen(false)} drinkName={"Passionfruit Yogurt Slush"} setDrinkState={setDrinksState} >Customize Ingredients</Modal>
                     </div>
                     <div className='h-1/5 w-full m-4'>
                         <MenuItem drinkName={"Strawberry Milk Slush"} drinkImage={defualtDrinkImg} altTxt={"Test Drink"} thisOnClick={() => setIsOpen(true)}/>
-                        <Modal open={isOpen} onClose={() => setIsOpen(false)} >Customize Ingredients</Modal>
+                        <Modal open={isOpen} onClose={() => setIsOpen(false)} drinkName={"Strawberry Milk Slush"} setDrinkState={setDrinksState} >Customize Ingredients</Modal>
                     </div>
                 </div>
 
                 <div className="w-1/5 ml-14 my-10">
-                    <div className="bg-white h-full w-4/5 border-gray border-4 rounded-2xl text-center"> Orders </div>
-                </div>
+  <div className="bg-white h-full w-4/5 border-gray border-4 rounded-2xl text-center"> Orders 
+      {drinksState.length !== 0 && (
+        <>
+          {drinksState.map((drink, index) => (
+      <OrderDrink
+        key={index}
+        drinkName={drink.name}
+        sugar={drink.sugar}
+        ice={drink.ice}
+        size={drink.sz}
+      />
+          ))}
+          <button onClick={clearOrders}>Place Order</button>
+        </>
+      )}
+    
+  </div>
+</div>
             </div>
         </main>
     );
