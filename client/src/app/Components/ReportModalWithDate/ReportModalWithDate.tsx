@@ -150,6 +150,9 @@ export default function ReportsModal({open, children, onClose, whichReport}: Mod
                             <button className='bg-cyan-200 h-full w-1/6 mx-8' onClick={() => soldTogether(startDate, endDate)}>Enter Range</button>
                         </Conditional>
                     </div>
+                    <div className=' h-2/6 w-full mt-2 flex justify-center'>
+                        <button className='bg-cyan-200 h-full w-1/6 mx-8' onClick={() => onClose()}>Exit</button>
+                    </div>
                 </div>
             </div>
         </div>
