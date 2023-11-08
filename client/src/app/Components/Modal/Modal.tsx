@@ -186,8 +186,9 @@ export default function Modal({ open, children, onClose, drinkName, setDrinkStat
 
       <div className="flex-col justify-evenly border-white border-2 rounded-md" style={{ maxHeight: '200px', overflowY: 'auto' }}>
        {ingredients.filter((ingredient) => ingredient.id >= 26 && ingredient.id <= 40 )
-        .map((ingredient) => (
+        .map((ingredient, index) => (
           <Topping
+            key={index}
             toppingName={ingredient.name}
             price={ingredient.price}
             toppingID={ingredient.id}
