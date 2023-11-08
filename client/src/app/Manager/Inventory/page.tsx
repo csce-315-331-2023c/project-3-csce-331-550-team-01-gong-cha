@@ -113,7 +113,7 @@ export default function Dashboard() {
         })
   }
 
-  useEffect(() => {getMenuDrinks(); getIngredients();}, []);
+  useEffect(() => {getMenuDrinks(); getIngredients();});
 
   return (
     <main className="flex-col w-screen h-screen bg-slate-400">
