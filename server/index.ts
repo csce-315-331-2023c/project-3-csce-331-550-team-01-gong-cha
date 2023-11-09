@@ -1303,6 +1303,44 @@ app.get('/excessReport/:startDate', async (req, res) => {
   }
 });
 
+// Update Ingredient
+app.put('/update-ingredient/:id', async (req, res) => {
+  const ingredientId = req.params.id;
+  const { name, currentAmount, idealAmount, restockPrice, consumerPrice, amountUsed } = req.body;
+
+  if (
+    !name ||
+    currentAmount === undefined ||
+    idealAmount === undefined ||
+    restockPrice === undefined ||
+    consumerPrice === undefined ||
+    amountUsed === undefined
+  ) {
+    res.status(400).json({ error: 'Invalid parameters' });
+    return;
+  }
+
+  try {
+    const updateSQL = `UPDATE ingredient
+      SET Ingredient_Name = $1, Current_Amount = $2, Ideal_Amount = $3,
+      Restock_Price = $4, Consumer_Price = $5, Amount_Used = $6
+      WHERE ID = $7`;
+
+    const client = await pool.connect();
+    const result = await client.query(updateSQL, [name, currentAmount, idealAmount, restockPrice, consumerPrice, amountUsed, ingredientId]);
+    client.release();
+
+    if (result.rowCount > 0) {
+      res.json({ message: 'Ingredient updated successfully' });
+    } else {
+      res.status(404).json({ error: 'Ingredient not found' });
+    }
+  } catch (error) {
+    console.error('Error updating ingredient:', error);
+    res.status(500).json({ error: (error as Error).message });
+  }
+});
+
 app.listen(port, () => {
 console.log(`Example listening at  http://localhost:${port}`);
 });
