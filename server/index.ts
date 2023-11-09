@@ -1341,6 +1341,44 @@ app.put('/update-ingredient/:id', async (req, res) => {
   }
 });
 
+//update menu drink
+// Update Menu Drink
+app.put('/update-menu-drink/:id', async (req, res) => {
+  const menuDrinkId = req.params.id;
+  const { name, normalCost, largeCost, normConsumerPrice, lgConsumerPrice } = req.body;
+
+  if (
+    !name ||
+    normalCost === undefined ||
+    largeCost === undefined ||
+    normConsumerPrice === undefined ||
+    lgConsumerPrice === undefined
+  ) {
+    res.status(400).json({ error: 'Invalid parameters' });
+    return;
+  }
+
+  try {
+    const updateSQL = `UPDATE menu_drink
+      SET Name = $1, Normal_Cost = $2, Large_Cost = $3,
+      Norm_Consumer_Price = $4, Lg_Consumer_Price = $5
+      WHERE ID = $6`;
+
+    const client = await pool.connect();
+    const result = await client.query(updateSQL, [name, normalCost, largeCost, normConsumerPrice, lgConsumerPrice, menuDrinkId]);
+    client.release();
+
+    if (result.rowCount > 0) {
+      res.json({ message: 'Menu Drink updated successfully' });
+    } else {
+      res.status(404).json({ error: 'Menu Drink not found' });
+    }
+  } catch (error) {
+    console.error('Error updating menu drink:', error);
+    res.status(500).json({ error: (error as Error).message });
+  }
+});
+
 app.listen(port, () => {
 console.log(`Example listening at  http://localhost:${port}`);
 });
