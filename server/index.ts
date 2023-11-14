@@ -729,6 +729,30 @@ app.get('/get-employee-usernames-and-passwords', async (req, res) => {
   }
 });
 
+app.get('/confirm-username-password-match/:username/:password', async (req, res) => {
+  const username : string = req.params.username;
+  const password : string = req.params.password;
+  try {
+    var result = false
+    const SQL = 'SELECT Username, Password FROM Employee';
+    const client = await pool.connect();
+    const queryResult = await client.query(SQL);
+    client.release();
+
+    queryResult.rows.forEach((row: any) => {
+      if (row.username == username && row.password == password) {
+        result = true;
+      }
+    });
+    res.json(result);
+
+  } catch (error) {
+    console.error('Error fetching employee usernames and passwords:', error);
+    res.status(500).json({ error: (error as Error).message });
+  }
+
+});
+
 //getIngredientNameAndPrice
 app.get('/get-ingredient-name-and-price', async (req, res) => {
   try {
