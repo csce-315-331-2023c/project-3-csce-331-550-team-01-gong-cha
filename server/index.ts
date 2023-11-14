@@ -500,8 +500,8 @@ app.post('/create-ingredient-order-drink', async (req, res) => {
 
 //managerViewIngredient
 //http://localhost:5000/manager-view-ingredient?ingredientId=1
-app.get('/manager-view-ingredient', async (req, res) => {
-  const ingredientId = parseInt(req.query.ingredientId as string, 10);
+app.get('/manager-view-ingredient/:ingredientID', async (req, res) => {
+  const ingredientId = parseInt(req.params.ingredientID);
 
   if (isNaN(ingredientId)) {
     res.status(400).json({ error: 'Invalid ingredientId' });
@@ -609,8 +609,8 @@ app.post('/change-price', async (req, res) => {
 });
 //Get drink
 //http://localhost:5000/get-drink?drinkId=1
-app.get('/get-drink', async (req, res) => {
-  const drinkId = parseInt(req.query.drinkId as string, 10);
+app.get('/get-drink/:drinkID', async (req, res) => {
+  const drinkId = parseInt(req.params.drinkID);
 
   if (isNaN(drinkId)) {
     res.status(400).json({ error: 'Invalid drinkId' });
@@ -1051,8 +1051,8 @@ app.get('/order-drink-pairs/:startDate', async (req, res) => {
 //getIngredientsForMenuDrinks
 //the listening happens here
 
-app.get('/ingredients-for-menu-drinks', async (req, res) => {
-  const menuDrinkIDs: string = req.query.menuDrinkIDs as string;
+app.get('/ingredients-for-menu-drinks/:menuDrinkIDs', async (req, res) => {
+  const menuDrinkIDs: string = req.params.menuDrinkIDs as string;
 
   if (!menuDrinkIDs) {
     res.status(400).json({ error: 'Missing or invalid "menuDrinkIDs" query parameter' });
