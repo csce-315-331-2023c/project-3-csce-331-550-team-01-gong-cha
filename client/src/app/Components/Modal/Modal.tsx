@@ -49,15 +49,18 @@ export default function Modal({ open, children, onClose, drinkName, setDrinkStat
       sugar: selectedOptions.sugarLevel,
       sz: selectedOptions.size
     }
-
-    setDrinkState((prevDrinkState: orderDrink[]) => [...prevDrinkState, newDrink]);
-
-  }
-
   
-
-
-
+    // Update the state
+    setDrinkState((prevDrinkState: orderDrink[]) => {
+      const updatedDrinks = [...prevDrinkState, newDrink];
+      
+      // Update local storage
+      const existingOrders = JSON.parse(localStorage.getItem('orders') || '[]');
+      localStorage.setItem('orders', JSON.stringify([...existingOrders, newDrink]));
+  
+      return updatedDrinks;
+    });
+  }
 
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
   useEffect(() => {
