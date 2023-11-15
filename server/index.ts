@@ -1286,7 +1286,7 @@ app.get('/excessReport/:startDate', async (req, res) => {
 
     // Retrieve ingredients for menu drinks
     const ingredientsListResponse = await axios.get(
-      `${serverUrl}/ingredients-for-menu-drinks?menuDrinkIDs=${menuIds.join()}`
+      `${serverUrl}/ingredients-for-menu-drinks/${menuIds.join()}`
     );
     const ingredientsList = ingredientsListResponse.data;
     console.log(ingredientsList);
@@ -1297,7 +1297,7 @@ app.get('/excessReport/:startDate', async (req, res) => {
         const drinkID = menuIds[i];
 
         // Use Axios to get the amount used for the ingredient
-        const amountUsedResponse = await axios.get(`${serverUrl}/manager-view-ingredient?ingredientId=${ingredientID}`);
+        const amountUsedResponse = await axios.get(`${serverUrl}/manager-view-ingredient/${ingredientID}`);
         const amountUsed = amountUsedResponse.data.amountUsed;
 
         ingredients[ingredientID] += drinks[drinkID] * amountUsed;
@@ -1306,7 +1306,7 @@ app.get('/excessReport/:startDate', async (req, res) => {
     console.log(ingredients);
 
     // Generate the report
-    for (let i = 1; i <= ingredients.length + 1; i++) {
+    for (let i = 1; i <= ingredients.length; i++) {
       // Use Axios to get the ideal amount for the ingredient
       const idealAmountResponse = await axios.get(`${serverUrl}/get-ideal-ingredient-amount/${i}`);
       const idealAmount = idealAmountResponse.data.idealAmount;
