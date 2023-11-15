@@ -1,7 +1,7 @@
 import express from 'express';
 import { Pool, Client } from 'pg';
 import dotenv from 'dotenv';
-import axios from 'axios';
+// import axios from 'axios';
 
 dotenv.config({path: 'Credentials.env'} );
 //Create experss app
@@ -1253,94 +1253,94 @@ app.get('/salesReport/:startDate/:endDate', async (req, res) => {
   }
 });
 
-app.get('/excessReport/:startDate', async (req, res) => {
-  try {
-    const startDate = req.params.startDate;
+// app.get('/excessReport/:startDate', async (req, res) => {
+//   try {
+//     const startDate = req.params.startDate;
 
-    // Use Axios to make GET requests to the other routes
-    const [numberOfMenuDrinksResponse, numberOfIngredientsResponse] = await Promise.all([
-      axios.get(`${serverUrl}/menu-drink-amount`),
-      axios.get(`${serverUrl}/ingredient-amount`),
-    ]);
+//     // Use Axios to make GET requests to the other routes
+//     const [numberOfMenuDrinksResponse, numberOfIngredientsResponse] = await Promise.all([
+//       axios.get(`${serverUrl}/menu-drink-amount`),
+//       axios.get(`${serverUrl}/ingredient-amount`),
+//     ]);
 
-    // Extract data from the responses
-    const numberOfMenuDrinks:number = numberOfMenuDrinksResponse.data.amount;
-    const numberOfIngredients = numberOfIngredientsResponse.data.amount;
+//     // Extract data from the responses
+//     const numberOfMenuDrinks:number = numberOfMenuDrinksResponse.data.amount;
+//     const numberOfIngredients = numberOfIngredientsResponse.data.amount;
 
-    // Initialize arrays and variables for the report
-    var drinks:number[] = new Array();
-    for (var i = 0; i < numberOfMenuDrinks; i++) {
-      drinks[i] = 0;
-    }
-    var ingredients:number[] = new Array();
-    for (var i = 0; i < numberOfIngredients; i++) {
-        ingredients[i] = 0;
-    }
-    let report = '';
+//     // Initialize arrays and variables for the report
+//     var drinks:number[] = new Array();
+//     for (var i = 0; i < numberOfMenuDrinks; i++) {
+//       drinks[i] = 0;
+//     }
+//     var ingredients:number[] = new Array();
+//     for (var i = 0; i < numberOfIngredients; i++) {
+//         ingredients[i] = 0;
+//     }
+//     let report = '';
 
-    // Retrieve order pairs for the given start date
-    const orderPairsResponse = await axios.get<{orderdrinkid:number}[]>(`${serverUrl}/order-drink-pairs/${startDate}`);
-    const idList = orderPairsResponse.data.map((item) => item.orderdrinkid);
+//     // Retrieve order pairs for the given start date
+//     const orderPairsResponse = await axios.get<{orderdrinkid:number}[]>(`${serverUrl}/order-drink-pairs/${startDate}`);
+//     const idList = orderPairsResponse.data.map((item) => item.orderdrinkid);
 
-    // Create a list of menu IDs for the order drinks
-    const menuIdsResponse = await axios.get(`${serverUrl}/get-menu-drinks-for-order-drinks/${idList.join(',')}`);
-    const menuIds = menuIdsResponse.data;
+//     // Create a list of menu IDs for the order drinks
+//     const menuIdsResponse = await axios.get(`${serverUrl}/get-menu-drinks-for-order-drinks/${idList.join(',')}`);
+//     const menuIds = menuIdsResponse.data;
 
-    // Count the number of each menu drink
-    menuIds.forEach((menuId:number) => {
-      drinks[menuId] += 1;
-    });
+//     // Count the number of each menu drink
+//     menuIds.forEach((menuId:number) => {
+//       drinks[menuId] += 1;
+//     });
 
-    // Retrieve ingredients for menu drinks
-    const ingredientsListResponse = await axios.get(
-      `${serverUrl}/ingredients-for-menu-drinks/${menuIds.join()}`
-    );
-    const ingredientsList = ingredientsListResponse.data;
-    console.log(ingredientsList);
+//     // Retrieve ingredients for menu drinks
+//     const ingredientsListResponse = await axios.get(
+//       `${serverUrl}/ingredients-for-menu-drinks/${menuIds.join()}`
+//     );
+//     const ingredientsList = ingredientsListResponse.data;
+//     console.log(ingredientsList);
 
-    for (let i = 0; i < ingredientsList.length; i++) {
-      for (let j = 0; j < ingredientsList[i].length; j++) {
-        const ingredientID = ingredientsList[i][j];
-        const drinkID = menuIds[i];
+//     for (let i = 0; i < ingredientsList.length; i++) {
+//       for (let j = 0; j < ingredientsList[i].length; j++) {
+//         const ingredientID = ingredientsList[i][j];
+//         const drinkID = menuIds[i];
 
-        // Use Axios to get the amount used for the ingredient
-        const amountUsedResponse = await axios.get(`${serverUrl}/manager-view-ingredient/${ingredientID}`);
-        const amountUsed = amountUsedResponse.data.amountUsed;
+//         // Use Axios to get the amount used for the ingredient
+//         const amountUsedResponse = await axios.get(`${serverUrl}/manager-view-ingredient/${ingredientID}`);
+//         const amountUsed = amountUsedResponse.data.amountUsed;
 
-        ingredients[ingredientID] += drinks[drinkID] * amountUsed;
-      }
-    }
-    console.log(ingredients);
+//         ingredients[ingredientID] += drinks[drinkID] * amountUsed;
+//       }
+//     }
+//     console.log(ingredients);
 
-    // Generate the report
-    for (let i = 1; i <= ingredients.length; i++) {
-      // Use Axios to get the ideal amount for the ingredient
-      const idealAmountResponse = await axios.get(`${serverUrl}/get-ideal-ingredient-amount/${i}`);
-      const idealAmount = idealAmountResponse.data.idealAmount;
+//     // Generate the report
+//     for (let i = 1; i <= ingredients.length; i++) {
+//       // Use Axios to get the ideal amount for the ingredient
+//       const idealAmountResponse = await axios.get(`${serverUrl}/get-ideal-ingredient-amount/${i}`);
+//       const idealAmount = idealAmountResponse.data.idealAmount;
 
-      if (ingredients[i] / idealAmount < 0.1) {
-        // Use Axios to get the ingredient name
-        const ingredientNameResponse = await axios.get(`${serverUrl}/get-ingredient-name/${i}`);
-        const ingredientName = ingredientNameResponse.data.ingredientName;
+//       if (ingredients[i] / idealAmount < 0.1) {
+//         // Use Axios to get the ingredient name
+//         const ingredientNameResponse = await axios.get(`${serverUrl}/get-ingredient-name/${i}`);
+//         const ingredientName = ingredientNameResponse.data.ingredientName;
 
-        report += `${ingredientName}\n`;
-      }
-    }
+//         report += `${ingredientName}\n`;
+//       }
+//     }
 
-    res.send(report);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-});
+//     res.send(report);
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ error: 'Internal Server Error' });
+//   }
+// });
 
 // Update Ingredient
 app.put('/update-ingredient/:id', async (req, res) => {
-  const ingredientId = req.params.id;
+  const ingredientId = parseInt(req.params.id);
   const { name, currentAmount, idealAmount, restockPrice, consumerPrice, amountUsed } = req.body;
 
   if (
-    !name ||
+    name === undefined ||
     currentAmount === undefined ||
     idealAmount === undefined ||
     restockPrice === undefined ||
