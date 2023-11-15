@@ -61,17 +61,17 @@ export default function Dashboard() {
             }));
             setIngredientItems(ingredientData);
         })
-  } 
-
-  function updateStock(){
-    fetch('http://18.191.166.59:5000/manager-update-ingredient', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ingredientID: 1, updateAmount: -100}),
-    })
   }
+
+  // function updateStock(){
+  //   fetch('http://18.191.166.59:5000/manager-update-ingredient', {
+  //     method: 'POST',
+  //     headers: {
+  //       'Content-Type': 'application/json',
+  //     },
+  //     body: JSON.stringify({ingredientID: 1, updateAmount: -100}),
+  //   })
+  // }
 
   function createIngredient(nameI: string, curA: string, idealA: string, consumP: string, amountU: string){
     fetch('http://18.191.166.59:5000/create-ingredient', {

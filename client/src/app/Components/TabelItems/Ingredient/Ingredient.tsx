@@ -17,6 +17,29 @@ export default function RestockReportIngredient({pk, name, CurrentStock, IdealSt
         alert("Meer");
     }
 
+    function updateIngredient(Iname: string, currentStock: string, idealStock: string, amountUsed: string, price: string){
+
+        var newName = "";
+        var newCurStock = "";
+        var newIdealStock = "";
+        var newAmountUsed = "";
+        var newPrice = "";
+
+        if(Iname.localeCompare(newName)){ newName = name; }
+        if(currentStock.localeCompare(newCurStock)){ newCurStock = CurrentStock; }
+        if(idealStock.localeCompare(newIdealStock)){ newIdealStock = IdealStock; }
+        if(amountUsed.localeCompare(newAmountUsed)){ newAmountUsed = AmountUsed; }
+        if(price.localeCompare(newPrice)){ newPrice = ConsumerPrice; }
+
+        // fetch('http://18.191.166.59:5000/manager-update-ingredient', {
+        //   method: 'POST',
+        //   headers: {
+        //     'Content-Type': 'application/json',
+        //   },
+        //   body: JSON.stringify({}),
+        // })
+      }
+
     const [Iname, setIName] = useState('');
     const [currentStock, setCurrentStock] = useState('');
     const [idealStock, setIdealStock] = useState('');
@@ -31,7 +54,7 @@ export default function RestockReportIngredient({pk, name, CurrentStock, IdealSt
             <input className='amountUsed flex justify-center items-center bg-cyan-200 text-center' placeholder={AmountUsed} type='amountUsed' id='amountUsed' value={amountUsed} onChange={(e) => setAmountUsed(e.target.value)}/>
             <input className='consumerPrice flex justify-center items-center bg-cyan-200 text-center' placeholder={ConsumerPrice} type='price' id='price' value={price} onChange={(e) => setPrice(e.target.value)}/>
             <div className='button'>
-                <button className="bg-cyan-500 w-full h-full items-center" onClick={updateIngredientData}>Update</button>
+                <button className="bg-cyan-500 w-full h-full items-center" onClick={() => updateIngredient(name, CurrentStock, IdealStock, AmountUsed, ConsumerPrice)}>Update</button>
             </div>
         </div>
     );
