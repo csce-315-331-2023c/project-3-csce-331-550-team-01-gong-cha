@@ -1,0 +1,23 @@
+.name {
+    width: 40%;
+}
+
+.currentStock {
+    width:10%;
+}
+
+.idealStock {
+    width: 10%;
+}
+
+.amountUsed {
+    width: 10%;
+}
+
+.consumerPrice {
+    width: 10%;
+}
+
+.button{
+    width: 20%;
+}

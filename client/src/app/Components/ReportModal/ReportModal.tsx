@@ -1,8 +1,8 @@
 "use client"
 
 import React, { useState, useEffect } from 'react'
-import MenuItem from '../Topping/Topping'
-import RestockReportIngredient from '../RestockReportIngredient/RestockReportIngredient'
+import MenuItem from '../TabelItems/Topping/Topping'
+import RestockReportIngredient from '../TabelItems/RestockReportIngredient/RestockReportIngredient'
 import './styles.css'
 
 interface ModalProps {
@@ -54,6 +54,7 @@ export default function ReportsModal({open, children, onClose}: ModalProps) {
         <div>
             <div className='Overlay_Styles'>
                 <div className='Modal_Styles bg-slate-400 flex items-center justify-start'>
+                    <div className='mb-8 text-2xl'>{children}</div>
                 <div className='w-4/5'>
                 <div className='bg-cyan-300 font-bold w-full flex justify-evenly border-white border-2 h-10'>
                         <div className='flex justify-center items-center w-4/6'>

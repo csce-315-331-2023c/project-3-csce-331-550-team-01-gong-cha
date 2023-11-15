@@ -2,3 +2,11 @@
     height: 34em;
     width: 33em;
 }
+
+.backContainter{
+    height: 8vh;
+}
+
+.mainContainer{
+    height: 90vh;
+}
