@@ -242,6 +242,11 @@ async function createTables(): Promise<number> {
       Consumer_Price DOUBLE PRECISION,
       Amount_Used DOUBLE PRECISION
     );
+    
+    CREATE TABLE Category (
+      ID SERIAL PRIMARY KEY,
+      Drink_Category VARCHAR(255) NOT NULL
+    );
 
     CREATE TABLE Menu_Drink (
       ID SERIAL PRIMARY KEY,
@@ -250,6 +255,8 @@ async function createTables(): Promise<number> {
       Large_Cost DOUBLE PRECISION,
       Norm_Consumer_Price DOUBLE PRECISION,
       Lg_Consumer_Price DOUBLE PRECISION
+      Category_ID INTEGER,
+      CONSTRAINT fk_Category FOREIGN KEY (Category_ID) REFERENCES Category(ID)
     );
 
     CREATE TABLE Menu_Drink_Ingredient (
@@ -336,7 +343,7 @@ app.get('/createTables', async (req, res) => {
   }
 });
 
-//create order
+//create order drink
 app.post('/create-order-drink', async (req, res) => {
   console.log('Received request body:', req.body); // Add this line for debugging
   const { Total_Price, Size, Menu_Drink_ID, Ice_Level, Sugar_Level } = req.body;
@@ -1133,10 +1140,10 @@ app.post('/new-seasonal-menu-item', async (req, res) => {
     const client = await pool.connect();
     client.query('BEGIN'); // Start a transaction
 
-    // Create the new menu drink
+    // Create the new menu drink with Category_ID set to 8
     const insertMenuDrinkSQL = `
-      INSERT INTO Menu_Drink (Name, Normal_Cost, Large_Cost, Norm_Consumer_Price, Lg_Consumer_Price)
-      VALUES ($1, $2, $3, $4, $5)
+      INSERT INTO Menu_Drink (Name, Normal_Cost, Large_Cost, Norm_Consumer_Price, Lg_Consumer_Price, Category_ID)
+      VALUES ($1, $2, $3, $4, $5, 8) -- Set Category_ID to 8
       RETURNING ID`;
 
     const menuDrinkValues = [name, normalCost, largeCost, normConsumerPrice, lgConsumerPrice];
@@ -1369,14 +1376,15 @@ app.put('/update-ingredient/:id', async (req, res) => {
 // Update Menu Drink
 app.put('/update-menu-drink/:id', async (req, res) => {
   const menuDrinkId = req.params.id;
-  const { name, normalCost, largeCost, normConsumerPrice, lgConsumerPrice } = req.body;
+  const { name, normalCost, largeCost, normConsumerPrice, lgConsumerPrice, category } = req.body;
 
   if (
     !name ||
     normalCost === undefined ||
     largeCost === undefined ||
     normConsumerPrice === undefined ||
-    lgConsumerPrice === undefined
+    lgConsumerPrice === undefined ||
+    category === undefined
   ) {
     res.status(400).json({ error: 'Invalid parameters' });
     return;
@@ -1385,11 +1393,11 @@ app.put('/update-menu-drink/:id', async (req, res) => {
   try {
     const updateSQL = `UPDATE menu_drink
       SET Name = $1, Normal_Cost = $2, Large_Cost = $3,
-      Norm_Consumer_Price = $4, Lg_Consumer_Price = $5
-      WHERE ID = $6`;
+      Norm_Consumer_Price = $4, Lg_Consumer_Price = $5, Category_ID = $6
+      WHERE ID = $7`;
 
     const client = await pool.connect();
-    const result = await client.query(updateSQL, [name, normalCost, largeCost, normConsumerPrice, lgConsumerPrice, menuDrinkId]);
+    const result = await client.query(updateSQL, [name, normalCost, largeCost, normConsumerPrice, lgConsumerPrice, category, menuDrinkId]);
     client.release();
 
     if (result.rowCount > 0) {
@@ -1454,6 +1462,48 @@ app.get('/drinks-from-category/:categoryId', async (req, res) => {
   } catch (error) {
     console.error('Error fetching drinks from category:', error);
     res.status(500).json({ error: (error as Error).message });
+  }
+});
+
+//create menu drink
+app.post('/create-menu-drink', async (req, res) => {
+  const {
+    name,
+    normalCost,
+    largeCost,
+    normConsumerPrice,
+    lgConsumerPrice,
+    categoryID,
+  } = req.body;
+
+  if (
+    !name ||
+    isNaN(normalCost) ||
+    isNaN(largeCost) ||
+    isNaN(normConsumerPrice) ||
+    isNaN(lgConsumerPrice) ||
+    isNaN(categoryID)
+  ) {
+    res.status(400).json({ error: 'Invalid parameters in the request body' });
+    return;
+  }
+
+  try {
+    const client = await pool.connect();
+
+    const insertMenuDrinkSQL = `
+      INSERT INTO Menu_Drink (Name, Normal_Cost, Large_Cost, Norm_Consumer_Price, Lg_Consumer_Price, Category_ID)
+      VALUES ($1, $2, $3, $4, $5, $6)`;
+
+    const values = [name, normalCost, largeCost, normConsumerPrice, lgConsumerPrice, categoryID];
+
+    await client.query(insertMenuDrinkSQL, values);
+    client.release();
+
+    res.status(201).json({ message: 'Menu Drink created successfully' });
+  } catch (error) {
+    console.error('Error creating menu drink:', error);
+    res.status(500).json({ error: 'An error occurred while creating the menu drink' });
   }
 });
 
