@@ -1403,6 +1403,60 @@ app.put('/update-menu-drink/:id', async (req, res) => {
   }
 });
 
+
+//Get all drink categories 
+app.get('/categories', async (req, res) => {
+  try {
+    const SQL = `SELECT Drink_Category FROM Category`;
+    console.log('SQL query:', SQL);
+
+    const client = await pool.connect();
+    const result = await client.query(SQL);
+    client.release();
+
+    // Extract data from the result
+    const categoryNames = result.rows.map((row) => row.drink_category);
+
+    res.json({ categoryNames });
+  } catch (error) {
+    console.error('Error fetching category names:', error);
+    res.status(500).json({ error: (error as Error).message });
+  }
+});
+
+//Get all drinks from a category given the category primary key
+app.get('/drinks-from-category/:categoryId', async (req, res) => {
+  try {
+    const categoryId = parseInt(req.params.categoryId, 10); // Convert the string to a number
+
+    // Check if the provided categoryId is a valid number
+    if (isNaN(categoryId)) {
+      res.status(400).json({ error: 'Invalid category ID' });
+      return;
+    }
+
+    const SQL = `
+      SELECT ID, Name, Normal_Cost, Large_Cost, Norm_Consumer_Price, Lg_Consumer_Price
+      FROM Menu_Drink
+      WHERE Category_ID = $1`;
+
+    const client = await pool.connect();
+    const result = await client.query(SQL, [categoryId]);
+    client.release();
+
+    // Check if any drinks were found
+    if (result.rows.length === 0) {
+      res.status(404).json({ error: 'No drinks found in the specified category' });
+    } else {
+      const drinks = result.rows;
+      res.json({ drinks });
+    }
+  } catch (error) {
+    console.error('Error fetching drinks from category:', error);
+    res.status(500).json({ error: (error as Error).message });
+  }
+});
+
 app.listen(port, () => {
 console.log(`Example listening at  http://localhost:${port}`);
 });
