@@ -4,6 +4,8 @@ import MenuItem from '../Components/MenuItem/MenuItem'
 import defualtDrinkImg from '../../../public/defualtDrinkImg.png'
 import './styles.css'
 
+
+
 export default function Order() {
 
     function goToCategory(category: string){
