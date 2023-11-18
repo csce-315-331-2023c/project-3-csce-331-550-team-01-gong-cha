@@ -142,7 +142,7 @@ export default function Modal({ open, children, onClose, drinkName, setDrinkStat
       <div className="Overlay_Styles"></div>
     <div  className="Modal_Styles bg-slate-400 justify-evenly">
       { children }
-
+      {/* {drinkName} */}
       {/* Normal and large div */}
       <div className="flex-row flex justify-evenly h-1/5">
         <button className="bg-cyan-200 rounded-lg w-1/5 ml-4"onClick={() => (handleSize(0))}>Normal</button>

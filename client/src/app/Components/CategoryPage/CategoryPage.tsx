@@ -12,9 +12,21 @@ interface CategoryPageProps {
     
   }
 
+interface OpenModals {
+  [key:string]: boolean;
+}
+
   
 export default function CategoryPage({categoryNames}: CategoryPageProps){
-  const [isOpen, setIsOpen] = useState(false)
+  const [openModals, setOpenModals] = useState<OpenModals>({});
+
+  const openModal = (category: string) => {
+    setOpenModals({...openModals, [category]: true});
+  };
+
+  const closeModal = (category: string) => {
+    setOpenModals({...openModals, [category]: false});
+  };
 
 
   function goToCategory(category: string){
@@ -22,11 +34,9 @@ export default function CategoryPage({categoryNames}: CategoryPageProps){
 }
 
 const halfLength = Math.ceil(categoryNames.length / 2);
+
 const firstHalfCategories = categoryNames.slice(0, halfLength);
 const secondHalfCategories = categoryNames.slice(halfLength);
-const drinks = localStorage.getItem('orders')
-const json = JSON.stringify(drinks)
-const currentOrderDrinks = JSON.parse(json)
 
 interface orderDrink {
   name: string;
@@ -37,12 +47,9 @@ interface orderDrink {
 
 const [drinksState, setDrinksState] = useState<orderDrink[]>([]);
 
-
-// const clearOrders = () => {
-// setDrinksState([]);
-// } 
 useEffect(() => {
   const storedOrders = JSON.parse(localStorage.getItem('orders') || '[]');
+  //alert(storedOrders)
   setDrinksState(storedOrders);
 })
     return(
@@ -55,8 +62,8 @@ useEffect(() => {
            drinkName={category}
           drinkImage={defualtDrinkImg} 
             altTxt={"Test Drink"} 
-           thisOnClick={() => setIsOpen(true)}/>
-           <Modal open={isOpen} onClose={() => setIsOpen(false)} 
+           thisOnClick={() => openModal(category)}/>
+           <Modal key={key} open={openModals[category]} onClose={() => closeModal(category)} 
            drinkName={category} setDrinkState={setDrinksState} >
             Customize Ingredients</Modal>
           </div>
@@ -71,19 +78,18 @@ useEffect(() => {
            drinkName={category}
           drinkImage={defualtDrinkImg} 
             altTxt={"Test Drink"} 
-           thisOnClick={() => setIsOpen(true)}/>
-           <Modal open={isOpen} onClose={() => setIsOpen(false)} 
-           drinkName={category} setDrinkState={setDrinksState} >
-            Customize Ingredients</Modal>
-
-          </div>
+            thisOnClick={() => openModal(category)}/>
+            <Modal key={key} open={openModals[category]} onClose={() => closeModal(category)} 
+            drinkName={category} setDrinkState={setDrinksState} >
+             Customize Ingredients</Modal>
+           </div>
            
          ))}
       </div>
       <div className = "bg-white border-black rounded-lg">
-      {drinksState.map((drink, index) => (
+      {drinksState.map((drink, key) => (
         <OrderDrink
-          key = {index}
+          key = {key}
           drinkName= {drink.name}
           ice = {drink.ice}
           sugar = {drink.sugar}
@@ -94,9 +100,6 @@ useEffect(() => {
 
       <button onClick={() => localStorage.clear()}>clearOrders</button>
       </div>
-
-      
-
 
     );
 }
