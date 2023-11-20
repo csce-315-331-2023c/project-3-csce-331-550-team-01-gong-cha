@@ -242,7 +242,8 @@ async function createTables(): Promise<number> {
       Ideal_Amount DOUBLE PRECISION,
       Restock_Price DOUBLE PRECISION,
       Consumer_Price DOUBLE PRECISION,
-      Amount_Used DOUBLE PRECISION
+      Amount_Used DOUBLE PRECISION,
+      Is_Ingredient BOOLEAN
     );
     
     CREATE TABLE Category (
@@ -372,34 +373,36 @@ app.post('/create-order-drink', async (req, res) => {
     });
   }
 });
-//Create Ingredient
+
+
 app.post('/create-ingredient', async (req, res) => {
-  const { name, currentAmount, idealAmount, restockPrice, consumerPrice, amountUsed } = req.body;
+  const { name, currentAmount, idealAmount, restockPrice, consumerPrice, amountUsed, isIngredient } = req.body;
 
   if (
     !name ||
-    isNaN(currentAmount) ||
-    isNaN(idealAmount) ||
-    isNaN(restockPrice) ||
-    isNaN(consumerPrice) ||
-    isNaN(amountUsed)
+    currentAmount === undefined ||
+    idealAmount === undefined ||
+    restockPrice === undefined ||
+    consumerPrice === undefined ||
+    amountUsed === undefined ||
+    isIngredient === undefined
   ) {
-    res.status(400).json({ error: 'Invalid parameters in the request body' });
+    res.status(400).json({ error: 'Invalid parameters' });
     return;
   }
 
   try {
     const SQL = `
-      INSERT INTO ingredient (Ingredient_Name, Current_Amount, Ideal_Amount, Restock_Price, Consumer_Price, Amount_Used)
-      VALUES ($1, $2, $3, $4, $5, $6)
+      INSERT INTO ingredient (Ingredient_Name, Current_Amount, Ideal_Amount, Restock_Price, Consumer_Price, Amount_Used, Is_Ingredient)
+      VALUES ($1, $2, $3, $4, $5, $6, $7)
       RETURNING ID`;
 
     const client = await pool.connect();
-    const result = await client.query(SQL, [name, currentAmount, idealAmount, restockPrice, consumerPrice, amountUsed]);
+    const result = await client.query(SQL, [name, currentAmount, idealAmount, restockPrice, consumerPrice, amountUsed, isIngredient]);
     client.release();
 
     if (result.rows.length > 0) {
-      res.status(201).json({ ingredientId: result.rows[0].id });
+      res.json({ ingredientId: result.rows[0].id });
     } else {
       res.status(500).json({ error: 'Error creating ingredient' });
     }
@@ -782,40 +785,6 @@ app.get('/get-ingredient-name-and-price', async (req, res) => {
   }
 });
 
-//create Ingredient
-app.post('/create-ingredient', async (req, res) => {
-  const { name, currentAmount, idealAmount, restockPrice, consumerPrice, amountUsed } = req.body;
-
-  if (
-    !name || 
-    currentAmount === undefined ||
-    idealAmount === undefined ||
-    restockPrice === undefined ||
-    consumerPrice === undefined ||
-    amountUsed === undefined
-  ) {
-    res.status(400).json({ error: 'Invalid parameters' });
-    return;
-  }
-
-  try {
-    const SQL = `INSERT INTO ingredient (Ingredient_Name, Current_Amount, Ideal_Amount, Restock_Price, Consumer_Price, Amount_Used)
-      VALUES ($1, $2, $3, $4, $5, $6) RETURNING ID`;
-
-    const client = await pool.connect();
-    const result = await client.query(SQL, [name, currentAmount, idealAmount, restockPrice, consumerPrice, amountUsed]);
-    client.release();
-
-    if (result.rows.length > 0) {
-      res.json({ ingredientId: result.rows[0].id });
-    } else {
-      res.status(500).json({ error: 'Error creating ingredient' });
-    }
-  } catch (error) {
-    console.error('Error creating ingredient:', error);
-    res.status(500).json({ error: (error as Error).message });
-  }
-});
 
 //restock ingredients
 app.post('/restock-ingredients', async (req, res) => {
@@ -1337,7 +1306,7 @@ app.get('/excess-report/:startDate', async (req, res) => {
 // Update Ingredient
 app.put('/update-ingredient/:id', async (req, res) => {
   const ingredientId = req.params.id;
-  const { name, currentAmount, idealAmount, restockPrice, consumerPrice, amountUsed } = req.body;
+  const { name, currentAmount, idealAmount, restockPrice, consumerPrice, amountUsed, isIngredient } = req.body;
 
   if (
     !name ||
@@ -1345,20 +1314,22 @@ app.put('/update-ingredient/:id', async (req, res) => {
     idealAmount === undefined ||
     restockPrice === undefined ||
     consumerPrice === undefined ||
-    amountUsed === undefined
+    amountUsed === undefined ||
+    isIngredient === undefined
   ) {
     res.status(400).json({ error: 'Invalid parameters' });
     return;
   }
 
   try {
-    const updateSQL = `UPDATE ingredient
+    const updateSQL = `
+      UPDATE ingredient
       SET Ingredient_Name = $1, Current_Amount = $2, Ideal_Amount = $3,
-      Restock_Price = $4, Consumer_Price = $5, Amount_Used = $6
-      WHERE ID = $7`;
+      Restock_Price = $4, Consumer_Price = $5, Amount_Used = $6, Is_Ingredient = $7
+      WHERE ID = $8`;
 
     const client = await pool.connect();
-    const result = await client.query(updateSQL, [name, currentAmount, idealAmount, restockPrice, consumerPrice, amountUsed, ingredientId]);
+    const result = await client.query(updateSQL, [name, currentAmount, idealAmount, restockPrice, consumerPrice, amountUsed, isIngredient, ingredientId]);
     client.release();
 
     if (result.rowCount > 0) {
@@ -1372,7 +1343,6 @@ app.put('/update-ingredient/:id', async (req, res) => {
   }
 });
 
-//update menu drink
 // Update Menu Drink
 app.put('/update-menu-drink/:id', async (req, res) => {
   const menuDrinkId = req.params.id;
@@ -1504,6 +1474,22 @@ app.post('/create-menu-drink', async (req, res) => {
   } catch (error) {
     console.error('Error creating menu drink:', error);
     res.status(500).json({ error: 'An error occurred while creating the menu drink' });
+  }
+});
+
+//gets all ingredients that are actually ingredients 
+app.get('/is-ingredient', async (req, res) => {
+  try {
+    const SQL = 'SELECT * FROM ingredient WHERE Is_Ingredient = true';
+
+    const client = await pool.connect();
+    const result = await client.query(SQL);
+    client.release();
+
+    res.status(200).json(result.rows);
+  } catch (error) {
+    console.error('Error fetching ingredients with Is_Ingredient:', error);
+    res.status(500).json({ error: 'An error occurred while fetching ingredients' });
   }
 });
 
