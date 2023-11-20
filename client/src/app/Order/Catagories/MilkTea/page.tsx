@@ -1,6 +1,6 @@
 "use client"
 import Modal from '@/app/Components/Modal/Modal'
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import MenuItem from '../../../Components/MenuItem/MenuItem'
 import defualtDrinkImg from '../../../../../public/defualtDrinkImg.png'
 import OrderDrink from '../../../Components/OrderDrink/OrderDrink'
@@ -8,11 +8,6 @@ import '../../styles.css'
 import CategoryPage from '../../../Components/CategoryPage/CategoryPage';
 
 export default function Order() {
-    const [isOpen, setIsOpen] = useState(false)
-
-    function goToCustomization(){
-        alert("Customization");
-    }
     function goBack(){
         window.location.href = "../";
     }
@@ -24,10 +19,26 @@ export default function Order() {
         sz: number;
       }
     
-    const [drinksState, setDrinksState] = useState<orderDrink[]>([]);
-    const clearOrders = () => {
-      setDrinksState([]);
-    } 
+    const [drinks, setDrinks] = useState([]);
+    useEffect(() => {
+        
+          fetch('http://18.191.166.59:5000/drinks-from-category/0') // Replace with the actual API endpoint URL
+            .then((response) => {
+              if (!response.ok) {
+                alert("did not pass");
+                throw new Error('Network response was not ok');
+              }
+              return response.json();
+            })
+            .then((data) => {
+                // Assuming 'data' is an array of drinks
+                setDrinks(data); // Directly set the received array to your state
+              })
+            .catch((error) => {
+              console.error('There was a problem with the fetch operation:', error);
+            });
+        }
+      , []);
     return (
         <main className="backgroundS bg-slate-400 bg-cover w-screen w-screenflex-row flex flex-col h-full">
             <button className='backContainter flex items-center' onClick={goBack}>
@@ -37,10 +48,10 @@ export default function Order() {
             </button>
             <div className='catagoryContainer w-screen w-screenflex-row flex h-full'>
                 <div className="flex items-center justify-start w-full h-full">
-                    <CategoryPage categoryNames={["Black Milk Tea", "Oolong Milk Tea", "Brown Sugar Milk Tea",
-                "Pearl Milk Tea", "Caramel Milk Tea", "Strawberry Milk Tea",
-                "Earl Grey Milk Tea", "Wintermelon Milk Tea", "Earl Grey Milk Tea 3Js",
-                "Green Milk Tea"]}></CategoryPage>
+                
+                
+
+                <CategoryPage categoryNames={drinks}></CategoryPage> 
                 </div>
 
                 
