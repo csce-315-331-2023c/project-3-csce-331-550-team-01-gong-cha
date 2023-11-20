@@ -24,6 +24,7 @@ export default function Dashboard() {
     name: string;
     priceNormal: string;
     priceLarge: string;
+    category: string;
   }
 
   const [IngredientItems, setIngredientItems] = useState<IngredientItem[]>([]);
@@ -63,16 +64,6 @@ export default function Dashboard() {
         })
   }
 
-  // function updateStock(){
-  //   fetch('http://18.191.166.59:5000/manager-update-ingredient', {
-  //     method: 'POST',
-  //     headers: {
-  //       'Content-Type': 'application/json',
-  //     },
-  //     body: JSON.stringify({ingredientID: 1, updateAmount: -100}),
-  //   })
-  // }
-
   function createIngredient(nameI: string, curA: string, idealA: string, consumP: string, amountU: string){
     fetch('http://18.191.166.59:5000/create-ingredient', {
       method: 'POST',
@@ -106,14 +97,25 @@ export default function Dashboard() {
             const menuDrinkData: MenuDrink[] = data.map((item: any) => ({
                 pk: item.id,
                 name: item.name,
-                priceNormal: item.normal_cost,
-                priceLarge: item.large_cost,
+                priceNormal: item.norm_consumer_price,
+                priceLarge: item.lg_consumer_price,
+                category: item.category_id,
             }));
             setmenuDrinkItems(menuDrinkData);
         })
   }
 
-  useEffect(() => {getMenuDrinks(); getIngredients();});
+  const [loaded, setLoaded] = useState(false);
+
+  function getMenuInital(loaded : boolean){
+    if(!loaded){
+      getMenuDrinks();
+      getIngredients();
+      setLoaded(true);
+    }
+  }
+
+  useEffect(() => {getMenuInital(loaded)});
 
   return (
     <main className="flex-col w-screen h-screen bg-slate-400">
@@ -153,11 +155,12 @@ export default function Dashboard() {
                 <Ingredient
                     key={index}
                     pk={ingredientItem.pk}
-                    name={ingredientItem.name}
+                    FIName={ingredientItem.name}
                     CurrentStock={ingredientItem.CurrentStock}
                     IdealStock={ingredientItem.IdealStock}
-                    AmountUsed={ingredientItem.AmountUsed}
-                    ConsumerPrice={ingredientItem.ConsumerPrice}
+                    FAmountUsed={ingredientItem.AmountUsed}
+                    FConsumerPrice={ingredientItem.ConsumerPrice}
+                    reload={getIngredients}
                 />
             ))}
             </div>
@@ -175,16 +178,19 @@ export default function Dashboard() {
               <div className='text-6xl font-bold text-cyan-400'>Drinks</div>
             </div>
             <div className='bg-cyan-300 font-bold w-full flex justify-start items-center border-white border-2 h-14'>
-              <div className='w-2/5 flex justify-center text-center'>
+              <div className='name flex justify-center text-center'>
                   Drink Name
               </div>
-              <div className="w-1/5 flex justify-center text-center">
+              <div className="normPrice flex justify-center text-center">
                   Price Normal
               </div>
-              <div className="w-1/5 flex justify-center text-center">
+              <div className="lgPrice flex justify-center text-center">
                   Price Large
               </div>
-              <div className='w-1/5 flex justify-center text-center'>
+              <div className="ingredient flex justify-center text-center">
+                  In Stock
+              </div>
+              <div className='button flex justify-center text-center'>
                   Update
               </div>
             </div>
@@ -196,6 +202,8 @@ export default function Dashboard() {
                     name={menuDrinkItem.name}
                     priceNormal={menuDrinkItem.priceNormal}
                     priceLarge={menuDrinkItem.priceLarge}
+                    category={menuDrinkItem.category}
+                    reload={getMenuDrinks}
                 />
             ))}
             </div>
