@@ -6,7 +6,8 @@ CREATE TABLE Ingredient (
     Ideal_Amount DOUBLE PRECISION,
     Restock_Price DOUBLE PRECISION,
     Consumer_Price DOUBLE PRECISION,
-    Amount_Used DOUBLE PRECISION
+    Amount_Used DOUBLE PRECISION,
+    Is_Ingredient BOOLEAN
 );
 
 CREATE TABLE Category (
