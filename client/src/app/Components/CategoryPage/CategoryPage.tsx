@@ -55,15 +55,14 @@ useEffect(() => {
     return(
       <div className='catagoryContainer w-screen w-screenflex-row flex h-full'>
       <div className="flex flex-col items-center justify-start w-1/2 h-full m-4">
-         {firstHalfCategories.map((category, key) => (
-          <div className = "h-1/4 w-full mt-10">
-            <MenuItem
-           key = {key} 
+         {firstHalfCategories.map((category)=> (
+          <div className = "h-1/4 w-full mt-10" key={category}>
+            <MenuItem 
            drinkName={category}
           drinkImage={defualtDrinkImg} 
             altTxt={"Test Drink"} 
            thisOnClick={() => openModal(category)}/>
-           <Modal key={key} open={openModals[category]} onClose={() => closeModal(category)} 
+           <Modal open={openModals[category]} onClose={() => closeModal(category)} 
            drinkName={category} setDrinkState={setDrinksState} >
             Customize Ingredients</Modal>
           </div>
@@ -71,15 +70,14 @@ useEffect(() => {
          ))}
       </div>
       <div className="flex flex-col items-center justify-start w-1/2 h-full m-4">
-         {secondHalfCategories.map((category, key) => (
-          <div className="h-1/4 w-full mt-10">
+         {secondHalfCategories.map((category) => (
+          <div className="h-1/4 w-full mt-10" key={category} >
             <MenuItem
-           key = {key} 
            drinkName={category}
           drinkImage={defualtDrinkImg} 
             altTxt={"Test Drink"} 
             thisOnClick={() => openModal(category)}/>
-            <Modal key={key} open={openModals[category]} onClose={() => closeModal(category)} 
+            <Modal open={openModals[category]} onClose={() => closeModal(category)} 
             drinkName={category} setDrinkState={setDrinksState} >
              Customize Ingredients</Modal>
            </div>
