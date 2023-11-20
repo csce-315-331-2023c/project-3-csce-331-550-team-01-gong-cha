@@ -31,7 +31,7 @@ export default function Topping({toppingName, price, addTopping, removeTopping, 
     
     return(
         
-            <div className='bg-cyan-200 w-full flex justify-evenly border-white border-2 h-10'>
+            <div className='bg-rose-700 w-full flex justify-evenly border-white border-2 h-10'>
                 <div className='flex justify-center items-center w-4/6'>
                     {toppingName}
                 </div>
