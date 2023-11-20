@@ -18,11 +18,20 @@ export default function Order() {
         sugar: number;
         sz: number;
       }
+
+      type Drink = {
+        id: number;
+        name: string;
+        normal_cost: number;
+        large_cost: number;
+        norm_consumer_price: number;
+        lg_consumer_price: number;
+      };
     
     const [drinks, setDrinks] = useState([]);
     useEffect(() => {
         
-          fetch('http://18.191.166.59:5000/drinks-from-category/0') // Replace with the actual API endpoint URL
+          fetch('http://localhost:4000/drinks-from-category/1') // Replace with the actual API endpoint URL
             .then((response) => {
               if (!response.ok) {
                 alert("did not pass");
@@ -31,8 +40,8 @@ export default function Order() {
               return response.json();
             })
             .then((data) => {
-                // Assuming 'data' is an array of drinks
-                setDrinks(data); // Directly set the received array to your state
+                const drinkNames = data.drinks.map((drink : Drink) => drink);
+                setDrinks(drinkNames);
               })
             .catch((error) => {
               console.error('There was a problem with the fetch operation:', error);
@@ -48,10 +57,7 @@ export default function Order() {
             </button>
             <div className='catagoryContainer w-screen w-screenflex-row flex h-full'>
                 <div className="flex items-center justify-start w-full h-full">
-                
-                
-
-                <CategoryPage categoryNames={drinks}></CategoryPage> 
+                <CategoryPage categoryDrinks={drinks}></CategoryPage> 
                 </div>
 
                 

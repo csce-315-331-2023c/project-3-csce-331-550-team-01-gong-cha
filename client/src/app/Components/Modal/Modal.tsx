@@ -11,6 +11,7 @@ interface orderDrink {
   ice: number;
   sugar: number;
   sz: number;
+  // price: number;
 }
 
 interface ModalProps {
@@ -18,25 +19,27 @@ interface ModalProps {
   children: React.ReactNode
   onClose: () => void;
   drinkName: string;
+  lgDrinkPrice: number;
+  nmDrinkPrice: number;
+  // lgCost: number;
+  // nmCost: number;
   setDrinkState: (newState: (prevDrinkState: orderDrink[]) => orderDrink[]) => void;
   
 }
 
-const currentOrderDrinks: orderDrink[] = []
-
-export default function Modal({ open, children, onClose, drinkName, setDrinkState}: ModalProps) {
+export default function Modal({ open, children, onClose, drinkName, setDrinkState, lgDrinkPrice, nmDrinkPrice}: ModalProps) {
   const [currentModal, setCurrentModal] = useState(0);
   const [totalPrice, setTotalPrice] = useState(0);
   const [selectedIce, setSetlectedIce] = useState(0);
   const [selectedSize, setSelectedSize] = useState(0);
   const [selectedSugar, setSelectedSugar] = useState(0);
   
- 
 
   const [selectedOptions, setSelectedOptions] = useState({
     size: 0,
     iceLevel: 0,
-    sugarLevel: 0
+    sugarLevel: 0,
+    // price: 0
   });
 
 
@@ -52,7 +55,8 @@ export default function Modal({ open, children, onClose, drinkName, setDrinkStat
       name: drinkName,
       ice: selectedOptions.iceLevel,
       sugar: selectedOptions.sugarLevel,
-      sz: selectedOptions.size
+      sz: selectedOptions.size,
+      // price: selectedOptions.price
     }
     const existingOrders = JSON.parse(localStorage.getItem('orders') || '[]');
       localStorage.setItem('orders', JSON.stringify([...existingOrders, newDrink]));

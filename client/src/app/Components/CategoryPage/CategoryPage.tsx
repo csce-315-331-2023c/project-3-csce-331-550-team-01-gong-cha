@@ -7,17 +7,27 @@ import defualtDrinkImg from '../../../../public/defualtDrinkImg.png'
 import { useState, useEffect} from 'react';
 import OrderDrink from '../OrderDrink/OrderDrink';
 
-interface CategoryPageProps {
-    categoryNames: string[];
-    
-  }
+
 
 interface OpenModals {
   [key:string]: boolean;
 }
 
+type Drink = {
+  id: number;
+  name: string;
+  normal_cost: number;
+  large_cost: number;
+  norm_consumer_price: number;
+  lg_consumer_price: number;
+};
+
+interface CategoryPageProps {
+  categoryDrinks: Drink[];
   
-export default function CategoryPage({categoryNames}: CategoryPageProps){
+}
+  
+export default function CategoryPage({categoryDrinks}: CategoryPageProps){
   const [openModals, setOpenModals] = useState<OpenModals>({});
 
   const openModal = (category: string) => {
@@ -33,10 +43,10 @@ export default function CategoryPage({categoryNames}: CategoryPageProps){
     window.location.href = "../../Order/" + category;
 }
 
-const halfLength = Math.ceil(categoryNames.length / 2);
+const halfLength = Math.ceil(categoryDrinks.length / 2);
 
-const firstHalfCategories = categoryNames.slice(0, halfLength);
-const secondHalfCategories = categoryNames.slice(halfLength);
+const firstHalfCategories = categoryDrinks.slice(0, halfLength);
+const secondHalfCategories = categoryDrinks.slice(halfLength);
 
 interface orderDrink {
   name: string;
@@ -53,17 +63,19 @@ useEffect(() => {
   setDrinksState(storedOrders);
 })
     return(
-      <div className='catagoryContainer w-screen w-screenflex-row flex h-full'>
+      <div className='catagoryContainer w-screenflex-row flex h-full'>
       <div className="flex flex-col items-center justify-start w-1/2 h-full m-4">
          {firstHalfCategories.map((category)=> (
-          <div className = "h-1/4 w-full mt-10" key={category}>
+          <div className = "h-1/4 w-full mt-10" key={category.name}>
+            
             <MenuItem 
-           drinkName={category}
+           drinkName={category.name}
           drinkImage={defualtDrinkImg} 
             altTxt={"Test Drink"} 
-           thisOnClick={() => openModal(category)}/>
-           <Modal open={openModals[category]} onClose={() => closeModal(category)} 
-           drinkName={category} setDrinkState={setDrinksState} >
+           thisOnClick={() => openModal(category.name)}/>
+           <Modal open={openModals[category.name]} onClose={() => closeModal(category.name)} 
+           drinkName={category.name} setDrinkState={setDrinksState}
+           lgDrinkPrice={category.lg_consumer_price} nmDrinkPrice={category.norm_consumer_price}>
             Customize Ingredients</Modal>
           </div>
            
@@ -71,20 +83,21 @@ useEffect(() => {
       </div>
       <div className="flex flex-col items-center justify-start w-1/2 h-full m-4">
          {secondHalfCategories.map((category) => (
-          <div className="h-1/4 w-full mt-10" key={category} >
+          <div className="h-1/4 w-full mt-10" key={category.name} >
             <MenuItem
-           drinkName={category}
+           drinkName={category.name}
           drinkImage={defualtDrinkImg} 
             altTxt={"Test Drink"} 
-            thisOnClick={() => openModal(category)}/>
-            <Modal open={openModals[category]} onClose={() => closeModal(category)} 
-            drinkName={category} setDrinkState={setDrinksState} >
+            thisOnClick={() => openModal(category.name)}/>
+            <Modal open={openModals[category.name]} onClose={() => closeModal(category.name)} 
+            drinkName={category.name} setDrinkState={setDrinksState} 
+            lgDrinkPrice={category.lg_consumer_price} nmDrinkPrice={category.norm_consumer_price}>
              Customize Ingredients</Modal>
            </div>
            
          ))}
       </div>
-      <div className = "bg-white border-black rounded-lg">
+      <div className = "bg-white border-black rounded-lg w-1/5 h-full">
       {drinksState.map((drink, key) => (
         <OrderDrink
           key = {key}
@@ -93,10 +106,8 @@ useEffect(() => {
           sugar = {drink.sugar}
           size={drink.sz}/>
       ))}
-      </div>
-      
-
       <button onClick={() => localStorage.clear()}>clearOrders</button>
+      </div>
       </div>
 
     );
