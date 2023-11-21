@@ -24,7 +24,7 @@ CREATE TABLE Menu_Drink (
     Lg_Consumer_Price DOUBLE PRECISION,
     Category_ID INTEGER,
     CONSTRAINT fk_Category FOREIGN KEY (Category_ID) REFERENCES Category(ID),
-    Is_Offered BOOLEAN
+    Is_Offered BOOLEAN DEFAULT TRUE
 );
 
 CREATE TABLE Menu_Drink_Ingredient (

@@ -1347,7 +1347,7 @@ app.put('/update-ingredient/:id', async (req, res) => {
 // Update Menu Drink
 app.put('/update-menu-drink/:id', async (req, res) => {
   const menuDrinkId = req.params.id;
-  const { name, normalCost, largeCost, normConsumerPrice, lgConsumerPrice, category } = req.body;
+  const { name, normalCost, largeCost, normConsumerPrice, lgConsumerPrice, category, isOffered } = req.body;
 
   if (
     !name ||
@@ -1355,7 +1355,8 @@ app.put('/update-menu-drink/:id', async (req, res) => {
     largeCost === undefined ||
     normConsumerPrice === undefined ||
     lgConsumerPrice === undefined ||
-    category === undefined
+    category === undefined ||
+    isOffered === undefined
   ) {
     res.status(400).json({ error: 'Invalid parameters' });
     return;
@@ -1364,11 +1365,11 @@ app.put('/update-menu-drink/:id', async (req, res) => {
   try {
     const updateSQL = `UPDATE menu_drink
       SET Name = $1, Normal_Cost = $2, Large_Cost = $3,
-      Norm_Consumer_Price = $4, Lg_Consumer_Price = $5, Category_ID = $6
-      WHERE ID = $7`;
+      Norm_Consumer_Price = $4, Lg_Consumer_Price = $5, Category_ID = $6, Is_Offered = $7
+      WHERE ID = $8`;
 
     const client = await pool.connect();
-    const result = await client.query(updateSQL, [name, normalCost, largeCost, normConsumerPrice, lgConsumerPrice, category, menuDrinkId]);
+    const result = await client.query(updateSQL, [name, normalCost, largeCost, normConsumerPrice, lgConsumerPrice, category, isOffered, menuDrinkId]);
     client.release();
 
     if (result.rowCount > 0) {
@@ -1403,7 +1404,7 @@ app.get('/categories', async (req, res) => {
   }
 });
 
-//Get all drinks from a category given the category primary key
+//Get all drinks from a category given the category primary key and Is_Offered is true
 app.get('/drinks-from-category/:categoryId', async (req, res) => {
   try {
     const categoryId = parseInt(req.params.categoryId, 10); // Convert the string to a number
@@ -1417,7 +1418,7 @@ app.get('/drinks-from-category/:categoryId', async (req, res) => {
     const SQL = `
       SELECT ID, Name, Normal_Cost, Large_Cost, Norm_Consumer_Price, Lg_Consumer_Price
       FROM Menu_Drink
-      WHERE Category_ID = $1`;
+      WHERE Category_ID = $1 AND Is_Offered = true`;
 
     const client = await pool.connect();
     const result = await client.query(SQL, [categoryId]);
@@ -1425,13 +1426,13 @@ app.get('/drinks-from-category/:categoryId', async (req, res) => {
 
     // Check if any drinks were found
     if (result.rows.length === 0) {
-      res.status(404).json({ error: 'No drinks found in the specified category' });
+      res.status(404).json({ error: 'No offered drinks found in the specified category' });
     } else {
       const drinks = result.rows;
       res.json({ drinks });
     }
   } catch (error) {
-    console.error('Error fetching drinks from category:', error);
+    console.error('Error fetching offered drinks from category:', error);
     res.status(500).json({ error: (error as Error).message });
   }
 });
@@ -1445,6 +1446,7 @@ app.post('/create-menu-drink', async (req, res) => {
     normConsumerPrice,
     lgConsumerPrice,
     categoryID,
+    isOffered,  // Add this line to include Is_Offered in the request body
   } = req.body;
 
   if (
@@ -1463,10 +1465,10 @@ app.post('/create-menu-drink', async (req, res) => {
     const client = await pool.connect();
 
     const insertMenuDrinkSQL = `
-      INSERT INTO Menu_Drink (Name, Normal_Cost, Large_Cost, Norm_Consumer_Price, Lg_Consumer_Price, Category_ID)
-      VALUES ($1, $2, $3, $4, $5, $6)`;
+      INSERT INTO Menu_Drink (Name, Normal_Cost, Large_Cost, Norm_Consumer_Price, Lg_Consumer_Price, Category_ID, Is_Offered)
+      VALUES ($1, $2, $3, $4, $5, $6, $7)`;
 
-    const values = [name, normalCost, largeCost, normConsumerPrice, lgConsumerPrice, categoryID];
+    const values = [name, normalCost, largeCost, normConsumerPrice, lgConsumerPrice, categoryID, isOffered !== undefined ? isOffered : true];
 
     await client.query(insertMenuDrinkSQL, values);
     client.release();
@@ -1491,6 +1493,41 @@ app.get('/is-ingredient', async (req, res) => {
   } catch (error) {
     console.error('Error fetching ingredients with Is_Ingredient:', error);
     res.status(500).json({ error: 'An error occurred while fetching ingredients' });
+  }
+});
+
+app.put('/change-offered/:id', async (req, res) => {
+  const menuDrinkId = req.params.id;
+
+  try {
+    const client = await pool.connect();
+
+    // Retrieve the current value of Is_Offered
+    const currentOfferedResult = await client.query('SELECT Is_Offered FROM Menu_Drink WHERE ID = $1', [menuDrinkId]);
+
+    if (currentOfferedResult.rows.length === 0) {
+      // If the menu drink is not found, return an error
+      res.status(404).json({ error: 'Menu Drink not found' });
+      return;
+    }
+
+    const currentOffered = currentOfferedResult.rows[0].is_offered;
+
+    // Toggle the value of Is_Offered
+    const newOffered = !currentOffered;
+
+    // Update the menu drink with the new value of Is_Offered
+    const updateOfferedResult = await client.query('UPDATE Menu_Drink SET Is_Offered = $1 WHERE ID = $2', [newOffered, menuDrinkId]);
+    client.release();
+
+    if (updateOfferedResult.rowCount > 0) {
+      res.json({ message: 'Is_Offered changed successfully' });
+    } else {
+      res.status(500).json({ error: 'Error changing Is_Offered' });
+    }
+  } catch (error) {
+    console.error('Error changing Is_Offered:', error);
+    res.status(500).json({ error: 'An error occurred while changing Is_Offered' });
   }
 });
 
