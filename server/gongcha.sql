@@ -23,7 +23,8 @@ CREATE TABLE Menu_Drink (
     Norm_Consumer_Price DOUBLE PRECISION,
     Lg_Consumer_Price DOUBLE PRECISION,
     Category_ID INTEGER,
-    CONSTRAINT fk_Category FOREIGN KEY (Category_ID) REFERENCES Category(ID)
+    CONSTRAINT fk_Category FOREIGN KEY (Category_ID) REFERENCES Category(ID),
+    Is_Offered BOOLEAN
 );
 
 CREATE TABLE Menu_Drink_Ingredient (

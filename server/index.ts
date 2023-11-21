@@ -257,7 +257,8 @@ async function createTables(): Promise<number> {
       Norm_Consumer_Price DOUBLE PRECISION,
       Lg_Consumer_Price DOUBLE PRECISION
       Category_ID INTEGER,
-      CONSTRAINT fk_Category FOREIGN KEY (Category_ID) REFERENCES Category(ID)
+      CONSTRAINT fk_Category FOREIGN KEY (Category_ID) REFERENCES Category(ID),
+      IsOffered BOOLEAN
     );
 
     CREATE TABLE Menu_Drink_Ingredient (
