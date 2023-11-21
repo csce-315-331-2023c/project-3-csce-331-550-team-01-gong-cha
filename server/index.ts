@@ -1254,7 +1254,7 @@ app.get('/excess-report/:startDate', async (req, res) => {
 
     while (idList.length != 0) {
       // Create a list of menu IDs for the order drinks
-      const menuIdsResponse = await axios.get(`${serverUrl}/get-menu-drinks-for-order-drinks/${idList.splice(0, Math.min(50, idList.length)).join()}`);
+      const menuIdsResponse = await axios.get(`${serverUrl}/get-menu-drinks-for-order-drinks/${idList.splice(0, Math.min(1800, idList.length)).join()}`);
       menuIds = menuIds.concat(menuIdsResponse.data);
     }
 
