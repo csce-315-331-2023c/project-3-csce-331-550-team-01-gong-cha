@@ -11,7 +11,9 @@ interface orderDrink {
   ice: number;
   sugar: number;
   sz: number;
-  // price: number;
+  totalPrice: number; // cost for customer
+  costPrice: number; // cost for us to make
+  id: number;
 }
 
 interface ModalProps {
@@ -21,15 +23,16 @@ interface ModalProps {
   drinkName: string;
   lgDrinkPrice: number;
   nmDrinkPrice: number;
-  // lgCost: number;
-  // nmCost: number;
+  lgCost: number;
+  nmCost: number;
+  drinkID: number;
   setDrinkState: (newState: (prevDrinkState: orderDrink[]) => orderDrink[]) => void;
   
 }
 
-export default function Modal({ open, children, onClose, drinkName, setDrinkState, lgDrinkPrice, nmDrinkPrice}: ModalProps) {
+export default function Modal({ open, children, onClose, drinkName, setDrinkState, lgDrinkPrice, nmDrinkPrice, drinkID}: ModalProps) {
   const [currentModal, setCurrentModal] = useState(0);
-  const [totalPrice, setTotalPrice] = useState(0);
+  const [toppingsPrice, setToppingsPrice] = useState(0);
   const [selectedIce, setSetlectedIce] = useState(0);
   const [selectedSize, setSelectedSize] = useState(0);
   const [selectedSugar, setSelectedSugar] = useState(0);
@@ -39,7 +42,8 @@ export default function Modal({ open, children, onClose, drinkName, setDrinkStat
     size: 0,
     iceLevel: 0,
     sugarLevel: 0,
-    // price: 0
+    totalPrice: 0,
+    totalCost: 0
   });
 
 
@@ -56,6 +60,10 @@ export default function Modal({ open, children, onClose, drinkName, setDrinkStat
       ice: selectedOptions.iceLevel,
       sugar: selectedOptions.sugarLevel,
       sz: selectedOptions.size,
+      totalPrice: selectedOptions.totalPrice,
+      costPrice: selectedOptions.totalCost,
+      id: drinkID
+
       // price: selectedOptions.price
     }
     const existingOrders = JSON.parse(localStorage.getItem('orders') || '[]');
@@ -100,12 +108,12 @@ export default function Modal({ open, children, onClose, drinkName, setDrinkStat
     }, [open, currentModal]);
   
   const addTopping = (price: number) => {
-    setTotalPrice(totalPrice + price)
+    setToppingsPrice(toppingsPrice + price)
   }
 
   const removeTopping = (price: number) => {
-    if (totalPrice >= price){
-      setTotalPrice(totalPrice - price)
+    if (toppingsPrice >= price){
+      setToppingsPrice(toppingsPrice - price)
     }
     
   }
@@ -119,7 +127,7 @@ export default function Modal({ open, children, onClose, drinkName, setDrinkStat
   const handleBack = () => {
     if (currentModal > 0) {
       setCurrentModal(currentModal - 1);
-      setTotalPrice(0);
+      setToppingsPrice(0);
     }
   }
 
@@ -141,11 +149,13 @@ export default function Modal({ open, children, onClose, drinkName, setDrinkStat
     setSelectedSugar(sugar);
   }
 
-  const handleSize = (newSize: number) => {
+  const handleSize = (newSize: number, cost: number) => {
     setSelectedOptions((prevOptions) => ({
       ...prevOptions,
-      size: newSize
+      size: newSize,
+      totalPrice: cost + toppingsPrice
     }))
+    
 
     setSelectedSize(newSize);
   }
@@ -170,8 +180,8 @@ const getSizeButtonStyle = (size: number) => {
       {/* {drinkName} */}
       {/* Normal and large div */}
       <div className="flex-row flex justify-evenly h-1/5">
-        <button className={`${getSizeButtonStyle(0)} rounded-lg w-1/5 p-2`}onClick={() => (handleSize(0))}>Normal</button>
-        <button className={`${getSizeButtonStyle(1)} rounded-lg w-1/5 p-2`} onClick={() => (handleSize(1))}>Large</button>
+        <button className={`${getSizeButtonStyle(0)} rounded-lg w-1/5 p-2`}onClick={() => (handleSize(0, nmDrinkPrice))}>Normal</button>
+        <button className={`${getSizeButtonStyle(1)} rounded-lg w-1/5 p-2`} onClick={() => (handleSize(1, lgDrinkPrice))}>Large</button>
       </div>
 
       {/* ice and sugar divs */}
@@ -236,7 +246,7 @@ const getSizeButtonStyle = (size: number) => {
       </div>
       <div className="w-full place-items-center flex justify-center">
         <div className="border-white border-2 rounded-md w-1/3 text-xl bg-rose-700">
-            $: {totalPrice}
+            $: {toppingsPrice}
         </div>
       </div>
       
