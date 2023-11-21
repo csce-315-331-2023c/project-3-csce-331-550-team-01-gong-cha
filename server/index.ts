@@ -2,6 +2,8 @@ import express from 'express';
 import { Pool, Client } from 'pg';
 import dotenv from 'dotenv';
 import axios from 'axios';
+import { Queue } from 'queue-typescript';
+//const { Queue } = require('queue-typescript')
 
 dotenv.config({path: 'Credentials.env'} );
 //Create experss app
@@ -982,9 +984,10 @@ app.get('/get-menu-drinks-for-order-drinks/:idTuple', async (req, res) => {
 app.get('/menu-drink-amount', async (req, res) => {
   try {
     const querySQL = 'SELECT COUNT(ID) FROM menu_drink';
+    const testSQL = 'SELECT COUNT(*) FROM menu_drink';
 
     const client = await pool.connect();
-    const { rows } = await client.query(querySQL);
+    const { rows } = await client.query(testSQL);
     client.release();
 
     if (rows.length > 0) {
@@ -1136,7 +1139,7 @@ app.post('/new-seasonal-menu-item', async (req, res) => {
   }
 });
 
-app.get('/soldTogether/:startDate/:endDate', async (req, res) => {
+app.get('/sold-together/:startDate/:endDate', async (req, res) => {
   try {
       const startDate = req.params.startDate;
       const endDate = req.params.endDate;
@@ -1184,7 +1187,7 @@ app.get('/soldTogether/:startDate/:endDate', async (req, res) => {
   }
 });
 
-app.get('/salesReport/:startDate/:endDate', async (req, res) => {
+app.get('/sales-report/:startDate/:endDate', async (req, res) => {
   try {
       const startDate = req.params.startDate;
       const endDate = req.params.endDate;
@@ -1223,38 +1226,38 @@ app.get('/salesReport/:startDate/:endDate', async (req, res) => {
   }
 });
 
-app.get('/excessReport/:startDate', async (req, res) => {
+app.get('/excess-report/:startDate', async (req, res) => {
   try {
     const startDate = req.params.startDate;
 
-    // Use Axios to make GET requests to the other routes
-    const [numberOfMenuDrinksResponse, numberOfIngredientsResponse] = await Promise.all([
-      axios.get(`${serverUrl}/menu-drink-amount`),
-      axios.get(`${serverUrl}/ingredient-amount`),
-    ]);
+    //Get a list of all PK's for menu drinks and ingredients
+    const menuDrinkResponse = await axios.get<{id:number}[]>(`${serverUrl}/menu-drink`);
+    const drinkIDs =  menuDrinkResponse.data.map((item) => item.id);
 
-    // Extract data from the responses
-    const numberOfMenuDrinks:number = numberOfMenuDrinksResponse.data.amount;
-    const numberOfIngredients = numberOfIngredientsResponse.data.amount;
+    const ingredientsResponse = await axios.get<{id:number}[]>(`${serverUrl}/ingredients`);
+    const ingredientIDs =  ingredientsResponse.data.map((item) => item.id);
 
     // Initialize arrays and variables for the report
-    var drinks:number[] = new Array();
-    for (var i = 0; i < numberOfMenuDrinks; i++) {
-      drinks[i] = 0;
+    let drinks: { [key: number]: number } = {};
+    for (let i = 0; i < drinkIDs.length; i++) {
+        drinks[drinkIDs[i]] = 0;
     }
-    var ingredients:number[] = new Array();
-    for (var i = 0; i < numberOfIngredients; i++) {
-        ingredients[i] = 0;
+    let ingredients: { [key: number]: number } = {};
+    for (let i = 0; i < ingredientIDs.length; i++) {
+      ingredients[ingredientIDs[i]] = 0;
     }
     let report = '';
 
     // Retrieve order pairs for the given start date
     const orderPairsResponse = await axios.get<{orderdrinkid:number}[]>(`${serverUrl}/order-drink-pairs/${startDate}`);
-    const idList = orderPairsResponse.data.map((item) => item.orderdrinkid);
+    let idList = orderPairsResponse.data.map((item) => item.orderdrinkid);
+    let menuIds : number[] = [];
 
-    // Create a list of menu IDs for the order drinks
-    const menuIdsResponse = await axios.get(`${serverUrl}/get-menu-drinks-for-order-drinks/${idList.join(',')}`);
-    const menuIds = menuIdsResponse.data;
+    while (idList.length != 0) {
+      // Create a list of menu IDs for the order drinks
+      const menuIdsResponse = await axios.get(`${serverUrl}/get-menu-drinks-for-order-drinks/${idList.splice(0, Math.min(1800, idList.length)).join()}`);
+      menuIds = menuIds.concat(menuIdsResponse.data);
+    }
 
     // Count the number of each menu drink
     menuIds.forEach((menuId:number) => {
@@ -1262,16 +1265,13 @@ app.get('/excessReport/:startDate', async (req, res) => {
     });
 
     // Retrieve ingredients for menu drinks
-    const ingredientsListResponse = await axios.get(
-      `${serverUrl}/ingredients-for-menu-drinks/${menuIds.join()}`
-    );
+    const ingredientsListResponse = await axios.get(`${serverUrl}/ingredients-for-menu-drinks/${drinkIDs.join()}`);
     const ingredientsList = ingredientsListResponse.data;
-    console.log(ingredientsList);
 
     for (let i = 0; i < ingredientsList.length; i++) {
       for (let j = 0; j < ingredientsList[i].length; j++) {
         const ingredientID = ingredientsList[i][j];
-        const drinkID = menuIds[i];
+        const drinkID = drinkIDs[i];
 
         // Use Axios to get the amount used for the ingredient
         const amountUsedResponse = await axios.get(`${serverUrl}/manager-view-ingredient/${ingredientID}`);
@@ -1280,17 +1280,17 @@ app.get('/excessReport/:startDate', async (req, res) => {
         ingredients[ingredientID] += drinks[drinkID] * amountUsed;
       }
     }
-    console.log(ingredients);
 
     // Generate the report
-    for (let i = 1; i <= ingredients.length; i++) {
+    for (let i = 0; i < ingredientIDs.length; i++) {
+      let ing = ingredientIDs[i]
       // Use Axios to get the ideal amount for the ingredient
-      const idealAmountResponse = await axios.get(`${serverUrl}/get-ideal-ingredient-amount/${i}`);
+      const idealAmountResponse = await axios.get(`${serverUrl}/get-ideal-ingredient-amount/${ing}`);
       const idealAmount = idealAmountResponse.data.idealAmount;
 
-      if (ingredients[i] / idealAmount < 0.1) {
+      if (ingredients[ing] / idealAmount < 0.1) {
         // Use Axios to get the ingredient name
-        const ingredientNameResponse = await axios.get(`${serverUrl}/get-ingredient-name/${i}`);
+        const ingredientNameResponse = await axios.get(`${serverUrl}/get-ingredient-name/${ing}`);
         const ingredientName = ingredientNameResponse.data.ingredientName;
 
         report += `${ingredientName}\n`;
