@@ -56,15 +56,19 @@ export default function RestockReportIngredient({pk, name, priceNormal, priceLar
     const [IlargePrice, setIlargePrice] = useState('');
 
     return(
-        <div className='bg-cyan-200 w-full flex justify-start border-white border-2 h-10'>
-            <input className='name w-2/6 flex justify-center items-center bg-cyan-200 text-center' placeholder={name} type="Iname" id="Iname" value={Iname} onChange={(e) => setIname(e.target.value)}/>
-            <input className='normPrice w-1/5 flex justify-center items-center bg-cyan-200 text-center' placeholder={priceNormal} type="InormalPrice" id="InormalPrice" value={InormalPrice} onChange={(e) => setInormalPrice(e.target.value)}/>
-            <input className='lgPrice w-1/5 flex justify-center items-center bg-cyan-200 text-center' placeholder={priceLarge} type="IlargePrice" id="IlargePrice" value={IlargePrice} onChange={(e) => setIlargePrice(e.target.value)}/>
-            <Conditional condition={true}>
-                <button className="ingredient w-1/6 bg-green-600 h-full items-center" onClick={setInStock}>Yes</button>
-            </Conditional>
-            <div className='button w-1/6'>
-                <button className="bg-cyan-500 w-full h-full items-center" onClick={() => updateMenuDrink(pk, Iname, InormalPrice, IlargePrice)}>Update</button>
+        <div className='flex justify-center bg-slate-200 w-ful h-12 mt-1'>
+            <div className='total bg-slate-100 w-full flex justify-start border-rose-700 border-2 rounded-lg'>
+                <input className='name w-2/6 flex justify-center items-center  text-center rounded-lg' placeholder={name} type="Iname" id="Iname" value={Iname} onChange={(e) => setIname(e.target.value)}/>
+                <input className='normPrice w-1/5 flex justify-center items-center text-center' placeholder={priceNormal} type="InormalPrice" id="InormalPrice" value={InormalPrice} onChange={(e) => setInormalPrice(e.target.value)}/>
+                <input className='lgPrice w-1/5 flex justify-center items-center text-center' placeholder={priceLarge} type="IlargePrice" id="IlargePrice" value={IlargePrice} onChange={(e) => setIlargePrice(e.target.value)}/>
+                <Conditional condition={true}>
+                    <div className='ingredient flex items-center w-1/6'>
+                        <button className="w-full bg-green-600 items-center mr-2 rounded-lg h-5/6" onClick={setInStock}>Yes</button>
+                    </div>
+                </Conditional>
+                <div className='button w-1/6 flex items-center'>
+                    <button className="bg-rose-700 w-full h-5/6 items-center rounded-lg mr-1 text-slate-200" onClick={() => updateMenuDrink(pk, Iname, InormalPrice, IlargePrice)}>Update</button>
+                </div>
             </div>
         </div>
     );
