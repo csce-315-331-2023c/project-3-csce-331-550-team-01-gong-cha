@@ -17,10 +17,6 @@ export default function Dashboard() {
     window.location.href = "/Order";
   }
 
-  function openLogin(){
-
-  }
-
   return (
     <div className='h-screen'>
         <Image

@@ -2,9 +2,41 @@
 
 import MenuItem from '../Components/MenuItem/MenuItem'
 import defualtDrinkImg from '../../../public/defualtDrinkImg.png'
+import { useGeolocated } from 'react-geolocated'
+import React, { useState, useEffect } from 'react'
 import './styles.css'
 
+
+
 export default function Order() {
+
+    const { coords, isGeolocationAvailable, isGeolocationEnabled } = 
+    useGeolocated({positionOptions: {enableHighAccuracy: false,},userDecisionTimeout: 5000,});
+
+    useEffect(() => {
+        if(coords && isGeolocationAvailable && isGeolocationEnabled){
+            fetch(`https://api.open-meteo.com/v1/forecast?latitude=${coords?.latitude.toFixed(2)}&longitude=${coords?.longitude.toFixed(2)}&current=temperature_2m,is_day,rain,snowfall&temperature_unit=fahrenheit`) // Replace with the actual API endpoint URL
+            .then((response) => {
+                if (!response.ok) {
+                alert("did not pass");
+                throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then((data) => {
+                // Process the data received from the API and store it in the state
+                if(parseFloat(data?.current?.temperature_2m) > 90){
+                    alert(`Recommend hot drink, Temp: ${data?.current?.temperature_2m}F`);
+                }
+                else if(parseFloat(data?.current?.temperature_2m) > 65){
+                    alert(`Recomend Normal Drink, Temp: ${data?.current?.temperature_2m}F`);
+                }
+                else{
+                    alert(`Recommend cold drink, Temp: ${data?.current?.temperature_2m}F`);
+                }         
+            })
+        }
+    });
 
     function goToCategory(category: string){
         window.location.href = "Order/Catagories/" + category;

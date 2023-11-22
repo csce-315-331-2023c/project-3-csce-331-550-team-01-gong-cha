@@ -1310,7 +1310,7 @@ app.put('/update-ingredient/:id', async (req, res) => {
   const { name, currentAmount, idealAmount, restockPrice, consumerPrice, amountUsed, isIngredient } = req.body;
 
   if (
-    !name ||
+    name === undefined ||
     currentAmount === undefined ||
     idealAmount === undefined ||
     restockPrice === undefined ||
