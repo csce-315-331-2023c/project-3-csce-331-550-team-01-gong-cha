@@ -51,40 +51,27 @@ export default function Dashboard() {
   const [excessReportOpen, setExcessReportOpen] = useState(false)
 
   function getIngredients(){
-    // fetch(`http://18.191.166.59:5000/ingredients`) // Replace with the actual API endpoint URL
-    //     .then((response) => {
-    //         if (!response.ok) {
-    //         alert("did not pass");
-    //         throw new Error('Network response was not ok');
-    //         }
-    //         return response.json();
-    //     })
-    //     .then((data) => {
-    //         // Process the data received from the API and store it in the state
+    fetch(`http://18.191.166.59:5000/ingredients`) // Replace with the actual API endpoint URL
+        .then((response) => {
+            if (!response.ok) {
+            alert("did not pass");
+            throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then((data) => {
+            // Process the data received from the API and store it in the state
             
-    //         const ingredientData: IngredientItem[] = data.map((item: any) => ({
-    //             pk: item.id,
-    //             name: item.ingredient_name,
-    //             CurrentStock: item.current_amount,
-    //             IdealStock: item.ideal_amount,
-    //             AmountUsed: item.amount_used,
-    //             ConsumerPrice: item.consumer_price,
-    //         }));
-    //         setIngredientItems(ingredientData);
-    //     })
-    IngredientItems.push({pk: 1, name: 'test', CurrentStock: '100', IdealStock: '200', AmountUsed: '0.25', ConsumerPrice: '0.5'})
-    IngredientItems.push({pk: 1, name: 'test', CurrentStock: '100', IdealStock: '200', AmountUsed: '0.25', ConsumerPrice: '0.5'})
-    IngredientItems.push({pk: 1, name: 'test', CurrentStock: '100', IdealStock: '200', AmountUsed: '0.25', ConsumerPrice: '0.5'})
-    IngredientItems.push({pk: 1, name: 'test', CurrentStock: '100', IdealStock: '200', AmountUsed: '0.25', ConsumerPrice: '0.5'})
-    IngredientItems.push({pk: 1, name: 'test', CurrentStock: '100', IdealStock: '200', AmountUsed: '0.25', ConsumerPrice: '0.5'})
-    IngredientItems.push({pk: 1, name: 'test', CurrentStock: '100', IdealStock: '200', AmountUsed: '0.25', ConsumerPrice: '0.5'})
-    IngredientItems.push({pk: 1, name: 'test', CurrentStock: '100', IdealStock: '200', AmountUsed: '0.25', ConsumerPrice: '0.5'})
-    IngredientItems.push({pk: 1, name: 'test', CurrentStock: '100', IdealStock: '200', AmountUsed: '0.25', ConsumerPrice: '0.5'})
-    IngredientItems.push({pk: 1, name: 'test', CurrentStock: '100', IdealStock: '200', AmountUsed: '0.25', ConsumerPrice: '0.5'})
-    IngredientItems.push({pk: 1, name: 'test', CurrentStock: '100', IdealStock: '200', AmountUsed: '0.25', ConsumerPrice: '0.5'})
-    IngredientItems.push({pk: 1, name: 'test', CurrentStock: '100', IdealStock: '200', AmountUsed: '0.25', ConsumerPrice: '0.5'})
-    IngredientItems.push({pk: 1, name: 'test', CurrentStock: '100', IdealStock: '200', AmountUsed: '0.25', ConsumerPrice: '0.5'})
-    IngredientItems.push({pk: 1, name: 'test', CurrentStock: '100', IdealStock: '200', AmountUsed: '0.25', ConsumerPrice: '0.5'})
+            const ingredientData: IngredientItem[] = data.map((item: any) => ({
+                pk: item.id,
+                name: item.ingredient_name,
+                CurrentStock: item.current_amount,
+                IdealStock: item.ideal_amount,
+                AmountUsed: item.amount_used,
+                ConsumerPrice: item.consumer_price,
+            }));
+            setIngredientItems(ingredientData);
+        })
   }
 
   function createIngredient(nameI: string, curA: string, idealA: string, consumP: string, amountU: string){
@@ -106,34 +93,26 @@ export default function Dashboard() {
   }
 
   function getMenuDrinks(){
-    // fetch(`http://18.191.166.59:5000/menu-drink`) // Replace with the actual API endpoint URL
-    //     .then((response) => {
-    //         if (!response.ok) {
-    //         alert("did not pass");
-    //         throw new Error('Network response was not ok');
-    //         }
-    //         return response.json();
-    //     })
-    //     .then((data) => {
-    //         // Process the data received from the API and store it in the state
+    fetch(`http://18.191.166.59:5000/menu-drink`) // Replace with the actual API endpoint URL
+        .then((response) => {
+            if (!response.ok) {
+            alert("did not pass");
+            throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then((data) => {
+            // Process the data received from the API and store it in the state
             
-    //         const menuDrinkData: MenuDrink[] = data.map((item: any) => ({
-    //             pk: item.id,
-    //             name: item.name,
-    //             priceNormal: item.norm_consumer_price,
-    //             priceLarge: item.lg_consumer_price,
-    //             category: item.category_id,
-    //         }));
-    //         setmenuDrinkItems(menuDrinkData);
-    //     })
-        menuDrinkItems.push({pk: 1, name: 'Hello', priceNormal: '10', priceLarge: '15', category: '1'})
-        menuDrinkItems.push({pk: 1, name: 'Hello', priceNormal: '10', priceLarge: '15', category: '1'})
-        menuDrinkItems.push({pk: 1, name: 'Hello', priceNormal: '10', priceLarge: '15', category: '1'})
-        menuDrinkItems.push({pk: 1, name: 'Hello', priceNormal: '10', priceLarge: '15', category: '1'})
-        menuDrinkItems.push({pk: 1, name: 'Hello', priceNormal: '10', priceLarge: '15', category: '1'})
-        menuDrinkItems.push({pk: 1, name: 'Hello', priceNormal: '10', priceLarge: '15', category: '1'})
-        menuDrinkItems.push({pk: 1, name: 'Hello', priceNormal: '10', priceLarge: '15', category: '1'})
-        menuDrinkItems.push({pk: 1, name: 'Hello', priceNormal: '10', priceLarge: '15', category: '1'})
+            const menuDrinkData: MenuDrink[] = data.map((item: any) => ({
+                pk: item.id,
+                name: item.name,
+                priceNormal: item.norm_consumer_price,
+                priceLarge: item.lg_consumer_price,
+                category: item.category_id,
+            }));
+            setmenuDrinkItems(menuDrinkData);
+        })
   }
 
   const [loaded, setLoaded] = useState(false);
