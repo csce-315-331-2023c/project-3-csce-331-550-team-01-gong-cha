@@ -1,7 +1,9 @@
 import express from 'express';
 import { Pool, Client } from 'pg';
 import dotenv from 'dotenv';
-// import axios from 'axios';
+import axios from 'axios';
+import { Queue } from 'queue-typescript';
+//const { Queue } = require('queue-typescript')
 
 dotenv.config({path: 'Credentials.env'} );
 //Create experss app
@@ -240,7 +242,8 @@ async function createTables(): Promise<number> {
       Ideal_Amount DOUBLE PRECISION,
       Restock_Price DOUBLE PRECISION,
       Consumer_Price DOUBLE PRECISION,
-      Amount_Used DOUBLE PRECISION
+      Amount_Used DOUBLE PRECISION,
+      Is_Ingredient BOOLEAN
     );
     
     CREATE TABLE Category (
@@ -256,7 +259,8 @@ async function createTables(): Promise<number> {
       Norm_Consumer_Price DOUBLE PRECISION,
       Lg_Consumer_Price DOUBLE PRECISION
       Category_ID INTEGER,
-      CONSTRAINT fk_Category FOREIGN KEY (Category_ID) REFERENCES Category(ID)
+      CONSTRAINT fk_Category FOREIGN KEY (Category_ID) REFERENCES Category(ID),
+      IsOffered BOOLEAN
     );
 
     CREATE TABLE Menu_Drink_Ingredient (
@@ -370,34 +374,36 @@ app.post('/create-order-drink', async (req, res) => {
     });
   }
 });
-//Create Ingredient
+
+
 app.post('/create-ingredient', async (req, res) => {
-  const { name, currentAmount, idealAmount, restockPrice, consumerPrice, amountUsed } = req.body;
+  const { name, currentAmount, idealAmount, restockPrice, consumerPrice, amountUsed, isIngredient } = req.body;
 
   if (
     !name ||
-    isNaN(currentAmount) ||
-    isNaN(idealAmount) ||
-    isNaN(restockPrice) ||
-    isNaN(consumerPrice) ||
-    isNaN(amountUsed)
+    currentAmount === undefined ||
+    idealAmount === undefined ||
+    restockPrice === undefined ||
+    consumerPrice === undefined ||
+    amountUsed === undefined ||
+    isIngredient === undefined
   ) {
-    res.status(400).json({ error: 'Invalid parameters in the request body' });
+    res.status(400).json({ error: 'Invalid parameters' });
     return;
   }
 
   try {
     const SQL = `
-      INSERT INTO ingredient (Ingredient_Name, Current_Amount, Ideal_Amount, Restock_Price, Consumer_Price, Amount_Used)
-      VALUES ($1, $2, $3, $4, $5, $6)
+      INSERT INTO ingredient (Ingredient_Name, Current_Amount, Ideal_Amount, Restock_Price, Consumer_Price, Amount_Used, Is_Ingredient)
+      VALUES ($1, $2, $3, $4, $5, $6, $7)
       RETURNING ID`;
 
     const client = await pool.connect();
-    const result = await client.query(SQL, [name, currentAmount, idealAmount, restockPrice, consumerPrice, amountUsed]);
+    const result = await client.query(SQL, [name, currentAmount, idealAmount, restockPrice, consumerPrice, amountUsed, isIngredient]);
     client.release();
 
     if (result.rows.length > 0) {
-      res.status(201).json({ ingredientId: result.rows[0].id });
+      res.json({ ingredientId: result.rows[0].id });
     } else {
       res.status(500).json({ error: 'Error creating ingredient' });
     }
@@ -780,40 +786,6 @@ app.get('/get-ingredient-name-and-price', async (req, res) => {
   }
 });
 
-//create Ingredient
-app.post('/create-ingredient', async (req, res) => {
-  const { name, currentAmount, idealAmount, restockPrice, consumerPrice, amountUsed } = req.body;
-
-  if (
-    !name || 
-    currentAmount === undefined ||
-    idealAmount === undefined ||
-    restockPrice === undefined ||
-    consumerPrice === undefined ||
-    amountUsed === undefined
-  ) {
-    res.status(400).json({ error: 'Invalid parameters' });
-    return;
-  }
-
-  try {
-    const SQL = `INSERT INTO ingredient (Ingredient_Name, Current_Amount, Ideal_Amount, Restock_Price, Consumer_Price, Amount_Used)
-      VALUES ($1, $2, $3, $4, $5, $6) RETURNING ID`;
-
-    const client = await pool.connect();
-    const result = await client.query(SQL, [name, currentAmount, idealAmount, restockPrice, consumerPrice, amountUsed]);
-    client.release();
-
-    if (result.rows.length > 0) {
-      res.json({ ingredientId: result.rows[0].id });
-    } else {
-      res.status(500).json({ error: 'Error creating ingredient' });
-    }
-  } catch (error) {
-    console.error('Error creating ingredient:', error);
-    res.status(500).json({ error: (error as Error).message });
-  }
-});
 
 //restock ingredients
 app.post('/restock-ingredients', async (req, res) => {
@@ -1012,9 +984,10 @@ app.get('/get-menu-drinks-for-order-drinks/:idTuple', async (req, res) => {
 app.get('/menu-drink-amount', async (req, res) => {
   try {
     const querySQL = 'SELECT COUNT(ID) FROM menu_drink';
+    const testSQL = 'SELECT COUNT(*) FROM menu_drink';
 
     const client = await pool.connect();
-    const { rows } = await client.query(querySQL);
+    const { rows } = await client.query(testSQL);
     client.release();
 
     if (rows.length > 0) {
@@ -1166,7 +1139,7 @@ app.post('/new-seasonal-menu-item', async (req, res) => {
   }
 });
 
-app.get('/soldTogether/:startDate/:endDate', async (req, res) => {
+app.get('/sold-together/:startDate/:endDate', async (req, res) => {
   try {
       const startDate = req.params.startDate;
       const endDate = req.params.endDate;
@@ -1214,7 +1187,7 @@ app.get('/soldTogether/:startDate/:endDate', async (req, res) => {
   }
 });
 
-app.get('/salesReport/:startDate/:endDate', async (req, res) => {
+app.get('/sales-report/:startDate/:endDate', async (req, res) => {
   try {
       const startDate = req.params.startDate;
       const endDate = req.params.endDate;
@@ -1253,91 +1226,88 @@ app.get('/salesReport/:startDate/:endDate', async (req, res) => {
   }
 });
 
-// app.get('/excessReport/:startDate', async (req, res) => {
-//   try {
-//     const startDate = req.params.startDate;
+app.get('/excess-report/:startDate', async (req, res) => {
+  try {
+    const startDate = req.params.startDate;
 
-//     // Use Axios to make GET requests to the other routes
-//     const [numberOfMenuDrinksResponse, numberOfIngredientsResponse] = await Promise.all([
-//       axios.get(`${serverUrl}/menu-drink-amount`),
-//       axios.get(`${serverUrl}/ingredient-amount`),
-//     ]);
+    //Get a list of all PK's for menu drinks and ingredients
+    const menuDrinkResponse = await axios.get<{id:number}[]>(`${serverUrl}/menu-drink`);
+    const drinkIDs =  menuDrinkResponse.data.map((item) => item.id);
 
-//     // Extract data from the responses
-//     const numberOfMenuDrinks:number = numberOfMenuDrinksResponse.data.amount;
-//     const numberOfIngredients = numberOfIngredientsResponse.data.amount;
+    const ingredientsResponse = await axios.get<{id:number}[]>(`${serverUrl}/ingredients`);
+    const ingredientIDs =  ingredientsResponse.data.map((item) => item.id);
 
-//     // Initialize arrays and variables for the report
-//     var drinks:number[] = new Array();
-//     for (var i = 0; i < numberOfMenuDrinks; i++) {
-//       drinks[i] = 0;
-//     }
-//     var ingredients:number[] = new Array();
-//     for (var i = 0; i < numberOfIngredients; i++) {
-//         ingredients[i] = 0;
-//     }
-//     let report = '';
+    // Initialize arrays and variables for the report
+    let drinks: { [key: number]: number } = {};
+    for (let i = 0; i < drinkIDs.length; i++) {
+        drinks[drinkIDs[i]] = 0;
+    }
+    let ingredients: { [key: number]: number } = {};
+    for (let i = 0; i < ingredientIDs.length; i++) {
+      ingredients[ingredientIDs[i]] = 0;
+    }
+    let report = '';
 
-//     // Retrieve order pairs for the given start date
-//     const orderPairsResponse = await axios.get<{orderdrinkid:number}[]>(`${serverUrl}/order-drink-pairs/${startDate}`);
-//     const idList = orderPairsResponse.data.map((item) => item.orderdrinkid);
+    // Retrieve order pairs for the given start date
+    const orderPairsResponse = await axios.get<{orderdrinkid:number}[]>(`${serverUrl}/order-drink-pairs/${startDate}`);
+    let idList = orderPairsResponse.data.map((item) => item.orderdrinkid);
+    let menuIds : number[] = [];
 
-//     // Create a list of menu IDs for the order drinks
-//     const menuIdsResponse = await axios.get(`${serverUrl}/get-menu-drinks-for-order-drinks/${idList.join(',')}`);
-//     const menuIds = menuIdsResponse.data;
+    while (idList.length != 0) {
+      // Create a list of menu IDs for the order drinks
+      const menuIdsResponse = await axios.get(`${serverUrl}/get-menu-drinks-for-order-drinks/${idList.splice(0, Math.min(1800, idList.length)).join()}`);
+      menuIds = menuIds.concat(menuIdsResponse.data);
+    }
 
-//     // Count the number of each menu drink
-//     menuIds.forEach((menuId:number) => {
-//       drinks[menuId] += 1;
-//     });
+    // Count the number of each menu drink
+    menuIds.forEach((menuId:number) => {
+      drinks[menuId] += 1;
+    });
 
-//     // Retrieve ingredients for menu drinks
-//     const ingredientsListResponse = await axios.get(
-//       `${serverUrl}/ingredients-for-menu-drinks/${menuIds.join()}`
-//     );
-//     const ingredientsList = ingredientsListResponse.data;
-//     console.log(ingredientsList);
+    // Retrieve ingredients for menu drinks
+    const ingredientsListResponse = await axios.get(`${serverUrl}/ingredients-for-menu-drinks/${drinkIDs.join()}`);
+    const ingredientsList = ingredientsListResponse.data;
 
-//     for (let i = 0; i < ingredientsList.length; i++) {
-//       for (let j = 0; j < ingredientsList[i].length; j++) {
-//         const ingredientID = ingredientsList[i][j];
-//         const drinkID = menuIds[i];
+    for (let i = 0; i < ingredientsList.length; i++) {
+      for (let j = 0; j < ingredientsList[i].length; j++) {
+        const ingredientID = ingredientsList[i][j];
+        const drinkID = drinkIDs[i];
 
-//         // Use Axios to get the amount used for the ingredient
-//         const amountUsedResponse = await axios.get(`${serverUrl}/manager-view-ingredient/${ingredientID}`);
-//         const amountUsed = amountUsedResponse.data.amountUsed;
+        // Use Axios to get the amount used for the ingredient
+        const amountUsedResponse = await axios.get(`${serverUrl}/manager-view-ingredient/${ingredientID}`);
+        const amountUsed = amountUsedResponse.data.amountUsed;
 
-//         ingredients[ingredientID] += drinks[drinkID] * amountUsed;
-//       }
-//     }
-//     console.log(ingredients);
+        ingredients[ingredientID] += drinks[drinkID] * amountUsed;
+      }
+    }
 
-//     // Generate the report
-//     for (let i = 1; i <= ingredients.length; i++) {
-//       // Use Axios to get the ideal amount for the ingredient
-//       const idealAmountResponse = await axios.get(`${serverUrl}/get-ideal-ingredient-amount/${i}`);
-//       const idealAmount = idealAmountResponse.data.idealAmount;
+    // Generate the report
+    for (let i = 0; i < ingredientIDs.length; i++) {
+      let ing = ingredientIDs[i]
+      // Use Axios to get the ideal amount for the ingredient
+      const idealAmountResponse = await axios.get(`${serverUrl}/get-ideal-ingredient-amount/${ing}`);
+      const idealAmount = idealAmountResponse.data.idealAmount;
 
-//       if (ingredients[i] / idealAmount < 0.1) {
-//         // Use Axios to get the ingredient name
-//         const ingredientNameResponse = await axios.get(`${serverUrl}/get-ingredient-name/${i}`);
-//         const ingredientName = ingredientNameResponse.data.ingredientName;
+      if (ingredients[ing] / idealAmount < 0.1) {
+        // Use Axios to get the ingredient name
+        const ingredientNameResponse = await axios.get(`${serverUrl}/get-ingredient-name/${ing}`);
+        const ingredientName = ingredientNameResponse.data.ingredientName;
 
-//         report += `${ingredientName}\n`;
-//       }
-//     }
+        report += `${ingredientName}\n`;
+      }
+    }
 
-//     res.send(report);
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ error: 'Internal Server Error' });
-//   }
-// });
+    res.send(report);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
 
 // Update Ingredient
 app.put('/update-ingredient/:id', async (req, res) => {
-  const ingredientId = parseInt(req.params.id);
-  const { name, currentAmount, idealAmount, restockPrice, consumerPrice, amountUsed } = req.body;
+  const ingredientId = req.params.id;
+  const { name, currentAmount, idealAmount, restockPrice, consumerPrice, amountUsed, isIngredient } = req.body;
 
   if (
     name === undefined ||
@@ -1345,20 +1315,22 @@ app.put('/update-ingredient/:id', async (req, res) => {
     idealAmount === undefined ||
     restockPrice === undefined ||
     consumerPrice === undefined ||
-    amountUsed === undefined
+    amountUsed === undefined ||
+    isIngredient === undefined
   ) {
     res.status(400).json({ error: 'Invalid parameters' });
     return;
   }
 
   try {
-    const updateSQL = `UPDATE ingredient
+    const updateSQL = `
+      UPDATE ingredient
       SET Ingredient_Name = $1, Current_Amount = $2, Ideal_Amount = $3,
-      Restock_Price = $4, Consumer_Price = $5, Amount_Used = $6
-      WHERE ID = $7`;
+      Restock_Price = $4, Consumer_Price = $5, Amount_Used = $6, Is_Ingredient = $7
+      WHERE ID = $8`;
 
     const client = await pool.connect();
-    const result = await client.query(updateSQL, [name, currentAmount, idealAmount, restockPrice, consumerPrice, amountUsed, ingredientId]);
+    const result = await client.query(updateSQL, [name, currentAmount, idealAmount, restockPrice, consumerPrice, amountUsed, isIngredient, ingredientId]);
     client.release();
 
     if (result.rowCount > 0) {
@@ -1372,11 +1344,10 @@ app.put('/update-ingredient/:id', async (req, res) => {
   }
 });
 
-//update menu drink
 // Update Menu Drink
 app.put('/update-menu-drink/:id', async (req, res) => {
   const menuDrinkId = req.params.id;
-  const { name, normalCost, largeCost, normConsumerPrice, lgConsumerPrice, category } = req.body;
+  const { name, normalCost, largeCost, normConsumerPrice, lgConsumerPrice, category, isOffered } = req.body;
 
   if (
     !name ||
@@ -1384,7 +1355,8 @@ app.put('/update-menu-drink/:id', async (req, res) => {
     largeCost === undefined ||
     normConsumerPrice === undefined ||
     lgConsumerPrice === undefined ||
-    category === undefined
+    category === undefined ||
+    isOffered === undefined
   ) {
     res.status(400).json({ error: 'Invalid parameters' });
     return;
@@ -1393,11 +1365,11 @@ app.put('/update-menu-drink/:id', async (req, res) => {
   try {
     const updateSQL = `UPDATE menu_drink
       SET Name = $1, Normal_Cost = $2, Large_Cost = $3,
-      Norm_Consumer_Price = $4, Lg_Consumer_Price = $5, Category_ID = $6
-      WHERE ID = $7`;
+      Norm_Consumer_Price = $4, Lg_Consumer_Price = $5, Category_ID = $6, Is_Offered = $7
+      WHERE ID = $8`;
 
     const client = await pool.connect();
-    const result = await client.query(updateSQL, [name, normalCost, largeCost, normConsumerPrice, lgConsumerPrice, category, menuDrinkId]);
+    const result = await client.query(updateSQL, [name, normalCost, largeCost, normConsumerPrice, lgConsumerPrice, category, isOffered, menuDrinkId]);
     client.release();
 
     if (result.rowCount > 0) {
@@ -1432,7 +1404,7 @@ app.get('/categories', async (req, res) => {
   }
 });
 
-//Get all drinks from a category given the category primary key
+//Get all drinks from a category given the category primary key and Is_Offered is true
 app.get('/drinks-from-category/:categoryId', async (req, res) => {
   try {
     const categoryId = parseInt(req.params.categoryId, 10); // Convert the string to a number
@@ -1446,7 +1418,7 @@ app.get('/drinks-from-category/:categoryId', async (req, res) => {
     const SQL = `
       SELECT ID, Name, Normal_Cost, Large_Cost, Norm_Consumer_Price, Lg_Consumer_Price
       FROM Menu_Drink
-      WHERE Category_ID = $1`;
+      WHERE Category_ID = $1 AND Is_Offered = true`;
 
     const client = await pool.connect();
     const result = await client.query(SQL, [categoryId]);
@@ -1454,13 +1426,13 @@ app.get('/drinks-from-category/:categoryId', async (req, res) => {
 
     // Check if any drinks were found
     if (result.rows.length === 0) {
-      res.status(404).json({ error: 'No drinks found in the specified category' });
+      res.status(404).json({ error: 'No offered drinks found in the specified category' });
     } else {
       const drinks = result.rows;
       res.json({ drinks });
     }
   } catch (error) {
-    console.error('Error fetching drinks from category:', error);
+    console.error('Error fetching offered drinks from category:', error);
     res.status(500).json({ error: (error as Error).message });
   }
 });
@@ -1474,6 +1446,7 @@ app.post('/create-menu-drink', async (req, res) => {
     normConsumerPrice,
     lgConsumerPrice,
     categoryID,
+    isOffered,  // Add this line to include Is_Offered in the request body
   } = req.body;
 
   if (
@@ -1492,10 +1465,10 @@ app.post('/create-menu-drink', async (req, res) => {
     const client = await pool.connect();
 
     const insertMenuDrinkSQL = `
-      INSERT INTO Menu_Drink (Name, Normal_Cost, Large_Cost, Norm_Consumer_Price, Lg_Consumer_Price, Category_ID)
-      VALUES ($1, $2, $3, $4, $5, $6)`;
+      INSERT INTO Menu_Drink (Name, Normal_Cost, Large_Cost, Norm_Consumer_Price, Lg_Consumer_Price, Category_ID, Is_Offered)
+      VALUES ($1, $2, $3, $4, $5, $6, $7)`;
 
-    const values = [name, normalCost, largeCost, normConsumerPrice, lgConsumerPrice, categoryID];
+    const values = [name, normalCost, largeCost, normConsumerPrice, lgConsumerPrice, categoryID, isOffered !== undefined ? isOffered : true];
 
     await client.query(insertMenuDrinkSQL, values);
     client.release();
@@ -1504,6 +1477,57 @@ app.post('/create-menu-drink', async (req, res) => {
   } catch (error) {
     console.error('Error creating menu drink:', error);
     res.status(500).json({ error: 'An error occurred while creating the menu drink' });
+  }
+});
+
+//gets all ingredients that are actually ingredients 
+app.get('/is-ingredient', async (req, res) => {
+  try {
+    const SQL = 'SELECT * FROM ingredient WHERE Is_Ingredient = true';
+
+    const client = await pool.connect();
+    const result = await client.query(SQL);
+    client.release();
+
+    res.status(200).json(result.rows);
+  } catch (error) {
+    console.error('Error fetching ingredients with Is_Ingredient:', error);
+    res.status(500).json({ error: 'An error occurred while fetching ingredients' });
+  }
+});
+
+app.put('/change-offered/:id', async (req, res) => {
+  const menuDrinkId = req.params.id;
+
+  try {
+    const client = await pool.connect();
+
+    // Retrieve the current value of Is_Offered
+    const currentOfferedResult = await client.query('SELECT Is_Offered FROM Menu_Drink WHERE ID = $1', [menuDrinkId]);
+
+    if (currentOfferedResult.rows.length === 0) {
+      // If the menu drink is not found, return an error
+      res.status(404).json({ error: 'Menu Drink not found' });
+      return;
+    }
+
+    const currentOffered = currentOfferedResult.rows[0].is_offered;
+
+    // Toggle the value of Is_Offered
+    const newOffered = !currentOffered;
+
+    // Update the menu drink with the new value of Is_Offered
+    const updateOfferedResult = await client.query('UPDATE Menu_Drink SET Is_Offered = $1 WHERE ID = $2', [newOffered, menuDrinkId]);
+    client.release();
+
+    if (updateOfferedResult.rowCount > 0) {
+      res.json({ message: 'Is_Offered changed successfully' });
+    } else {
+      res.status(500).json({ error: 'Error changing Is_Offered' });
+    }
+  } catch (error) {
+    console.error('Error changing Is_Offered:', error);
+    res.status(500).json({ error: 'An error occurred while changing Is_Offered' });
   }
 });
 

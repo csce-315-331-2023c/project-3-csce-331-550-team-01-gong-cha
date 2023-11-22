@@ -6,7 +6,8 @@ CREATE TABLE Ingredient (
     Ideal_Amount DOUBLE PRECISION,
     Restock_Price DOUBLE PRECISION,
     Consumer_Price DOUBLE PRECISION,
-    Amount_Used DOUBLE PRECISION
+    Amount_Used DOUBLE PRECISION,
+    Is_Ingredient BOOLEAN
 );
 
 CREATE TABLE Category (
@@ -22,7 +23,8 @@ CREATE TABLE Menu_Drink (
     Norm_Consumer_Price DOUBLE PRECISION,
     Lg_Consumer_Price DOUBLE PRECISION,
     Category_ID INTEGER,
-    CONSTRAINT fk_Category FOREIGN KEY (Category_ID) REFERENCES Category(ID)
+    CONSTRAINT fk_Category FOREIGN KEY (Category_ID) REFERENCES Category(ID),
+    Is_Offered BOOLEAN DEFAULT TRUE
 );
 
 CREATE TABLE Menu_Drink_Ingredient (
