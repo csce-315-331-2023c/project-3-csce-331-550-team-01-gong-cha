@@ -1,36 +1,275 @@
 'use client'
+import React, { useState, useEffect } from 'react'
 import './styles.css'
+import Ingredient from '../Components/TabelItems/Ingredient/Ingredient'
+import MenuItem from '../Components/TabelItems/MenuDrink/MenuDrink'
+import ReportsModal from '../Components/ReportModal/ReportModal';
+import ReportModalWithDate from '../Components/ReportModalWithDate/ReportModalWithDate';
+import { useSession, signIn, signOut } from 'next-auth/react'
 
-export default function Manager(){
+export default function Dashboard() {
 
-    function goToInventory(){
-        window.location.href = "./Manager/Inventory";
+  const { data: session } = useSession();
+
+  function goBack(){
+    signOut({ callbackUrl: 'http://localhost:3000' });
+  }
+
+  interface IngredientItem {
+    pk: number;
+    name: string;
+    CurrentStock: string;
+    IdealStock: string;
+    AmountUsed: string;
+    ConsumerPrice: string;
+  }
+
+  interface MenuDrink {
+    pk: number;
+    name: string;
+    priceNormal: string;
+    priceLarge: string;
+    category: string;
+  }
+
+  const [IngredientItems, setIngredientItems] = useState<IngredientItem[]>([]);
+  const [menuDrinkItems, setmenuDrinkItems] = useState<MenuDrink[]>([]);
+
+  const [Iname, setIName] = useState('');
+  const [currentStock, setCurrentStock] = useState('');
+  const [idealStock, setIdealStock] = useState('');
+  const [amountUsed, setAmountUsed] = useState('');
+  const [price, setPrice] = useState('');
+
+  const [drinkName, setDrinkName] = useState('');
+  const [largePrice, setLargePrice] = useState('');
+  const [normalPrice, setNormalPrice] = useState('');
+
+  const [restockReportOpen, setRestockReportOpen] = useState(false)
+  const [salesReportOpen, setSalesReportOpen] = useState(false)
+  const [soldTogetherReportOpen, setSoldTogetherReportOpen] = useState(false)
+  const [excessReportOpen, setExcessReportOpen] = useState(false)
+
+  function getIngredients(){
+    // fetch(`http://18.191.166.59:5000/ingredients`) // Replace with the actual API endpoint URL
+    //     .then((response) => {
+    //         if (!response.ok) {
+    //         alert("did not pass");
+    //         throw new Error('Network response was not ok');
+    //         }
+    //         return response.json();
+    //     })
+    //     .then((data) => {
+    //         // Process the data received from the API and store it in the state
+            
+    //         const ingredientData: IngredientItem[] = data.map((item: any) => ({
+    //             pk: item.id,
+    //             name: item.ingredient_name,
+    //             CurrentStock: item.current_amount,
+    //             IdealStock: item.ideal_amount,
+    //             AmountUsed: item.amount_used,
+    //             ConsumerPrice: item.consumer_price,
+    //         }));
+    //         setIngredientItems(ingredientData);
+    //     })
+    IngredientItems.push({pk: 1, name: 'test', CurrentStock: '100', IdealStock: '200', AmountUsed: '0.25', ConsumerPrice: '0.5'})
+    IngredientItems.push({pk: 1, name: 'test', CurrentStock: '100', IdealStock: '200', AmountUsed: '0.25', ConsumerPrice: '0.5'})
+    IngredientItems.push({pk: 1, name: 'test', CurrentStock: '100', IdealStock: '200', AmountUsed: '0.25', ConsumerPrice: '0.5'})
+    IngredientItems.push({pk: 1, name: 'test', CurrentStock: '100', IdealStock: '200', AmountUsed: '0.25', ConsumerPrice: '0.5'})
+    IngredientItems.push({pk: 1, name: 'test', CurrentStock: '100', IdealStock: '200', AmountUsed: '0.25', ConsumerPrice: '0.5'})
+    IngredientItems.push({pk: 1, name: 'test', CurrentStock: '100', IdealStock: '200', AmountUsed: '0.25', ConsumerPrice: '0.5'})
+    IngredientItems.push({pk: 1, name: 'test', CurrentStock: '100', IdealStock: '200', AmountUsed: '0.25', ConsumerPrice: '0.5'})
+    IngredientItems.push({pk: 1, name: 'test', CurrentStock: '100', IdealStock: '200', AmountUsed: '0.25', ConsumerPrice: '0.5'})
+    IngredientItems.push({pk: 1, name: 'test', CurrentStock: '100', IdealStock: '200', AmountUsed: '0.25', ConsumerPrice: '0.5'})
+    IngredientItems.push({pk: 1, name: 'test', CurrentStock: '100', IdealStock: '200', AmountUsed: '0.25', ConsumerPrice: '0.5'})
+    IngredientItems.push({pk: 1, name: 'test', CurrentStock: '100', IdealStock: '200', AmountUsed: '0.25', ConsumerPrice: '0.5'})
+    IngredientItems.push({pk: 1, name: 'test', CurrentStock: '100', IdealStock: '200', AmountUsed: '0.25', ConsumerPrice: '0.5'})
+    IngredientItems.push({pk: 1, name: 'test', CurrentStock: '100', IdealStock: '200', AmountUsed: '0.25', ConsumerPrice: '0.5'})
+  }
+
+  function createIngredient(nameI: string, curA: string, idealA: string, consumP: string, amountU: string){
+    fetch('http://18.191.166.59:5000/create-ingredient', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({name: nameI, currentAmount: curA, idealAmount: idealA, restockPrice: 0, consumerPrice: consumP, amountUsed: amountU}),
+    })
+    .then(() => {
+      setIName("");
+      setCurrentStock("");
+      setIdealStock("");
+      setAmountUsed("");
+      setPrice("");
+      getIngredients();
+    })
+  }
+
+  function getMenuDrinks(){
+    // fetch(`http://18.191.166.59:5000/menu-drink`) // Replace with the actual API endpoint URL
+    //     .then((response) => {
+    //         if (!response.ok) {
+    //         alert("did not pass");
+    //         throw new Error('Network response was not ok');
+    //         }
+    //         return response.json();
+    //     })
+    //     .then((data) => {
+    //         // Process the data received from the API and store it in the state
+            
+    //         const menuDrinkData: MenuDrink[] = data.map((item: any) => ({
+    //             pk: item.id,
+    //             name: item.name,
+    //             priceNormal: item.norm_consumer_price,
+    //             priceLarge: item.lg_consumer_price,
+    //             category: item.category_id,
+    //         }));
+    //         setmenuDrinkItems(menuDrinkData);
+    //     })
+        menuDrinkItems.push({pk: 1, name: 'Hello', priceNormal: '10', priceLarge: '15', category: '1'})
+        menuDrinkItems.push({pk: 1, name: 'Hello', priceNormal: '10', priceLarge: '15', category: '1'})
+        menuDrinkItems.push({pk: 1, name: 'Hello', priceNormal: '10', priceLarge: '15', category: '1'})
+        menuDrinkItems.push({pk: 1, name: 'Hello', priceNormal: '10', priceLarge: '15', category: '1'})
+        menuDrinkItems.push({pk: 1, name: 'Hello', priceNormal: '10', priceLarge: '15', category: '1'})
+        menuDrinkItems.push({pk: 1, name: 'Hello', priceNormal: '10', priceLarge: '15', category: '1'})
+        menuDrinkItems.push({pk: 1, name: 'Hello', priceNormal: '10', priceLarge: '15', category: '1'})
+        menuDrinkItems.push({pk: 1, name: 'Hello', priceNormal: '10', priceLarge: '15', category: '1'})
+  }
+
+  const [loaded, setLoaded] = useState(false);
+
+  function getMenuInital(loaded : boolean){
+    if(!loaded){
+      getMenuDrinks();
+      getIngredients();
+      setLoaded(true);
     }
+  }
 
-    function goToReports(){
-        window.location.href = "./Manager/Reports";
-    }
+  useEffect(() => {getMenuInital(loaded)});
 
-    function goBack(){
-        window.location.href = "../";
-    }
-
-    return(
-        <main className="bg-slate-400 bg-cover h-screen w-screen flex-col">
-            <button className='backContainter flex items-center' onClick={goBack}>
-                <svg className='ml-4' xmlns="http://www.w3.org/2000/svg" height="5em" viewBox="0 0 448 512"><path d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288 416 288c17.7 0 32-14.3 32-32s-14.3-32-32-32l-306.7 0L214.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg>
-                <div className='ml-8 text-4xl'>Home Page</div>
-            </button>
-            <div className='h-5/6 w-full flex items-center justify-center'>
-                <button className="w-2/6 h-4/6 bg-cyan-200 mr-20 flex flex-col items-center justify-center" onClick={goToInventory}>
-                    <div className='text-6xl'>Edit Inventory</div>
-                    <svg xmlns="http://www.w3.org/2000/svg"  viewBox="0 5 27.00 24.00" height="26em" width="20em" version="1.1" x="0px" y="0px" fillRule="evenodd" clipRule="evenodd" strokeLinejoin="round" strokeMiterlimit="2"><path d="M19.307,7.014c-0.089,0.154 -0.089,0.345 -0,0.5c0.089,0.154 0.254,0.25 0.433,0.25l2.309,-0c0.179,-0 0.344,-0.096 0.433,-0.25l2.135,-3.698c0.138,-0.239 0.056,-0.545 -0.183,-0.683l-1.732,-1c-0.239,-0.138 -0.545,-0.056 -0.683,0.183l-2.712,4.698Zm1.299,-0.25l1.155,-0l1.74,-3.015l-0.866,-0.5l-2.029,3.515Z"/><path d="M24.575,7.317c0.015,-0.141 -0.03,-0.282 -0.125,-0.388c-0.095,-0.105 -0.23,-0.165 -0.372,-0.165l-16.488,-0c-0.141,-0 -0.277,0.06 -0.371,0.165c-0.095,0.106 -0.141,0.247 -0.126,0.388l0.473,4.429c0.027,0.254 0.242,0.447 0.498,0.447l15.541,-0c0.256,-0 0.47,-0.193 0.497,-0.447l0.473,-4.429Zm-16.428,0.447l0.366,3.429l14.643,-0l0.366,-3.429l-15.375,-0Z"/><path d="M26,6.764l-20,-0c-0.276,-0 -0.5,0.224 -0.5,0.5c-0,0.276 0.224,0.5 0.5,0.5l20,-0c0.276,-0 0.5,-0.224 0.5,-0.5c-0,-0.276 -0.224,-0.5 -0.5,-0.5Z"/><path d="M23.777,11.743c0.014,-0.14 -0.032,-0.281 -0.127,-0.385c-0.095,-0.105 -0.229,-0.165 -0.371,-0.165l-14.89,-0c-0.141,-0 -0.276,0.06 -0.371,0.165c-0.095,0.104 -0.141,0.245 -0.126,0.385c-0,0 1.298,12.856 1.656,16.408c0.078,0.766 0.723,1.349 1.493,1.349c2.132,-0 7.455,-0 9.587,-0c0.77,0 1.415,-0.583 1.492,-1.349c0.359,-3.552 1.657,-16.408 1.657,-16.408Zm-1.051,0.45l-13.784,-0l1.601,15.857c0.026,0.256 0.241,0.45 0.498,0.45c2.132,-0 7.455,-0 9.587,0c0.256,0 0.471,-0.194 0.497,-0.45l1.601,-15.857Z"/><path d="M13.786,24.5c-0.893,0 -1.618,0.725 -1.618,1.618c-0,0.893 0.725,1.618 1.618,1.618c0.893,0 1.618,-0.725 1.618,-1.618c-0,-0.893 -0.725,-1.618 -1.618,-1.618Zm-0,1c0.341,0 0.618,0.277 0.618,0.618c-0,0.341 -0.277,0.618 -0.618,0.618c-0.341,0 -0.618,-0.277 -0.618,-0.618c-0,-0.341 0.277,-0.618 0.618,-0.618Z"/><path d="M18.139,24.343c-0.915,0 -1.657,0.743 -1.657,1.657c-0,0.914 0.742,1.657 1.657,1.657c0.914,-0 1.657,-0.743 1.657,-1.657c-0,-0.914 -0.743,-1.657 -1.657,-1.657Zm-0,1c0.362,0 0.657,0.294 0.657,0.657c-0,0.363 -0.295,0.657 -0.657,0.657c-0.363,-0 -0.657,-0.294 -0.657,-0.657c-0,-0.363 0.294,-0.657 0.657,-0.657Z"/><path d="M19.054,20.889c-0.81,0 -1.468,0.659 -1.468,1.47c0,0.811 0.658,1.469 1.468,1.469c0.81,0 1.468,-0.658 1.468,-1.469c-0,-0.811 -0.658,-1.47 -1.468,-1.47Zm0,1c0.259,0 0.468,0.211 0.468,0.47c-0,0.259 -0.209,0.469 -0.468,0.469c-0.258,0 -0.468,-0.21 -0.468,-0.469c0,-0.259 0.21,-0.47 0.468,-0.47Z"/><path d="M15.125,20.845c-0.823,-0 -1.491,0.668 -1.491,1.491c-0,0.824 0.668,1.492 1.491,1.492c0.824,0 1.492,-0.668 1.492,-1.492c0,-0.823 -0.668,-1.491 -1.492,-1.491Zm0,1c0.272,-0 0.492,0.22 0.492,0.491c0,0.272 -0.22,0.492 -0.492,0.492c-0.271,0 -0.491,-0.22 -0.491,-0.492c-0,-0.271 0.22,-0.491 0.491,-0.491Z"/><path d="M11.558,20.105c-0.284,-0.283 -0.284,-0.744 -0,-1.027c0.283,-0.284 0.744,-0.284 1.027,-0c0.195,0.195 0.512,0.195 0.707,-0c0.195,-0.195 0.195,-0.512 0,-0.707c-0.674,-0.674 -1.768,-0.674 -2.441,-0c-0.674,0.674 -0.674,1.768 -0,2.442c0.195,0.195 0.511,0.195 0.707,-0c0.195,-0.196 0.195,-0.512 -0,-0.708Z"/><path d="M17.416,18.632c0.104,-0.387 0.502,-0.618 0.89,-0.514c0.387,0.104 0.617,0.503 0.514,0.89c-0.072,0.267 0.087,0.541 0.353,0.612c0.267,0.072 0.541,-0.087 0.613,-0.353c0.246,-0.921 -0.301,-1.868 -1.221,-2.115c-0.921,-0.246 -1.868,0.301 -2.115,1.221c-0.071,0.267 0.087,0.541 0.354,0.612c0.266,0.072 0.54,-0.087 0.612,-0.353Z"/></svg>
-                </button>
-                <button className="w-2/6 h-4/6 bg-cyan-200 ml-20 flex flex-col items-center justify-center" onClick={goToReports}>
-                    <div className='text-6xl'>View Reports</div>
-                    <svg className='h-5/6' viewBox="0 0 24.00 24.00" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" strokeWidth="0"></g><g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M9 17H15M9 13H15M9 9H10M13 3H8.2C7.0799 3 6.51984 3 6.09202 3.21799C5.71569 3.40973 5.40973 3.71569 5.21799 4.09202C5 4.51984 5 5.0799 5 6.2V17.8C5 18.9201 5 19.4802 5.21799 19.908C5.40973 20.2843 5.71569 20.5903 6.09202 20.782C6.51984 21 7.0799 21 8.2 21H15.8C16.9201 21 17.4802 21 17.908 20.782C18.2843 20.5903 18.5903 20.2843 18.782 19.908C19 19.4802 19 18.9201 19 17.8V9M13 3L19 9M13 3V7.4C13 7.96005 13 8.24008 13.109 8.45399C13.2049 8.64215 13.3578 8.79513 13.546 8.89101C13.7599 9 14.0399 9 14.6 9H19" stroke="#000000" strokeWidth="1.392" strokeLinecap="round" strokeLinejoin="round"></path> </g></svg>
-                </button>
+  return (
+    <main className="flex-col w-screen h-screen bg-slate-200">
+      {!session  ?
+      <div>
+      <div className='backContainter flex items-center'>
+        <button className='h-full flex items-center' onClick={goBack}>
+          <svg className='ml-4 fill-rose-700' xmlns="http://www.w3.org/2000/svg" height="5em" viewBox="0 0 448 512"><path d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288 416 288c17.7 0 32-14.3 32-32s-14.3-32-32-32l-306.7 0L214.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg>
+          <div className='ml-4 text-5xl text-rose-700 font-semibold'>Home</div>
+        </button>
+        <div className='flex items-center justify-evenly w-full h-full'>
+          <button onClick={() => setRestockReportOpen(true)} className='bg-rose-700 h-4/6 w-1/5 rounded-2xl text-slate-200 text-3xl font-semibold'>Restock Report</button>
+          <button onClick={() => setSalesReportOpen(true)} className='bg-rose-700 h-4/6 w-1/5 rounded-2xl text-slate-200 text-3xl font-semibold'>Sales Report</button>
+          <button onClick={() => setSoldTogetherReportOpen(true)} className='bg-rose-700 h-4/6 w-1/5 rounded-2xl text-slate-200 text-3xl font-semibold'>Sold Together</button>
+          <button onClick={() => setRestockReportOpen(true)} className='bg-rose-700 h-4/6 w-1/5 rounded-2xl text-slate-200 text-3xl font-semibold'>Excess Report</button>
+        </div>
+        <ReportsModal open={restockReportOpen} onClose={() => setRestockReportOpen(false)}>Restock Report</ReportsModal>
+        <ReportModalWithDate open={salesReportOpen} onClose={() => setSalesReportOpen(false)} whichReport={0}>Sales Report</ReportModalWithDate>
+        <ReportModalWithDate open={soldTogetherReportOpen} onClose={() => setSoldTogetherReportOpen(false)} whichReport={1}>Sold Together Report</ReportModalWithDate>
+      </div>
+      <div className='mainContainer w-full flex items-top justify-center'>
+        <div className='flex-col align-center items-center justify-center w-full bg-slate-200 rounded-3xl border-rose-700 border-8 mx-6'>
+          <div className='flex align-center items-center justify-center mb-4 mt-1'>
+            <div className='text-6xl font-bold text-rose-700'>Ingredients</div>
+          </div>
+          <div className='flex items-center justify-center'>
+            <div className='ingredientHeader bg-rose-700 font-bold flex justify-start items-center h-14 text-slate-200 rounded-xl'>
+              <div className='name flex justify-center text-center'>
+                  Ingredient Name
+              </div>
+              <div className="currentStock flex justify-center text-center">
+                  Current Stock
+              </div>
+              <div className="idealStock flex justify-center text-center">
+                  Ideal Stock
+              </div>
+              <div className="amountUsed flex justify-center text-center">
+                  Amount Used
+              </div>
+              <div className="consumerPrice flex justify-center text-center">
+                  Price
+              </div>
+              <div className='button flex justify-center text-center'>
+                  Update
+              </div>
             </div>
-        </main>
-    );
+          </div>
+          <div className='ingredientTableOuter flex justify-center mt-4'>
+            <div className="ingredientTabel flex-col justify-center items-center border-rose-700 border-4 h-full w-full overflow-auto rounded-xl">
+              {IngredientItems.map((ingredientItem, index) => (
+                <Ingredient
+                    key={index}
+                    pk={ingredientItem.pk}
+                    FIName={ingredientItem.name}
+                    CurrentStock={ingredientItem.CurrentStock}
+                    IdealStock={ingredientItem.IdealStock}
+                    FAmountUsed={ingredientItem.AmountUsed}
+                    FConsumerPrice={ingredientItem.ConsumerPrice}
+                    reload={getIngredients}
+                />
+              ))}
+            </div>
+          </div>
+          
+            <div className='createIng flex align-center items-start justify-center w-full mt-4'>
+              <input className='name h-2/5 mx-2 text-center bg-slate-100 rounded-lg border-rose-700 border-2' placeholder='Name' type='Iname' id='IName' value={Iname} onChange={(e) => setIName(e.target.value)}/>
+              <input className='currentStock h-2/5 mr-2 text-center bg-slate-100 rounded-lg border-rose-700 border-2' placeholder='Current' type='currentStock' id='currentStock' value={currentStock} onChange={(e) => setCurrentStock(e.target.value)}/>
+              <input  className='idealStock h-2/5 mr-2 text-center bg-slate-100 rounded-lg border-rose-700 border-2' placeholder='Ideal' type='idealStock' id='idealStock' value={idealStock} onChange={(e) => setIdealStock(e.target.value)}/>
+              <input  className='amountUsed h-2/5 mr-2 text-center bg-slate-100 rounded-lg border-rose-700 border-2'  placeholder='Used' type='amountUsed' id='amountUsed' value={amountUsed} onChange={(e) => setAmountUsed(e.target.value)}/>
+              <input  className='consumerPrice h-2/5 mr-2 text-center bg-slate-100 rounded-lg border-rose-700 border-2' placeholder='Price' type='price' id='price' value={price} onChange={(e) => setPrice(e.target.value)}/>
+              <button className='button h-2/5 bg-rose-700 mr-2 text-center text-slate-200 rounded-lg' onClick={() => createIngredient(Iname, currentStock, idealStock, price, amountUsed)}>Create Ingredient</button>
+            </div>
+          </div>
+          <div className='flex-col w-full bg-slate-200 rounded-3xl border-rose-700 border-8 mx-6'>
+            <div className='flex align-center items-center justify-center mb-4 mt-1'>
+              <div className='text-6xl font-bold text-rose-700'>Drinks</div>
+            </div>
+            <div className='flex items-center justify-center'>
+              <div className='ingredientHeader bg-rose-700 font-bold w-full flex justify-start items-center text-slate-200 rounded-xl h-14'>
+                <div className='name flex justify-center text-center'>
+                    Drink Name
+                </div>
+                <div className="normPrice flex justify-center text-center">
+                    Price Normal
+                </div>
+                <div className="lgPrice flex justify-center text-center">
+                    Price Large
+                </div>
+                <div className="ingredient flex justify-center text-center">
+                    In Stock
+                </div>
+                <div className='button flex justify-center text-center'>
+                    Update
+                </div>
+              </div>
+            </div>
+            <div className='ingredientTableOuter flex justify-center mt-4'>
+              <div className="ingredientTabel flex-col justify-evenly border-rose-700 border-4 rounded-xl h-full w-full overflow-auto">
+              {menuDrinkItems.map((menuDrinkItem, index) => (
+                  <MenuItem
+                      key={index}
+                      pk={menuDrinkItem.pk}
+                      name={menuDrinkItem.name}
+                      priceNormal={menuDrinkItem.priceNormal}
+                      priceLarge={menuDrinkItem.priceLarge}
+                      category={menuDrinkItem.category}
+                      reload={getMenuDrinks}
+                  />
+              ))}
+              </div>
+            </div>
+            <div className='createIng flex align-center items-start justify-center h-1/6 mt-4'>
+              <input className='w-2/5 h-2/5 mx-2 text-center border-rose-700 border-2 bg-slate-100 rounded-lg' placeholder='Name' type='drinkName' id='drinkName' value={drinkName} onChange={(e) => setDrinkName(e.target.value)} />
+              <input className='w-1/5 h-2/5 mr-2 text-center border-rose-700 border-2 bg-slate-100 rounded-lg' placeholder='Normal Price' type='normalPrice' id='normalPrice' value={normalPrice} onChange={(e) => setNormalPrice(e.target.value)} />
+              <input className='w-1/5 h-2/5 mr-2 text-center border-rose-700 border-2 bg-slate-100 rounded-lg' placeholder='Large Price' type='largePrice' id='largePrice' value={largePrice} onChange={(e) => setLargePrice(e.target.value)} />
+              <button className='w-1/5 h-2/5 bg-rose-700 text-slate-200 rounded-lg mr-2'>Create Drink</button>
+            </div> 
+          </div>
+      </div>
+      </div>
+      : 
+      <div>You need to login</div>
+      }
+    </main>
+  );
 }

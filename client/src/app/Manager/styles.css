@@ -1,12 +1,59 @@
-.bobaSvgForm {
-    height: 34em;
-    width: 33em;
+.name {
+    width: 40%;
+}
+
+.currentStock {
+    width:10%;
+}
+
+.idealStock {
+    width: 10%;
+}
+
+.amountUsed {
+    width: 10%;
+}
+
+.consumerPrice {
+    width: 10%;
+}
+
+.button{
+    width: 20%;
+}
+
+.normPrice {
+    width:15%;
+}
+
+.lgPrice {
+    width: 15%;
+}
+
+.ingredient {
+    width: 10%;
 }
 
 .backContainter{
-    height: 8vh;
+    height: 13vh;
 }
 
 .mainContainer{
-    height: 90vh;
+    height: 85vh;
+}
+
+.ingredientHeader {
+    width: 98%;
+}
+
+.ingredientTabel {
+    width: 98%;
+}
+
+.ingredientTableOuter {
+    height: 70%;
+}
+
+.createIng {
+    height: 15%;
 }

@@ -57,14 +57,16 @@ export default function RestockReportIngredient({pk, FIName, CurrentStock, Ideal
     const [Iprice, setPrice] = useState('');
 
     return(
-        <div className='bg-cyan-200 w-full flex justify-start border-white border-2 h-10'>
-            <input className='name flex justify-center items-center bg-cyan-200 text-center' placeholder={FIName} type='Iname' id='IName' value={Iname} onChange={(e) => setIName(e.target.value)}/>
-            <input className='currentStock flex justify-center items-center bg-cyan-200 text-center' placeholder={CurrentStock} type='IcurrentStock' id='IcurrentStock' value={IcurrentStock} onChange={(e) => setCurrentStock(e.target.value)}/>
-            <input className='idealStock flex justify-center items-center bg-cyan-200 text-center' placeholder={IdealStock} type='idealStock' id='idealStock' value={idealStock} onChange={(e) => setIdealStock(e.target.value)}/>
-            <input className='amountUsed flex justify-center items-center bg-cyan-200 text-center' placeholder={FAmountUsed} type='IamountUsed' id='IamountUsed' value={IamountUsed} onChange={(e) => setAmountUsed(e.target.value)}/>
-            <input className='consumerPrice flex justify-center items-center bg-cyan-200 text-center' placeholder={FConsumerPrice} type='Iprice' id='Iprice' value={Iprice} onChange={(e) => setPrice(e.target.value)}/>
-            <div className='button'>
-                <button className="bg-cyan-500 w-full h-full items-center" onClick={() => updateIngredient(pk, Iname, IcurrentStock, idealStock, IamountUsed, Iprice)}>Update</button>
+        <div className='flex justify-center bg-slate-200 w-ful h-12 mt-1'>
+            <div className='total bg-slate-100 w-full flex justify-start border-rose-700 border-2 rounded-lg'>
+                <input className='name flex justify-center items-cente text-center rounded-lg bg-inherit' placeholder={FIName} type='Iname' id='IName' value={Iname} onChange={(e) => setIName(e.target.value)}/>
+                <input className='currentStock flex justify-center items-center text-center bg-inherit' placeholder={CurrentStock} type='IcurrentStock' id='IcurrentStock' value={IcurrentStock} onChange={(e) => setCurrentStock(e.target.value)}/>
+                <input className='idealStock flex justify-center items-center text-center bg-inherit' placeholder={IdealStock} type='idealStock' id='idealStock' value={idealStock} onChange={(e) => setIdealStock(e.target.value)}/>
+                <input className='amountUsed flex justify-center items-center text-center bg-inherit' placeholder={FAmountUsed} type='IamountUsed' id='IamountUsed' value={IamountUsed} onChange={(e) => setAmountUsed(e.target.value)}/>
+                <input className='consumerPrice flex justify-center items-centertext-center bg-inherit' placeholder={FConsumerPrice} type='Iprice' id='Iprice' value={Iprice} onChange={(e) => setPrice(e.target.value)}/>
+                <div className='button flex justify-center align-center items-center mr-1'>
+                    <button className="bg-rose-700 w-full h-5/6 items-center rounded-md text-slate-200" onClick={() => updateIngredient(pk, Iname, IcurrentStock, idealStock, IamountUsed, Iprice)}>Update</button>
+                </div>
             </div>
         </div>
     );
