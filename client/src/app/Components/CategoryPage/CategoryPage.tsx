@@ -103,7 +103,7 @@ useEffect(() => {
             altTxt={"Test Drink"} 
            thisOnClick={() => openModal(category.name)}/>
            <Modal open={openModals[category.name]} onClose={() => closeModal(category.name)} 
-            drinkName={category.name} setDrinkState={setDrinksState} 
+            drinkName={category.name}
             lgDrinkPrice={category.lg_consumer_price} nmDrinkPrice={category.norm_consumer_price}
             lgCost={category.large_cost} nmCost={category.normal_cost}
             drinkID={category.id}>
@@ -121,7 +121,7 @@ useEffect(() => {
             altTxt={"Test Drink"} 
             thisOnClick={() => openModal(category.name)}/>
             <Modal open={openModals[category.name]} onClose={() => closeModal(category.name)} 
-            drinkName={category.name} setDrinkState={setDrinksState} 
+            drinkName={category.name}
             lgDrinkPrice={category.lg_consumer_price} nmDrinkPrice={category.norm_consumer_price}
             lgCost={category.large_cost} nmCost={category.normal_cost}
             drinkID={category.id}>
