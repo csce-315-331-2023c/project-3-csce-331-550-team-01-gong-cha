@@ -4,13 +4,26 @@ import Image, { StaticImageData } from 'next/image'
 import MenuItem from '../MenuItem/MenuItem';
 import Modal from '../Modal/Modal'
 import defualtDrinkImg from '../../../../public/defualtDrinkImg.png'
+import defualtDrinkImg2 from '/public/DrinkImages/Black Milk Tea.png'
+import {DrinkImage} from '../DinkImage/DrinkImage';
 import { useState, useEffect} from 'react';
 import OrderDrink from '../OrderDrink/OrderDrink';
+import "./styles.css"
 
 
 
 interface OpenModals {
   [key:string]: boolean;
+}
+
+interface orderDrink {
+  name: string;
+  ice: number;
+  sugar: number;
+  sz: number;
+  totalPrice: number; // cost for customer
+  costPrice: number; // cost for us to make
+  id: number;
 }
 
 type Drink = {
@@ -28,7 +41,15 @@ interface CategoryPageProps {
 }
   
 export default function CategoryPage({categoryDrinks}: CategoryPageProps){
+
+  function goBack(){
+    window.location.href = "../";
+}
   const [openModals, setOpenModals] = useState<OpenModals>({});
+
+  //const picture = require(`../../../../public/DrinkImages/${categoryDrinks[1].name}`);
+
+  const pictures = categoryDrinks.map((x) => `../../../../public/DrinkImages/${x.name}`);
 
   const openModal = (category: string) => {
     setOpenModals({...openModals, [category]: true});
@@ -38,21 +59,63 @@ export default function CategoryPage({categoryDrinks}: CategoryPageProps){
     setOpenModals({...openModals, [category]: false});
   };
 
-
   function goToCategory(category: string){
     window.location.href = "../../Order/" + category;
 }
+
+  function placeOrder(){
+    const existingOrders = JSON.parse(localStorage.getItem('orders') || '[]');
+    const fetchPromises = existingOrders.forEach((drink: orderDrink) => {
+      alert(JSON.stringify(drink.sz, null, 2)); 
+      // Process each order here
+      // For example, you can log each order to the console
+      alert(JSON.stringify({Total_Price: drink.totalPrice, Size: drink.sz, Menu_Drink_ID: drink.id, Ice_Level: drink.ice, Sugar_Level: drink.sugar}));
+      fetch('http://18.191.166.59:5000/create-order-drink/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({Total_Price: drink.totalPrice, Size: drink.sz, Menu_Drink_ID: drink.id, Ice_Level: drink.ice, Sugar_Level: drink.sugar})
+      })
+  })
+  Promise.all(fetchPromises)
+    .then(responses => {
+      return Promise.all(responses.map(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      }));
+    })
+    .then(data => {
+      console.log('All orders processed:', data);
+      // Handle the response data from all orders
+    })
+    .catch(error => {
+      console.error('Error processing orders:', error);
+      // Handle any errors that occurred during fetching
+    });
+  
+
+  
+  }
 
 const halfLength = Math.ceil(categoryDrinks.length / 2);
 
 const firstHalfCategories = categoryDrinks.slice(0, halfLength);
 const secondHalfCategories = categoryDrinks.slice(halfLength);
 
+const firstHalfPictures = pictures.slice(0, halfLength);
+const secondHalfPictures = pictures.slice(halfLength);
+
 interface orderDrink {
   name: string;
   ice: number;
   sugar: number;
   sz: number;
+  totalPrice: number; // cost for customer
+  costPrice: number; // cost for us to make
+  id: number
 }
 
 const [drinksState, setDrinksState] = useState<orderDrink[]>([]);
@@ -63,20 +126,29 @@ useEffect(() => {
   setDrinksState(storedOrders);
 })
     return(
-      <div className='catagoryContainer w-screenflex-row flex h-full'>
+      <div className="relative mt-10">
+      <button className='backContainter flex items-center' onClick={goBack}>
+                <svg className='ml-4' xmlns="http://www.w3.org/2000/svg" height="5em" viewBox="0 0 448 512"><path d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288 416 288c17.7 0 32-14.3 32-32s-14.3-32-32-32l-306.7 0L214.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg>
+                <div className='ml-8 text-4xl'>Catagories</div>
+                <div className='ml-80 text-6xl'>Milk Tea</div>
+        </button>
+      <div className='catagoryContainer w-screenflex-row flex h-full space-between text-xl'>
+        
       <div className="flex flex-col items-center justify-start w-1/2 h-full m-4">
          {firstHalfCategories.map((category)=> (
           <div className = "h-1/4 w-full mt-10" key={category.name}>
             
-            <MenuItem 
+          <MenuItem 
            drinkName={category.name}
-          drinkImage={defualtDrinkImg} 
-            altTxt={"Test Drink"} 
+            drinkImage={DrinkImage[`_${category.id}`]} 
+            altTxt={"Test Drink"}
            thisOnClick={() => openModal(category.name)}/>
            <Modal open={openModals[category.name]} onClose={() => closeModal(category.name)} 
-           drinkName={category.name} setDrinkState={setDrinksState}
-           lgDrinkPrice={category.lg_consumer_price} nmDrinkPrice={category.norm_consumer_price}>
-            Customize Ingredients</Modal>
+            drinkName={category.name}
+            lgDrinkPrice={category.lg_consumer_price} nmDrinkPrice={category.norm_consumer_price}
+            lgCost={category.large_cost} nmCost={category.normal_cost}
+            drinkID={category.id}>
+             Customize Ingredients</Modal>
           </div>
            
          ))}
@@ -86,18 +158,19 @@ useEffect(() => {
           <div className="h-1/4 w-full mt-10" key={category.name} >
             <MenuItem
            drinkName={category.name}
-          drinkImage={defualtDrinkImg} 
+          drinkImage={DrinkImage[`_${category.id}`]} 
             altTxt={"Test Drink"} 
             thisOnClick={() => openModal(category.name)}/>
             <Modal open={openModals[category.name]} onClose={() => closeModal(category.name)} 
-            drinkName={category.name} setDrinkState={setDrinksState} 
-            lgDrinkPrice={category.lg_consumer_price} nmDrinkPrice={category.norm_consumer_price}>
+            drinkName={category.name}
+            lgDrinkPrice={category.lg_consumer_price} nmDrinkPrice={category.norm_consumer_price}
+            lgCost={category.large_cost} nmCost={category.normal_cost}
+            drinkID={category.id}>
              Customize Ingredients</Modal>
            </div>
-           
          ))}
       </div>
-      <div className = "bg-white border-black rounded-lg w-1/5 h-full">
+      <div className = "orderContainer bg-white border-black rounded-lg w-1/3 h-full text-center">
       {drinksState.map((drink, key) => (
         <OrderDrink
           key = {key}
@@ -106,9 +179,9 @@ useEffect(() => {
           sugar = {drink.sugar}
           size={drink.sz}/>
       ))}
-      <button onClick={() => localStorage.clear()}>clearOrders</button>
+      <button className="bottom-0"onClick={() => {placeOrder(); localStorage.clear()}}>Place Order</button>
       </div>
       </div>
-
+      </div>
     );
 }

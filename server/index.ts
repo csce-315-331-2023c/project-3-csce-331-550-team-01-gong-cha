@@ -348,9 +348,6 @@ app.get('/createTables', async (req, res) => {
   }
 });
 
-
-
-
 app.post('/create-ingredient', async (req, res) => {
   const { name, currentAmount, idealAmount, restockPrice, consumerPrice, amountUsed, isIngredient } = req.body;
 
