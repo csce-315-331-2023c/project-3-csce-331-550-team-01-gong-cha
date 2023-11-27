@@ -1,0 +1,154 @@
+This is a list of the functions that we have in index.ts. Date of last update: 11/26/23
+
+/employees: This gets all the employees in the database:
+
+/menu-drink: This gets all menu drinks in the database
+
+/ingredients: This gets all ingredients in the database
+
+/drop-tables: This deletes everything in the database
+
+/create-order-drink: This creates an order drink. It takes in some parameters. Here's an example of the request body:
+    {
+    "Total_Price": 5.99,
+    "Size": 1,
+    "Menu_Drink_ID": 7,
+    "Ice_Level": 2,
+    "Sugar_Level": 3
+    }
+    The function returns the total_price, the generated order drink primary key, and the make_cost. Kind of odd actually. 
+
+/create-tables: This function should populate the database. It hasn't been tested because we haven't dropped all the tables yet
+
+/create-ingredient: This function creates an ingredient. It takes in some parameters. Here's an example of the request body:
+    {
+    "name": "Example Ingredient",
+    "currentAmount": 100,
+    "idealAmount": 200,
+    "restockPrice": 5.99,
+    "consumerPrice": 9.99,
+    "amountUsed": 50,
+    "isIngredient": true
+    }
+
+/create-order: This function creates an order. It takes in some parameters. Here's an example of the request body:
+    {
+    "serverID": 1,
+    "total_cost": 50.99,
+    "price": 60.99,
+    "profit": 10,
+    "tipped": 5,
+    "takeout": true,
+    "date": "2023-11-01",
+    "time": "12:30 PM",
+    "name": "Example Order"
+    }
+
+/create-ingredient-order-drink: This function creates an ingredient order drink. It takes in some parameters. Here's an example of the request body:
+    {
+    "toppingPKs": [1, 2, 3],      // An array of integers representing the IDs of the toppings
+    "toppingAmounts": [2, 1, 3],  // An array of integers representing the amounts of each corresponding topping
+    "orderDrinkPK": 4            // An integer representing the ID of the order drink
+    }
+
+/manager-view-ingredient/:ingredientID - This function gets an ingredient given it's primary key.
+
+/manager-update-ingredient: This function updates an ingredient with an amoun.t Here's an example of the request body:
+    {
+    "ingredientID": 1,    // An integer representing the ID of the ingredient to update
+    "updateAmount": 5      // An integer representing the amount to add (or subtract) from the current amount
+    }
+
+/change-price: This function changes the price of a menu drink. It takes in some parameters. Here's an example of the request body:
+    {
+    "drink_id": 1,    // An integer representing the ID of the drink to update
+    "size": 0,        // An integer representing the size (0 for normal, 1 for large)
+    "price": 3.99      // A numeric value representing the new price
+    }
+
+/get-drink/:drinkID - This function gets a menu drink given it's primary key. 
+
+/get-popular-drink: This function gets popular drinks
+
+/get-all-drink-names: This function returns an array of each drink and it's primary key.
+
+/get-employee-usernames-and-passwords: This function gets all employee usernames and passwords. Not exactly very secure. 
+    We'll probably get rid of this before the final project. 
+
+/confirm-username-password-match/:username/:password - This function checks if a username and password match.
+    The request would go: /confirm-username-password-match/<username>/<password>
+
+/get-ingredient-name-and-price: This function gets all the ingredients and their prices
+
+/restock-ingredients: This function restocks ingredients. There is no request body. 
+
+/get-ideal-ingredient-amount/:ingredientId - This function gets an ingredients ideal amount given the ingredients primary key.
+    Not sure how useful this function is
+
+/get-ideal-ingredients-amount: This function returns all ingredient names along with their ideal amounts
+
+/report-restock: This function returns the ingredients that need to be restocked. 
+    Not really sure what good this does since restock-ingredients checks the same criteria
+
+/get-ingredient-name/:ingredientId - This function returns an ingredient name given the primary key
+
+/get-menu-drinks-for-order-drinks/:idTuple - This function returns order drinks that use any menu drinks in the tuple
+    Here is an example: /get-menu-drinks-for-order-drinks/1,2,3
+
+/menu-drink-amount: This function returns the amount of menu drinks we have.
+
+/ingredient-amount: This function returns the amount of ingredients we have.
+
+/order-drink-pairs/:startDate - This function returns an array of arrays of orders and their order drinks
+    Here is an example of the request: /order-drink-pairs/2023-09-30
+
+/ingredients-for-menu-drinks/:menuDrinkIDs - This function returns the ingredients of a menu drink given that menu drinks primary key
+
+
+/sold-together/:startDate/:endDate - This function takes a start date and end date and returns drinks that are commonly sold together
+    Here is an example: /sold-together/2023-09-30/2023-10-05 
+
+/excess-report/:startDate - This function returns ingredients that we have sold less than 10% from its start date
+
+/update-ingredient: This updates an ingredient. It takes some parameters:
+    {
+    "name": "Updated Ingredient",
+    "currentAmount": 50.0,
+    "idealAmount": 100.0,
+    "restockPrice": 2.99,
+    "consumerPrice": 5.99,
+    "amountUsed": 30.0,
+    "isIngredient": true
+    }
+
+/update-menu-drink/:id - This function updates a menu drink given it's primary key, and it also takes parameters in the request body
+    {
+    "name": "Updated Drink",
+    "normalCost": 3.99,
+    "largeCost": 5.99,
+    "normConsumerPrice": 4.99,
+    "lgConsumerPrice": 6.99,
+    "category": 2,
+    "isOffered": true
+    }
+
+/categories: This function returns all the category names for menu drinks
+
+/drinks-from-category/:categoryId - This function returns all the menu drinks given a category's orimary ID
+
+
+/create-menu-drink: This function creates a menu drink. It takes some parameters:
+    {
+    "name": "New Drink",
+    "normalCost": 2.99,
+    "largeCost": 4.99,
+    "normConsumerPrice": 3.99,
+    "lgConsumerPrice": 5.99,
+    "categoryID": 1,
+    "isOffered": true
+    }
+
+/is-ingredient: This function returns all ingredients that are actually ingredients. I.E. napkins or cups don't count
+
+/change-offered/:id - This function changes whether or not a menu drink is offered given it's primary key
+    If the drink was offered, now it isn't. If the drink wasn't offered, now it is.

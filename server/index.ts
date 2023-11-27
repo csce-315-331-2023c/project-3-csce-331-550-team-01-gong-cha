@@ -208,7 +208,8 @@ async function createOrderDrink(
 app.post('/create-order-drink', async (req, res) => {
   console.log('Received request body:', req.body); // Add this line for debugging
   const { Total_Price, Size, Menu_Drink_ID, Ice_Level, Sugar_Level } = req.body;
-  if (!Total_Price || !Size || !Menu_Drink_ID || !Ice_Level || !Sugar_Level) {
+  //console.log(`inputs: Total_Price = ${Total_Price}, Size = ${Size}, Menu_Drink_ID = ${Menu_Drink_ID}, Ice_Level = ${Ice_Level}, Sugar_Level = ${Sugar_Level}`);
+  if (Total_Price == undefined || (Size < 0 || Size > 1 || Size == undefined) || Menu_Drink_ID == undefined || Ice_Level == undefined || (Sugar_Level < 0 || Sugar_Level > 4 || Sugar_Level == undefined)) {
     res.status(400).json({ error: 'Invalid parameters' });
     return;
   }
@@ -346,35 +347,6 @@ app.get('/createTables', async (req, res) => {
     res.status(500).json({ error: (error as Error).message });
   }
 });
-
-//create order drink
-app.post('/create-order-drink', async (req, res) => {
-  console.log('Received request body:', req.body); // Add this line for debugging
-  const { Total_Price, Size, Menu_Drink_ID, Ice_Level, Sugar_Level } = req.body;
-  if (Total_Price === null || Size === null || Menu_Drink_ID === null || Ice_Level === null || Sugar_Level === null) {
-    res.status(400).json({ error: 'Invalid parameters' });
-    return;
-  }
-
-  const result = await createOrderDrink(
-    parseFloat(Total_Price),
-    parseInt(Size, 10),
-    parseInt(Menu_Drink_ID, 10),
-    parseInt(Ice_Level, 10),
-    parseInt(Sugar_Level, 10)
-  );
-
-  if (result[1] === -1) {
-    res.status(500).json({ error: 'Failed to create order drink' });
-  } else {
-    res.json({
-      Total_Price: result[0],
-      generatedKey: result[1],
-      make_cost: result[2],
-    });
-  }
-});
-
 
 app.post('/create-ingredient', async (req, res) => {
   const { name, currentAmount, idealAmount, restockPrice, consumerPrice, amountUsed, isIngredient } = req.body;
@@ -1092,52 +1064,7 @@ app.get('/ingredients-for-menu-drinks/:menuDrinkIDs', async (req, res) => {
     res.status(500).json({ error: 'An error occurred while fetching ingredients for menu drinks' });
   }
 });
-//Make new seasonal menu drink
-app.post('/new-seasonal-menu-item', async (req, res) => {
-  const { name, normalCost, largeCost, normConsumerPrice, lgConsumerPrice, ingredientPKs } = req.body;
 
-  if (
-    !name ||
-    isNaN(normalCost) ||
-    isNaN(largeCost) ||
-    isNaN(normConsumerPrice) ||
-    isNaN(lgConsumerPrice) ||
-    !Array.isArray(ingredientPKs) ||
-    ingredientPKs.length === 0
-  ) {
-    res.status(400).json({ error: 'Invalid parameters in the request body' });
-    return;
-  }
-
-  try {
-    const client = await pool.connect();
-    client.query('BEGIN'); // Start a transaction
-
-    // Create the new menu drink with Category_ID set to 8
-    const insertMenuDrinkSQL = `
-      INSERT INTO Menu_Drink (Name, Normal_Cost, Large_Cost, Norm_Consumer_Price, Lg_Consumer_Price, Category_ID)
-      VALUES ($1, $2, $3, $4, $5, 8) -- Set Category_ID to 8
-      RETURNING ID`;
-
-    const menuDrinkValues = [name, normalCost, largeCost, normConsumerPrice, lgConsumerPrice];
-    const menuDrinkResult = await client.query(insertMenuDrinkSQL, menuDrinkValues);
-    const menuDrinkId = menuDrinkResult.rows[0].id;
-
-    // Insert ingredients into the Menu_Drink_Ingredient junction table
-    const insertMenuDrinkIngredientSQL = 'INSERT INTO Menu_Drink_Ingredient (Menu_Drink_ID, Ingredient_ID) VALUES ($1, $2)';
-    for (const ingredientPK of ingredientPKs) {
-      await client.query(insertMenuDrinkIngredientSQL, [menuDrinkId, ingredientPK]);
-    }
-
-    client.query('COMMIT'); // Commit the transaction to save changes
-    client.release();
-
-    res.status(201).json({ message: 'Seasonal menu item added successfully' });
-  } catch (error) {
-    console.error('Error adding new seasonal menu item:', error);
-    res.status(500).json({ error: 'An error occurred while adding the seasonal menu item' });
-  }
-});
 
 app.get('/sold-together/:startDate/:endDate', async (req, res) => {
   try {
