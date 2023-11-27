@@ -129,7 +129,7 @@ export default function Dashboard() {
 
   return (
     <main className="flex-col w-screen h-screen bg-slate-200">
-      {!session  ?
+      {session  ?
       <div>
       <div className='backContainter flex items-center'>
         <button className='h-full flex items-center' onClick={goBack}>
