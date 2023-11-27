@@ -13,7 +13,7 @@ interface MenuItemProps {
 export default function MenuItem({drinkName, drinkImage, altTxt, thisOnClick}: MenuItemProps){
     
     return(
-        <button className='w-full h-full flex justify-center items-center bg-indigo-300' onClick={thisOnClick}>
+        <button className='w-full h-full flex justify-center items-center bg-slate-100 rounded-sm hover:bg-rose-700' onClick={thisOnClick}>
             <Image
                 className='h-full'
                 src={drinkImage}

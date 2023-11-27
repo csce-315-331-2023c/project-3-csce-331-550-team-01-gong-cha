@@ -6,6 +6,7 @@ import Modal from '../Modal/Modal'
 import defualtDrinkImg from '../../../../public/defualtDrinkImg.png'
 import { useState, useEffect} from 'react';
 import OrderDrink from '../OrderDrink/OrderDrink';
+import "./styles.css"
 
 
 
@@ -38,6 +39,10 @@ interface CategoryPageProps {
 }
   
 export default function CategoryPage({categoryDrinks}: CategoryPageProps){
+
+  function goBack(){
+    window.location.href = "../";
+}
   const [openModals, setOpenModals] = useState<OpenModals>({});
 
   const openModal = (category: string) => {
@@ -55,7 +60,8 @@ export default function CategoryPage({categoryDrinks}: CategoryPageProps){
 
   function placeOrder(){
     const existingOrders = JSON.parse(localStorage.getItem('orders') || '[]');
-    existingOrders.forEach((drink: orderDrink) => {
+    const fetchPromises = existingOrders.forEach((drink: orderDrink) => {
+      alert(JSON.stringify(drink.sz, null, 2)); 
       // Process each order here
       // For example, you can log each order to the console
       fetch('http://18.191.166.59:5000/create-order-drink/', {
@@ -66,6 +72,25 @@ export default function CategoryPage({categoryDrinks}: CategoryPageProps){
         body: JSON.stringify({Total_Price: drink.totalPrice, Size: drink.sz, Menu_Drink_ID: drink.id, Ice_Level: drink.ice, Sugar_Level: drink.sugar})
       })
   })
+  Promise.all(fetchPromises)
+    .then(responses => {
+      return Promise.all(responses.map(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      }));
+    })
+    .then(data => {
+      console.log('All orders processed:', data);
+      // Handle the response data from all orders
+    })
+    .catch(error => {
+      console.error('Error processing orders:', error);
+      // Handle any errors that occurred during fetching
+    });
+  
+
   
   }
 
@@ -92,7 +117,14 @@ useEffect(() => {
   setDrinksState(storedOrders);
 })
     return(
-      <div className='catagoryContainer w-screenflex-row flex h-full'>
+      <div className="relative mt-10">
+      <button className='backContainter flex items-center' onClick={goBack}>
+                <svg className='ml-4' xmlns="http://www.w3.org/2000/svg" height="5em" viewBox="0 0 448 512"><path d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288 416 288c17.7 0 32-14.3 32-32s-14.3-32-32-32l-306.7 0L214.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg>
+                <div className='ml-8 text-4xl'>Catagories</div>
+                <div className='ml-80 text-6xl'>Milk Tea</div>
+        </button>
+      <div className='catagoryContainer w-screenflex-row flex h-full space-between text-xl'>
+        
       <div className="flex flex-col items-center justify-start w-1/2 h-full m-4">
          {firstHalfCategories.map((category)=> (
           <div className = "h-1/4 w-full mt-10" key={category.name}>
@@ -130,7 +162,7 @@ useEffect(() => {
            
          ))}
       </div>
-      <div className = "bg-white border-black rounded-lg w-1/5 h-full">
+      <div className = "orderContainer bg-white border-black rounded-lg w-1/3 h-full text-center">
       {drinksState.map((drink, key) => (
         <OrderDrink
           key = {key}
@@ -139,9 +171,9 @@ useEffect(() => {
           sugar = {drink.sugar}
           size={drink.sz}/>
       ))}
-      <button onClick={() => {placeOrder(); localStorage.clear()}}>Place Order</button>
+      <button className="bottom-0"onClick={() => {placeOrder(); localStorage.clear()}}>Place Order</button>
       </div>
       </div>
-
+      </div>
     );
 }
