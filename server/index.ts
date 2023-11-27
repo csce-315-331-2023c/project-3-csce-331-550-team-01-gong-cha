@@ -1066,52 +1066,7 @@ app.get('/ingredients-for-menu-drinks/:menuDrinkIDs', async (req, res) => {
     res.status(500).json({ error: 'An error occurred while fetching ingredients for menu drinks' });
   }
 });
-//Make new seasonal menu drink
-app.post('/new-seasonal-menu-item', async (req, res) => {
-  const { name, normalCost, largeCost, normConsumerPrice, lgConsumerPrice, ingredientPKs } = req.body;
 
-  if (
-    !name ||
-    isNaN(normalCost) ||
-    isNaN(largeCost) ||
-    isNaN(normConsumerPrice) ||
-    isNaN(lgConsumerPrice) ||
-    !Array.isArray(ingredientPKs) ||
-    ingredientPKs.length === 0
-  ) {
-    res.status(400).json({ error: 'Invalid parameters in the request body' });
-    return;
-  }
-
-  try {
-    const client = await pool.connect();
-    client.query('BEGIN'); // Start a transaction
-
-    // Create the new menu drink with Category_ID set to 8
-    const insertMenuDrinkSQL = `
-      INSERT INTO Menu_Drink (Name, Normal_Cost, Large_Cost, Norm_Consumer_Price, Lg_Consumer_Price, Category_ID)
-      VALUES ($1, $2, $3, $4, $5, 8) -- Set Category_ID to 8
-      RETURNING ID`;
-
-    const menuDrinkValues = [name, normalCost, largeCost, normConsumerPrice, lgConsumerPrice];
-    const menuDrinkResult = await client.query(insertMenuDrinkSQL, menuDrinkValues);
-    const menuDrinkId = menuDrinkResult.rows[0].id;
-
-    // Insert ingredients into the Menu_Drink_Ingredient junction table
-    const insertMenuDrinkIngredientSQL = 'INSERT INTO Menu_Drink_Ingredient (Menu_Drink_ID, Ingredient_ID) VALUES ($1, $2)';
-    for (const ingredientPK of ingredientPKs) {
-      await client.query(insertMenuDrinkIngredientSQL, [menuDrinkId, ingredientPK]);
-    }
-
-    client.query('COMMIT'); // Commit the transaction to save changes
-    client.release();
-
-    res.status(201).json({ message: 'Seasonal menu item added successfully' });
-  } catch (error) {
-    console.error('Error adding new seasonal menu item:', error);
-    res.status(500).json({ error: 'An error occurred while adding the seasonal menu item' });
-  }
-});
 
 app.get('/sold-together/:startDate/:endDate', async (req, res) => {
   try {
