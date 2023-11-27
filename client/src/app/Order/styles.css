@@ -18,3 +18,12 @@
 .backgroundC{
     height: 230vh;
 }
+
+.separatorLine{
+    width: 3%;
+    height: 92%;
+}
+
+.orderContainer{
+    width: 28%;
+}

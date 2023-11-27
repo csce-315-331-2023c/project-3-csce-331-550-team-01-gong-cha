@@ -4,6 +4,8 @@ import Image, { StaticImageData } from 'next/image'
 import MenuItem from '../MenuItem/MenuItem';
 import Modal from '../Modal/Modal'
 import defualtDrinkImg from '../../../../public/defualtDrinkImg.png'
+import defualtDrinkImg2 from '/public/DrinkImages/Black Milk Tea.png'
+import {DrinkImage} from '../DinkImage/DrinkImage';
 import { useState, useEffect} from 'react';
 import OrderDrink from '../OrderDrink/OrderDrink';
 
@@ -40,6 +42,10 @@ interface CategoryPageProps {
 export default function CategoryPage({categoryDrinks}: CategoryPageProps){
   const [openModals, setOpenModals] = useState<OpenModals>({});
 
+  //const picture = require(`../../../../public/DrinkImages/${categoryDrinks[1].name}`);
+
+  const pictures = categoryDrinks.map((x) => `../../../../public/DrinkImages/${x.name}`);
+
   const openModal = (category: string) => {
     setOpenModals({...openModals, [category]: true});
   };
@@ -47,7 +53,6 @@ export default function CategoryPage({categoryDrinks}: CategoryPageProps){
   const closeModal = (category: string) => {
     setOpenModals({...openModals, [category]: false});
   };
-
 
   function goToCategory(category: string){
     window.location.href = "../../Order/" + category;
@@ -58,6 +63,7 @@ export default function CategoryPage({categoryDrinks}: CategoryPageProps){
     existingOrders.forEach((drink: orderDrink) => {
       // Process each order here
       // For example, you can log each order to the console
+      alert(JSON.stringify({Total_Price: drink.totalPrice, Size: drink.sz, Menu_Drink_ID: drink.id, Ice_Level: drink.ice, Sugar_Level: drink.sugar}));
       fetch('http://18.191.166.59:5000/create-order-drink/', {
         method: 'POST',
         headers: {
@@ -73,6 +79,9 @@ const halfLength = Math.ceil(categoryDrinks.length / 2);
 
 const firstHalfCategories = categoryDrinks.slice(0, halfLength);
 const secondHalfCategories = categoryDrinks.slice(halfLength);
+
+const firstHalfPictures = pictures.slice(0, halfLength);
+const secondHalfPictures = pictures.slice(halfLength);
 
 interface orderDrink {
   name: string;
@@ -97,10 +106,10 @@ useEffect(() => {
          {firstHalfCategories.map((category)=> (
           <div className = "h-1/4 w-full mt-10" key={category.name}>
             
-            <MenuItem 
+          <MenuItem 
            drinkName={category.name}
-          drinkImage={defualtDrinkImg} 
-            altTxt={"Test Drink"} 
+            drinkImage={DrinkImage[`_${category.id}`]} 
+            altTxt={"Test Drink"}
            thisOnClick={() => openModal(category.name)}/>
            <Modal open={openModals[category.name]} onClose={() => closeModal(category.name)} 
             drinkName={category.name}
@@ -117,7 +126,7 @@ useEffect(() => {
           <div className="h-1/4 w-full mt-10" key={category.name} >
             <MenuItem
            drinkName={category.name}
-          drinkImage={defualtDrinkImg} 
+          drinkImage={DrinkImage[`_${category.id}`]} 
             altTxt={"Test Drink"} 
             thisOnClick={() => openModal(category.name)}/>
             <Modal open={openModals[category.name]} onClose={() => closeModal(category.name)} 
