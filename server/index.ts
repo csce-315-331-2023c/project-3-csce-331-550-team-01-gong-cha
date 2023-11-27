@@ -209,7 +209,7 @@ app.post('/create-order-drink', async (req, res) => {
   console.log('Received request body:', req.body); // Add this line for debugging
   const { Total_Price, Size, Menu_Drink_ID, Ice_Level, Sugar_Level } = req.body;
   //console.log(`inputs: Total_Price = ${Total_Price}, Size = ${Size}, Menu_Drink_ID = ${Menu_Drink_ID}, Ice_Level = ${Ice_Level}, Sugar_Level = ${Sugar_Level}`);
-  if (!Total_Price || (Size < 0 || Size > 1) || !Menu_Drink_ID || !Ice_Level || (Sugar_Level < 0 || Sugar_Level > 4)) {
+  if (Total_Price == undefined || (Size < 0 || Size > 1 || Size == undefined) || Menu_Drink_ID == undefined || Ice_Level == undefined || (Sugar_Level < 0 || Sugar_Level > 4 || Sugar_Level == undefined)) {
     res.status(400).json({ error: 'Invalid parameters' });
     return;
   }
