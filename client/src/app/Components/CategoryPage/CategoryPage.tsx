@@ -168,7 +168,6 @@ useEffect(() => {
             drinkID={category.id}>
              Customize Ingredients</Modal>
            </div>
-           
          ))}
       </div>
       <div className = "orderContainer bg-white border-black rounded-lg w-1/3 h-full text-center">
