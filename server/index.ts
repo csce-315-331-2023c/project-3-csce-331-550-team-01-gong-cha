@@ -347,33 +347,7 @@ app.get('/createTables', async (req, res) => {
   }
 });
 
-//create order drink
-app.post('/create-order-drink', async (req, res) => {
-  console.log('Received request body:', req.body); // Add this line for debugging
-  const { Total_Price, Size, Menu_Drink_ID, Ice_Level, Sugar_Level } = req.body;
-  if (Total_Price === undefined || Size === undefined || Menu_Drink_ID === undefined || Ice_Level === undefined || Sugar_Level === undefined) {
-    res.status(400).json({ error: 'Invalid parameters' });
-    return;
-  }
 
-  const result = await createOrderDrink(
-    parseFloat(Total_Price),
-    parseInt(Size, 10),
-    parseInt(Menu_Drink_ID, 10),
-    parseInt(Ice_Level, 10),
-    parseInt(Sugar_Level, 10)
-  );
-
-  if (result[1] === -1) {
-    res.status(500).json({ error: 'Failed to create order drink' });
-  } else {
-    res.json({
-      Total_Price: result[0],
-      generatedKey: result[1],
-      make_cost: result[2],
-    });
-  }
-});
 
 
 app.post('/create-ingredient', async (req, res) => {
