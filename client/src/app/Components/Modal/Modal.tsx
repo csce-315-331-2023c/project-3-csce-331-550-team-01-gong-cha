@@ -37,7 +37,7 @@ export default function Modal({ open, children, onClose, drinkName, lgDrinkPrice
   const [selectedOptions, setSelectedOptions] = useState({
     name: drinkName,
     size: 0,
-    iceLevel: 0,
+    iceLevel: 1,
     sugarLevel: 0,
     totalPrice: nmDrinkPrice,
     totalCost: 0,
@@ -73,7 +73,7 @@ export default function Modal({ open, children, onClose, drinkName, lgDrinkPrice
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
   useEffect(() => {
       if (open && currentModal == 1) {
-        fetch('http://18.191.166.59:5000/ingredients') // Replace with the actual API endpoint URL
+        fetch('http://18.191.166.59:5000/ingredients') 
           .then((response) => {
             if (!response.ok) {
               alert("did not pass");
@@ -82,7 +82,7 @@ export default function Modal({ open, children, onClose, drinkName, lgDrinkPrice
             return response.json();
           })
           .then((data) => {
-            // Process the data received from the API and store it in the state
+            
             
             const ingredientData: Ingredient[] = data.map((item: any) => ({
               id: item.id,
@@ -173,9 +173,9 @@ const getSizeButtonStyle = (size: number) => {
       {/* ice and sugar divs */}
       <div className="flex-row flex h-1/5">
       <div className=" w-1/2 left-0 justify-evenly flex">
-        <button className={`${getIceButtonStyle(0)} rounded-lg w-1/5 p-2`} onClick={() => (handleIce(0))}>No Ice</button>
-        <button className={`${getIceButtonStyle(1)} rounded-lg w-1/5 p-2`} onClick={() => (handleIce(1))}>Less Ice</button>
-        <button className={`${getIceButtonStyle(2)} rounded-lg w-1/5 p-2`} onClick={() => (handleIce(2))}>More Ice</button>
+        <button className={`${getIceButtonStyle(1)} rounded-lg w-1/5 p-2`} onClick={() => (handleIce(1))}>No Ice</button>
+        <button className={`${getIceButtonStyle(2)} rounded-lg w-1/5 p-2`} onClick={() => (handleIce(2))}>Less Ice</button>
+        <button className={`${getIceButtonStyle(3)} rounded-lg w-1/5 p-2`} onClick={() => (handleIce(3))}>More Ice</button>
       </div>
 
       <div className=" w-1/2 left-0 justify-evenly flex">
@@ -188,7 +188,7 @@ const getSizeButtonStyle = (size: number) => {
       </div>
 
       <div className="flex justify-evenly">
-      <button onClick={() => {setCurrentModal(0); onClose(); handleIce(0); handleSize(0, nmDrinkPrice); handleSugar(0)}} className="border-white border-2 rounded-md w-1/4 bg-rose-700 hover:bg-white">Exit</button>
+      <button onClick={() => {setCurrentModal(0); onClose(); handleIce(1); handleSize(0, nmDrinkPrice); handleSugar(0)}} className="border-white border-2 rounded-md w-1/4 bg-rose-700 hover:bg-white">Exit</button>
       <button  onClick={handleNext} className="border-white border-2 rounded-md w-1/4 bg-rose-700 hover:bg-white">Next</button>
       </div>
       
@@ -227,8 +227,8 @@ const getSizeButtonStyle = (size: number) => {
       <div className="flex justify-evenly  ">
       <button  onClick={handleBack} className="border-white border-2 rounded-md w-1/4 bg-rose-700 hover:bg-white">Back</button>
         
-      <button onClick={() => {setCurrentModal(0); onClose(); handleIce(0); handleSize(0, nmDrinkPrice); handleSugar(0)}} className="border-white border-2 rounded-md w-1/4 bg-rose-700 hover:bg-white">Exit</button>
-      <button  onClick={() => {handleStateUpdate(); onClose(); handleBack(); handleIce(0); handleSize(0, nmDrinkPrice); handleSugar(0)}} className="border-white border-2 rounded-md w-1/4 bg-rose-700 hover:bg-white">Add Drink</button>
+      <button onClick={() => {setCurrentModal(0); onClose(); handleIce(1); handleSize(0, nmDrinkPrice); handleSugar(0)}} className="border-white border-2 rounded-md w-1/4 bg-rose-700 hover:bg-white">Exit</button>
+      <button  onClick={() => {handleStateUpdate(); onClose(); handleBack(); handleIce(1); handleSize(0, nmDrinkPrice); handleSugar(0)}} className="border-white border-2 rounded-md w-1/4 bg-rose-700 hover:bg-white">Add Drink</button>
       </div>
       <div className="w-full place-items-center flex justify-center">
         <div className="border-white border-2 rounded-md w-1/3 text-xl bg-rose-700">

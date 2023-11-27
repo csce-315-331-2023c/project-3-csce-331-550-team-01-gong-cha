@@ -351,7 +351,7 @@ app.get('/createTables', async (req, res) => {
 app.post('/create-order-drink', async (req, res) => {
   console.log('Received request body:', req.body); // Add this line for debugging
   const { Total_Price, Size, Menu_Drink_ID, Ice_Level, Sugar_Level } = req.body;
-  if (Total_Price === undefined || Size === undefined || Menu_Drink_ID === undefined || Ice_Level === undefined || Sugar_Level === undefined) {
+  if (Total_Price === null || Size === null || Menu_Drink_ID === null || Ice_Level === null || Sugar_Level === null) {
     res.status(400).json({ error: 'Invalid parameters' });
     return;
   }

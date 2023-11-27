@@ -1,0 +1,29 @@
+.orderContainer {
+    margin-right: 2rem;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1); 
+    overflow-y: auto; 
+  }
+  
+  .backButton {
+    position: absolute; 
+    top: 4rem; 
+    left: 1rem; 
+    z-index: 10; 
+    display: flex;
+    align-items: center;
+    background: transparent; 
+    border: none; 
+    cursor: pointer;
+  }
+  
+  
+  .relative {
+    position: relative;
+    padding-top: 50px; 
+  }
+  
+  .categoryContainer {
+    
+    padding-top: 3rem; 
+  }
+  
