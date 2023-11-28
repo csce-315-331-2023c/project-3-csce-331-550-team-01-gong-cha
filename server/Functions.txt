@@ -1,4 +1,4 @@
-This is a list of the functions that we have in index.ts. Date of last update: 11/26/23
+This is a list of the functions that we have in index.ts. Date of last update: 11/27/23
 
 /employees: This gets all the employees in the database:
 
@@ -148,7 +148,13 @@ This is a list of the functions that we have in index.ts. Date of last update: 1
     "isOffered": true
     }
 
-/is-ingredient: This function returns all ingredients that are actually ingredients. I.E. napkins or cups don't count
+/is-ingredient: This function returns all ingredients that are actually toppings. 
+    I didn't name this well, but it's a bit late to change it. 
 
 /change-offered/:id - This function changes whether or not a menu drink is offered given it's primary key
     If the drink was offered, now it isn't. If the drink wasn't offered, now it is.
+
+/create-menu-drink-ingredient: This function takes in a menu drink pk and an ingredient pk and makes a 
+    menu drink ingredient.
+
+/change-is-ingredient/:id - This function changes the Is_Ingredient field of an ingredient given its primary key
