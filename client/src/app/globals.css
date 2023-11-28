@@ -3,5 +3,11 @@
 @tailwind utilities;
 
 * {
-  box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+.startOrder {
+    position: fixed;
+    top: 48%;
+    left: 20%;
 }

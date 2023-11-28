@@ -11,7 +11,9 @@ interface orderDrink {
   ice: number;
   sugar: number;
   sz: number;
-  // price: number;
+  totalPrice: number; // cost for customer
+  costPrice: number; // cost for us to make
+  id: number;
 }
 
 interface ModalProps {
@@ -21,25 +23,25 @@ interface ModalProps {
   drinkName: string;
   lgDrinkPrice: number;
   nmDrinkPrice: number;
-  // lgCost: number;
-  // nmCost: number;
-  setDrinkState: (newState: (prevDrinkState: orderDrink[]) => orderDrink[]) => void;
+  lgCost: number;
+  nmCost: number;
+  drinkID: number;
   
 }
 
-export default function Modal({ open, children, onClose, drinkName, setDrinkState, lgDrinkPrice, nmDrinkPrice}: ModalProps) {
+export default function Modal({ open, children, onClose, drinkName, lgDrinkPrice, nmDrinkPrice, drinkID}: ModalProps) {
   const [currentModal, setCurrentModal] = useState(0);
-  const [totalPrice, setTotalPrice] = useState(0);
-  const [selectedIce, setSetlectedIce] = useState(0);
-  const [selectedSize, setSelectedSize] = useState(0);
-  const [selectedSugar, setSelectedSugar] = useState(0);
+  const [toppingsPrice, setToppingsPrice] = useState(0);
   
 
   const [selectedOptions, setSelectedOptions] = useState({
+    name: drinkName,
     size: 0,
-    iceLevel: 0,
+    iceLevel: 1,
     sugarLevel: 0,
-    // price: 0
+    totalPrice: nmDrinkPrice,
+    totalCost: 0,
+    id: drinkID
   });
 
 
@@ -52,30 +54,26 @@ export default function Modal({ open, children, onClose, drinkName, setDrinkStat
 
   const handleStateUpdate = () => {
     const newDrink: orderDrink = {
-      name: drinkName,
+      name: selectedOptions.name,
       ice: selectedOptions.iceLevel,
       sugar: selectedOptions.sugarLevel,
       sz: selectedOptions.size,
+      totalPrice: selectedOptions.totalPrice,
+      costPrice: selectedOptions.totalCost,
+      id: selectedOptions.id
+
       // price: selectedOptions.price
     }
+    alert(JSON.stringify(newDrink, null, 2)); 
     const existingOrders = JSON.parse(localStorage.getItem('orders') || '[]');
       localStorage.setItem('orders', JSON.stringify([...existingOrders, newDrink]));
   
-    // Update the state
-    // setDrinkState((prevDrinkState: orderDrink[]) => {
-    //   const updatedDrinks = [...prevDrinkState, newDrink];
-      
-    //   // Update local storage
-      
-  
-    //   return updatedDrinks;
-    // });
   }
 
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
   useEffect(() => {
       if (open && currentModal == 1) {
-        fetch('http://18.191.166.59:5000/ingredients') // Replace with the actual API endpoint URL
+        fetch('http://18.191.166.59:5000/ingredients') 
           .then((response) => {
             if (!response.ok) {
               alert("did not pass");
@@ -84,7 +82,7 @@ export default function Modal({ open, children, onClose, drinkName, setDrinkStat
             return response.json();
           })
           .then((data) => {
-            // Process the data received from the API and store it in the state
+            
             
             const ingredientData: Ingredient[] = data.map((item: any) => ({
               id: item.id,
@@ -100,12 +98,12 @@ export default function Modal({ open, children, onClose, drinkName, setDrinkStat
     }, [open, currentModal]);
   
   const addTopping = (price: number) => {
-    setTotalPrice(totalPrice + price)
+    setToppingsPrice(toppingsPrice + price)
   }
 
   const removeTopping = (price: number) => {
-    if (totalPrice >= price){
-      setTotalPrice(totalPrice - price)
+    if (toppingsPrice >= price){
+      setToppingsPrice(toppingsPrice - price)
     }
     
   }
@@ -119,7 +117,7 @@ export default function Modal({ open, children, onClose, drinkName, setDrinkStat
   const handleBack = () => {
     if (currentModal > 0) {
       setCurrentModal(currentModal - 1);
-      setTotalPrice(0);
+      setToppingsPrice(0);
     }
   }
 
@@ -129,7 +127,6 @@ export default function Modal({ open, children, onClose, drinkName, setDrinkStat
       iceLevel: ice
     }))
 
-    setSetlectedIce(ice);
   }
 
   const handleSugar = (sugar: number) => {
@@ -138,28 +135,27 @@ export default function Modal({ open, children, onClose, drinkName, setDrinkStat
       sugarLevel: sugar
     }))
 
-    setSelectedSugar(sugar);
   }
 
-  const handleSize = (newSize: number) => {
+  const handleSize = (newSize: number, cost: number) => {
     setSelectedOptions((prevOptions) => ({
       ...prevOptions,
-      size: newSize
+      size: newSize,
+      totalPrice: cost + toppingsPrice
     }))
 
-    setSelectedSize(newSize);
   }
 
 const getIceButtonStyle = (iceLevel: number) => {
-  return selectedIce === iceLevel ? "bg-rose-700" : "bg-white";
+  return selectedOptions.iceLevel === iceLevel ? "bg-rose-700" : "bg-white";
 }
 
 const getSugarButtonStyle = (sugarLevel: number) => {
-  return selectedSugar === sugarLevel ? "bg-rose-700" : "bg-white";
+  return selectedOptions.sugarLevel === sugarLevel ? "bg-rose-700" : "bg-white";
 }
 
 const getSizeButtonStyle = (size: number) => {
-  return selectedSize === size ? "bg-rose-700" : "bg-white";
+  return selectedOptions.size === size ? "bg-rose-700" : "bg-white";
 }
   const modals = [
     (
@@ -170,16 +166,16 @@ const getSizeButtonStyle = (size: number) => {
       {/* {drinkName} */}
       {/* Normal and large div */}
       <div className="flex-row flex justify-evenly h-1/5">
-        <button className={`${getSizeButtonStyle(0)} rounded-lg w-1/5 p-2`}onClick={() => (handleSize(0))}>Normal</button>
-        <button className={`${getSizeButtonStyle(1)} rounded-lg w-1/5 p-2`} onClick={() => (handleSize(1))}>Large</button>
+        <button className={`${getSizeButtonStyle(0)} rounded-lg w-1/5 p-2`}onClick={() => (handleSize(0, nmDrinkPrice))}>Normal</button>
+        <button className={`${getSizeButtonStyle(1)} rounded-lg w-1/5 p-2`} onClick={() => (handleSize(1, lgDrinkPrice))}>Large</button>
       </div>
 
       {/* ice and sugar divs */}
       <div className="flex-row flex h-1/5">
       <div className=" w-1/2 left-0 justify-evenly flex">
-        <button className={`${getIceButtonStyle(0)} rounded-lg w-1/5 p-2`} onClick={() => (handleIce(0))}>No Ice</button>
-        <button className={`${getIceButtonStyle(1)} rounded-lg w-1/5 p-2`} onClick={() => (handleIce(1))}>Less Ice</button>
-        <button className={`${getIceButtonStyle(2)} rounded-lg w-1/5 p-2`} onClick={() => (handleIce(2))}>More Ice</button>
+        <button className={`${getIceButtonStyle(1)} rounded-lg w-1/5 p-2`} onClick={() => (handleIce(1))}>No Ice</button>
+        <button className={`${getIceButtonStyle(2)} rounded-lg w-1/5 p-2`} onClick={() => (handleIce(2))}>Less Ice</button>
+        <button className={`${getIceButtonStyle(3)} rounded-lg w-1/5 p-2`} onClick={() => (handleIce(3))}>More Ice</button>
       </div>
 
       <div className=" w-1/2 left-0 justify-evenly flex">
@@ -192,7 +188,7 @@ const getSizeButtonStyle = (size: number) => {
       </div>
 
       <div className="flex justify-evenly">
-      <button onClick={() => {setCurrentModal(0); onClose(); setSetlectedIce(0); setSelectedSize(0); setSelectedSugar(0)}} className="border-white border-2 rounded-md w-1/4 bg-rose-700 hover:bg-white">Exit</button>
+      <button onClick={() => {setCurrentModal(0); onClose(); handleIce(1); handleSize(0, nmDrinkPrice); handleSugar(0)}} className="border-white border-2 rounded-md w-1/4 bg-rose-700 hover:bg-white">Exit</button>
       <button  onClick={handleNext} className="border-white border-2 rounded-md w-1/4 bg-rose-700 hover:bg-white">Next</button>
       </div>
       
@@ -231,12 +227,12 @@ const getSizeButtonStyle = (size: number) => {
       <div className="flex justify-evenly  ">
       <button  onClick={handleBack} className="border-white border-2 rounded-md w-1/4 bg-rose-700 hover:bg-white">Back</button>
         
-      <button onClick={() => {setCurrentModal(0); onClose(); setSetlectedIce(0); setSelectedSize(0); setSelectedSugar(0)}} className="border-white border-2 rounded-md w-1/4 bg-rose-700 hover:bg-white">Exit</button>
-      <button  onClick={() => {handleStateUpdate(); onClose(); handleBack()}} className="border-white border-2 rounded-md w-1/4 bg-rose-700 hover:bg-white">Add Drink</button>
+      <button onClick={() => {setCurrentModal(0); onClose(); handleIce(1); handleSize(0, nmDrinkPrice); handleSugar(0)}} className="border-white border-2 rounded-md w-1/4 bg-rose-700 hover:bg-white">Exit</button>
+      <button  onClick={() => {handleStateUpdate(); onClose(); handleBack(); handleIce(1); handleSize(0, nmDrinkPrice); handleSugar(0)}} className="border-white border-2 rounded-md w-1/4 bg-rose-700 hover:bg-white">Add Drink</button>
       </div>
       <div className="w-full place-items-center flex justify-center">
         <div className="border-white border-2 rounded-md w-1/3 text-xl bg-rose-700">
-            $: {totalPrice}
+            $: {toppingsPrice}
         </div>
       </div>
       

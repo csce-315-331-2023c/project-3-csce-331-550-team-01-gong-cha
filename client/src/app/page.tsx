@@ -1,17 +1,13 @@
 'use client'
 import Image from 'next/image'
-import TEA from '../../public/homeBackground.png'
+import TEA from '../../public/Gongcha.png'
 import Login from './Components/LoginPopUp/LoginPopUp'
 
 import React, { useState } from 'react';
 
 export default function Dashboard() {
 
-  const [LoginOpen, LoginSetOpen] = useState(false)
-
-  function managerLogin(){
-    window.location.href = "/Manager";
-  }
+  const [LoginOpen, LoginSetOpen] = useState(false);
 
   function gotToOrder(){
     window.location.href = "/Order";
@@ -23,8 +19,8 @@ export default function Dashboard() {
         className='back -z-10'
         src={TEA}
         alt='Background image of tea leaves being processed'
-        layout='fill'
-        objectFit='cover'
+        fill={true}
+        style={{objectFit: "cover"}}
         />
     <div className='flex justify-end items-right w-full h-1/6'>
       <button onClick={() => LoginSetOpen(true)}> {/* <button onClick={managerLogin}> */}
@@ -32,8 +28,8 @@ export default function Dashboard() {
       </button> 
       <Login open={LoginOpen} onClose={() => LoginSetOpen(false)}>Login</Login>
     </div>
-    <div className='flex justify-center items-center w-full h-5/6'>
-      <button onClick={gotToOrder} className='bg-rose-700 h-1/6 w-1/6'>
+    <div className='w-full h-5/6'>
+      <button onClick={gotToOrder} className='startOrder bg-rose-700 h-1/6 w-1/5 rounded-2xl text-slate-200 text-5xl font-semibold'>
         Start Order
       </button>
     </div>
