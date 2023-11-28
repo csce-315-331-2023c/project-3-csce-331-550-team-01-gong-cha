@@ -10,10 +10,6 @@
     width: 10%;
 }
 
-.amountUsed {
-    width: 10%;
-}
-
 .consumerPrice {
     width: 10%;
 }
@@ -24,4 +20,8 @@
 
 .total {
     width: 98%
+}
+
+.ingredient {
+    width: 10%;
 }
