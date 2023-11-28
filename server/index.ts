@@ -241,9 +241,7 @@ async function createTables(): Promise<number> {
       Ingredient_Name VARCHAR(50),
       Current_Amount DOUBLE PRECISION,
       Ideal_Amount DOUBLE PRECISION,
-      Restock_Price DOUBLE PRECISION,
       Consumer_Price DOUBLE PRECISION,
-      Amount_Used DOUBLE PRECISION,
       Is_Ingredient BOOLEAN
     );
     
@@ -348,16 +346,15 @@ app.get('/createTables', async (req, res) => {
   }
 });
 
+//create ingredient
 app.post('/create-ingredient', async (req, res) => {
-  const { name, currentAmount, idealAmount, restockPrice, consumerPrice, amountUsed, isIngredient } = req.body;
+  const { name, currentAmount, idealAmount, consumerPrice, isIngredient } = req.body;
 
   if (
     !name ||
     currentAmount === undefined ||
     idealAmount === undefined ||
-    restockPrice === undefined ||
     consumerPrice === undefined ||
-    amountUsed === undefined ||
     isIngredient === undefined
   ) {
     res.status(400).json({ error: 'Invalid parameters' });
@@ -366,12 +363,12 @@ app.post('/create-ingredient', async (req, res) => {
 
   try {
     const SQL = `
-      INSERT INTO ingredient (Ingredient_Name, Current_Amount, Ideal_Amount, Restock_Price, Consumer_Price, Amount_Used, Is_Ingredient)
-      VALUES ($1, $2, $3, $4, $5, $6, $7)
+      INSERT INTO ingredient (Ingredient_Name, Current_Amount, Ideal_Amount, Consumer_Price, Is_Ingredient)
+      VALUES ($1, $2, $3, $4, $5)
       RETURNING ID`;
 
     const client = await pool.connect();
-    const result = await client.query(SQL, [name, currentAmount, idealAmount, restockPrice, consumerPrice, amountUsed, isIngredient]);
+    const result = await client.query(SQL, [name, currentAmount, idealAmount, consumerPrice, isIngredient]);
     client.release();
 
     if (result.rows.length > 0) {
@@ -507,7 +504,6 @@ app.get('/manager-view-ingredient/:ingredientID', async (req, res) => {
 
     const ingredient = result.rows[0];
     const ingredientName = ingredient.ingredient_name;
-    const amountUsed = ingredient.amount_used;
     const ingredientAmount = ingredient.current_amount;
     const ingredientIdeal = ingredient.ideal_amount;
 
@@ -515,7 +511,6 @@ app.get('/manager-view-ingredient/:ingredientID', async (req, res) => {
       ingredientName,
       currentAmount: ingredientAmount,
       idealAmount: ingredientIdeal,
-      amountUsed,
     });
   } catch (error) {
     console.error('Error fetching ingredient data:', error);
@@ -1234,15 +1229,13 @@ app.get('/excess-report/:startDate', async (req, res) => {
 // Update Ingredient
 app.put('/update-ingredient/:id', async (req, res) => {
   const ingredientId = req.params.id;
-  const { name, currentAmount, idealAmount, restockPrice, consumerPrice, amountUsed, isIngredient } = req.body;
+  const { name, currentAmount, idealAmount, consumerPrice, isIngredient } = req.body;
 
   if (
     name === undefined ||
     currentAmount === undefined ||
     idealAmount === undefined ||
-    restockPrice === undefined ||
     consumerPrice === undefined ||
-    amountUsed === undefined ||
     isIngredient === undefined
   ) {
     res.status(400).json({ error: 'Invalid parameters' });
@@ -1253,11 +1246,11 @@ app.put('/update-ingredient/:id', async (req, res) => {
     const updateSQL = `
       UPDATE ingredient
       SET Ingredient_Name = $1, Current_Amount = $2, Ideal_Amount = $3,
-      Restock_Price = $4, Consumer_Price = $5, Amount_Used = $6, Is_Ingredient = $7
-      WHERE ID = $8`;
+      Consumer_Price = $4, Is_Ingredient = $5
+      WHERE ID = $6`;
 
     const client = await pool.connect();
-    const result = await client.query(updateSQL, [name, currentAmount, idealAmount, restockPrice, consumerPrice, amountUsed, isIngredient, ingredientId]);
+    const result = await client.query(updateSQL, [name, currentAmount, idealAmount, consumerPrice, isIngredient, ingredientId]);
     client.release();
 
     if (result.rowCount > 0) {
