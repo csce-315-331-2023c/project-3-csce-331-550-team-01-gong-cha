@@ -178,7 +178,10 @@ useEffect(() => {
           drinkName= {drink.name}
           ice = {drink.ice}
           sugar = {drink.sugar}
-          size={drink.sz}/>
+          size={drink.sz}
+          price={drink.totalPrice}
+          />
+          
       ))}
       <button className="bottom-0"onClick={() => {placeOrder(); localStorage.clear()}}>Place Order</button>
       </div>
