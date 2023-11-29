@@ -149,9 +149,10 @@ async function createOrderDrink(
   size: number,
   mdID: number,
   iceLevel: number,
-  sugarLevel: number
+  sugarLevel: number,
+  total_price_override: number // New parameter to directly pass the total price
 ): Promise<number[]> {
-  let total_price = 0;
+  let total_price = total_price_override; // Use the passed total price directly
   let drink_price = 0;
   let make_cost = 0;
 
@@ -160,20 +161,17 @@ async function createOrderDrink(
   const ice = iceLevel.toString();
   const sugar = sugarLevel.toString();
 
-  let priceQuery = "";
-  if (size === 0) {
-    priceQuery = `SELECT norm_consumer_price AS consumer_price, Normal_Cost AS make_cost FROM menu_drink WHERE ID = $1`;
-  } else if (size === 1) {
-    priceQuery = `SELECT lg_consumer_price AS consumer_price, Large_Cost AS make_cost FROM menu_drink WHERE ID = $1`;
-  }
-
   try {
     const client = await pool.connect();
+    const priceQuery = size === 0
+      ? `SELECT Normal_Cost AS make_cost FROM menu_drink WHERE ID = $1`
+      : `SELECT Large_Cost AS make_cost FROM menu_drink WHERE ID = $1`;
+
     const priceResult = await client.query(priceQuery, [mdID]);
     client.release();
 
     if (priceResult.rows.length > 0) {
-      drink_price = priceResult.rows[0].consumer_price;
+      drink_price = total_price_override;
       make_cost = priceResult.rows[0].make_cost;
     }
   } catch (error) {
@@ -181,7 +179,7 @@ async function createOrderDrink(
     return [0, -1, 0]; // Return an array indicating failure
   }
 
-  total_price = drink_price + toppingCost;
+  total_price = drink_price;
 
   const drink_order_query = `INSERT INTO order_drink (menu_drink_id, total_price, size, ice_level, sugar_level) VALUES ($1, $2, $3, $4, $5) RETURNING id`;
   let generatedKey = -1;
@@ -206,20 +204,29 @@ async function createOrderDrink(
 }
 
 app.post('/create-order-drink', async (req, res) => {
-  console.log('Received request body:', req.body); // Add this line for debugging
+  console.log('Received request body:', req.body);
+
   const { Total_Price, Size, Menu_Drink_ID, Ice_Level, Sugar_Level } = req.body;
-  //console.log(`inputs: Total_Price = ${Total_Price}, Size = ${Size}, Menu_Drink_ID = ${Menu_Drink_ID}, Ice_Level = ${Ice_Level}, Sugar_Level = ${Sugar_Level}`);
-  if (Total_Price == undefined || (Size < 0 || Size > 1 || Size == undefined) || Menu_Drink_ID == undefined || Ice_Level == undefined || (Sugar_Level < 0 || Sugar_Level > 4 || Sugar_Level == undefined)) {
+
+  if (
+    Total_Price == undefined ||
+    (Size < 0 || Size > 1 || Size == undefined) ||
+    Menu_Drink_ID == undefined ||
+    Ice_Level == undefined ||
+    (Sugar_Level < 0 || Sugar_Level > 4 || Sugar_Level == undefined)
+  ) {
     res.status(400).json({ error: 'Invalid parameters' });
     return;
   }
 
+  // Pass Total_Price directly to the function
   const result = await createOrderDrink(
     parseFloat(Total_Price),
     parseInt(Size, 10),
     parseInt(Menu_Drink_ID, 10),
     parseInt(Ice_Level, 10),
-    parseInt(Sugar_Level, 10)
+    parseInt(Sugar_Level, 10),
+    parseFloat(Total_Price) // Pass Total_Price directly
   );
 
   if (result[1] === -1) {
