@@ -1202,11 +1202,7 @@ app.get('/excess-report/:startDate', async (req, res) => {
         const ingredientID = ingredientsList[i][j];
         const drinkID = drinkIDs[i];
 
-        // Use Axios to get the amount used for the ingredient
-        const amountUsedResponse = await axios.get(`${serverUrl}/manager-view-ingredient/${ingredientID}`);
-        const amountUsed = amountUsedResponse.data.amountUsed;
-
-        ingredients[ingredientID] += drinks[drinkID] * amountUsed;
+        ingredients[ingredientID] += drinks[drinkID];
       }
     }
 
