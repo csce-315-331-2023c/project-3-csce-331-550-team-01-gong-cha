@@ -7,9 +7,10 @@ interface OrderDrinkProps {
     sugar: number;
     ice: number;
     size: number;
+    price: number;
 }
 
-export default function OrderDrink({key, drinkName, sugar, ice, size}: OrderDrinkProps){
+export default function OrderDrink({key, drinkName, sugar, ice, size, price}: OrderDrinkProps){
 
     const sizeLabels: { [key: number]: string } = {
         0: "Normal",
@@ -45,6 +46,9 @@ export default function OrderDrink({key, drinkName, sugar, ice, size}: OrderDrin
                     </div>
                     <div>
                         Ice: {iceLabels[ice]}
+                    </div>
+                    <div>
+                        Price: {price}
                     </div>
                 </div>
             </div>
