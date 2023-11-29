@@ -308,7 +308,6 @@ async function createTables(): Promise<number> {
 
     CREATE TABLE Orders (
       ID SERIAL PRIMARY KEY,
-      Server_ID INTEGER,
       Name VARCHAR(50),
       Cost DOUBLE PRECISION,
       Price DOUBLE PRECISION,
@@ -317,7 +316,6 @@ async function createTables(): Promise<number> {
       Takeout BOOLEAN,
       Date DATE NOT NULL DEFAULT CURRENT_DATE,
       Time TIME,
-      FOREIGN KEY (Server_ID) REFERENCES Employee(ID)
     );
 
     CREATE TABLE Order_Order_Drink (
@@ -391,7 +389,6 @@ app.post('/create-ingredient', async (req, res) => {
 //Create order
 app.post('/create-order', async (req, res) => {
   const {
-    serverID,
     total_cost,
     price,
     profit,
@@ -403,7 +400,6 @@ app.post('/create-order', async (req, res) => {
   } = req.body;
 
   if (
-    serverID === undefined ||
     isNaN(total_cost) ||
     isNaN(price) ||
     isNaN(profit) ||
@@ -421,11 +417,10 @@ app.post('/create-order', async (req, res) => {
     const client = await pool.connect();
 
     const insertOrderSQL = `
-      INSERT INTO Orders (Server_ID, Name, Cost, Price, Profit, Tip, Takeout, Date, Time)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`;
+      INSERT INTO Orders (Name, Cost, Price, Profit, Tip, Takeout, Date, Time)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`;
 
     const values = [
-      serverID,
       name,
       total_cost,
       price,
