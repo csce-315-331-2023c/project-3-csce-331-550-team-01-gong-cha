@@ -33,7 +33,6 @@ This is a list of the functions that we have in index.ts. Date of last update: 1
 
 /create-order: This function creates an order. It takes in some parameters. Here's an example of the request body:
     {
-    "serverID": 1,
     "total_cost": 50.99,
     "price": 60.99,
     "profit": 10,
