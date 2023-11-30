@@ -149,9 +149,10 @@ async function createOrderDrink(
   size: number,
   mdID: number,
   iceLevel: number,
-  sugarLevel: number
+  sugarLevel: number,
+  total_price_override: number // New parameter to directly pass the total price
 ): Promise<number[]> {
-  let total_price = 0;
+  let total_price = total_price_override; // Use the passed total price directly
   let drink_price = 0;
   let make_cost = 0;
 
@@ -160,20 +161,17 @@ async function createOrderDrink(
   const ice = iceLevel.toString();
   const sugar = sugarLevel.toString();
 
-  let priceQuery = "";
-  if (size === 0) {
-    priceQuery = `SELECT norm_consumer_price AS consumer_price, Normal_Cost AS make_cost FROM menu_drink WHERE ID = $1`;
-  } else if (size === 1) {
-    priceQuery = `SELECT lg_consumer_price AS consumer_price, Large_Cost AS make_cost FROM menu_drink WHERE ID = $1`;
-  }
-
   try {
     const client = await pool.connect();
+    const priceQuery = size === 0
+      ? `SELECT Normal_Cost AS make_cost FROM menu_drink WHERE ID = $1`
+      : `SELECT Large_Cost AS make_cost FROM menu_drink WHERE ID = $1`;
+
     const priceResult = await client.query(priceQuery, [mdID]);
     client.release();
 
     if (priceResult.rows.length > 0) {
-      drink_price = priceResult.rows[0].consumer_price;
+      drink_price = total_price_override;
       make_cost = priceResult.rows[0].make_cost;
     }
   } catch (error) {
@@ -181,7 +179,7 @@ async function createOrderDrink(
     return [0, -1, 0]; // Return an array indicating failure
   }
 
-  total_price = drink_price + toppingCost;
+  total_price = drink_price;
 
   const drink_order_query = `INSERT INTO order_drink (menu_drink_id, total_price, size, ice_level, sugar_level) VALUES ($1, $2, $3, $4, $5) RETURNING id`;
   let generatedKey = -1;
@@ -206,20 +204,29 @@ async function createOrderDrink(
 }
 
 app.post('/create-order-drink', async (req, res) => {
-  console.log('Received request body:', req.body); // Add this line for debugging
+  console.log('Received request body:', req.body);
+
   const { Total_Price, Size, Menu_Drink_ID, Ice_Level, Sugar_Level } = req.body;
-  //console.log(`inputs: Total_Price = ${Total_Price}, Size = ${Size}, Menu_Drink_ID = ${Menu_Drink_ID}, Ice_Level = ${Ice_Level}, Sugar_Level = ${Sugar_Level}`);
-  if (Total_Price == undefined || (Size < 0 || Size > 1 || Size == undefined) || Menu_Drink_ID == undefined || Ice_Level == undefined || (Sugar_Level < 0 || Sugar_Level > 4 || Sugar_Level == undefined)) {
+
+  if (
+    Total_Price == undefined ||
+    (Size < 0 || Size > 1 || Size == undefined) ||
+    Menu_Drink_ID == undefined ||
+    Ice_Level == undefined ||
+    (Sugar_Level < 0 || Sugar_Level > 4 || Sugar_Level == undefined)
+  ) {
     res.status(400).json({ error: 'Invalid parameters' });
     return;
   }
 
+  // Pass Total_Price directly to the function
   const result = await createOrderDrink(
     parseFloat(Total_Price),
     parseInt(Size, 10),
     parseInt(Menu_Drink_ID, 10),
     parseInt(Ice_Level, 10),
-    parseInt(Sugar_Level, 10)
+    parseInt(Sugar_Level, 10),
+    parseFloat(Total_Price) // Pass Total_Price directly
   );
 
   if (result[1] === -1) {
@@ -301,7 +308,6 @@ async function createTables(): Promise<number> {
 
     CREATE TABLE Orders (
       ID SERIAL PRIMARY KEY,
-      Server_ID INTEGER,
       Name VARCHAR(50),
       Cost DOUBLE PRECISION,
       Price DOUBLE PRECISION,
@@ -310,7 +316,6 @@ async function createTables(): Promise<number> {
       Takeout BOOLEAN,
       Date DATE NOT NULL DEFAULT CURRENT_DATE,
       Time TIME,
-      FOREIGN KEY (Server_ID) REFERENCES Employee(ID)
     );
 
     CREATE TABLE Order_Order_Drink (
@@ -384,7 +389,6 @@ app.post('/create-ingredient', async (req, res) => {
 //Create order
 app.post('/create-order', async (req, res) => {
   const {
-    serverID,
     total_cost,
     price,
     profit,
@@ -396,7 +400,6 @@ app.post('/create-order', async (req, res) => {
   } = req.body;
 
   if (
-    serverID === undefined ||
     isNaN(total_cost) ||
     isNaN(price) ||
     isNaN(profit) ||
@@ -414,11 +417,10 @@ app.post('/create-order', async (req, res) => {
     const client = await pool.connect();
 
     const insertOrderSQL = `
-      INSERT INTO Orders (Server_ID, Name, Cost, Price, Profit, Tip, Takeout, Date, Time)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`;
+      INSERT INTO Orders (Name, Cost, Price, Profit, Tip, Takeout, Date, Time)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`;
 
     const values = [
-      serverID,
       name,
       total_cost,
       price,
@@ -1195,11 +1197,7 @@ app.get('/excess-report/:startDate', async (req, res) => {
         const ingredientID = ingredientsList[i][j];
         const drinkID = drinkIDs[i];
 
-        // Use Axios to get the amount used for the ingredient
-        const amountUsedResponse = await axios.get(`${serverUrl}/manager-view-ingredient/${ingredientID}`);
-        const amountUsed = amountUsedResponse.data.amountUsed;
-
-        ingredients[ingredientID] += drinks[drinkID] * amountUsed;
+        ingredients[ingredientID] += drinks[drinkID];
       }
     }
 
@@ -1520,6 +1518,47 @@ app.put('/change-is-ingredient/:id', async (req, res) => {
   } catch (error) {
     console.error('Error changing Is_Ingredient:', error);
     res.status(500).json({ error: 'An error occurred while changing Is_Ingredient' });
+  }
+});
+
+//create order order drink
+
+app.post('/create-order-order-drink', async (req, res) => {
+  const { orderID, orderDrinkIDs } = req.body;
+
+  if (!orderID || !orderDrinkIDs || !Array.isArray(orderDrinkIDs)) {
+    res.status(400).json({ error: 'Invalid parameters' });
+    return;
+  }
+
+  try {
+    const client = await pool.connect();
+
+    // Iterate through each order drink ID and create an Order_Order_Drink entry
+    const orderOrderDrinkIDs: number[] = [];
+    for (const orderDrinkID of orderDrinkIDs) {
+      const orderOrderDrinkSQL = `
+        INSERT INTO order_order_drink (order_id, order_drink_id)
+        VALUES ($1, $2)
+        RETURNING order_drink_id`;
+
+      const orderOrderDrinkResult = await client.query(orderOrderDrinkSQL, [
+        orderID,
+        orderDrinkID
+      ]);
+
+      orderOrderDrinkIDs.push(orderOrderDrinkResult.rows[0].order_drink_id);
+    }
+
+    client.release();
+
+    res.json({
+      message: 'Order_Order_Drinks created successfully',
+      order_order_drink_ids: orderOrderDrinkIDs
+    });
+  } catch (error) {
+    console.error('Error creating Order_Order_Drinks:', error);
+    res.status(500).json({ error: (error as Error).message });
   }
 });
 

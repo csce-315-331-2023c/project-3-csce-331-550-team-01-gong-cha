@@ -39,7 +39,7 @@ This is a list of the functions that we have in index.ts. Date of last update: 1
     "tipped": 5,
     "takeout": true,
     "date": "2023-11-01",
-    "time": "12:30 PM",
+    "time": "12:30", 
     "name": "Example Order"
     }
 
@@ -157,3 +157,11 @@ This is a list of the functions that we have in index.ts. Date of last update: 1
     menu drink ingredient.
 
 /change-is-ingredient/:id - This function changes the Is_Ingredient field of an ingredient given its primary key
+
+/create-order-order-drink: This function makes an order order drink. It takes in two parameters: an order primary key,
+    and an array of order drink primary keys. It then assigns all those order drinks to that order. 
+    Here is a request body example:
+    {
+    "orderID": 123, // Replace with the actual order ID
+    "orderDrinkIDs": [456, 789, 1011] // Replace with the actual order drink IDs
+    }

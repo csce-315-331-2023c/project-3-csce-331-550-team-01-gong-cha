@@ -70,7 +70,6 @@ CREATE TABLE Ingredient_Order_Drink(
 
 CREATE TABLE Orders(
     ID SERIAL PRIMARY KEY,
-    Server_ID INTEGER,
     Name VARCHAR(50),
     Cost DOUBLE PRECISION,
     Price DOUBLE PRECISION,
