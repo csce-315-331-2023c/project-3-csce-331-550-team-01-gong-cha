@@ -208,7 +208,8 @@ async function createOrderDrink(
 app.post('/create-order-drink', async (req, res) => {
   console.log('Received request body:', req.body); // Add this line for debugging
   const { Total_Price, Size, Menu_Drink_ID, Ice_Level, Sugar_Level } = req.body;
-  if (!Total_Price || !Size || !Menu_Drink_ID || !Ice_Level || !Sugar_Level) {
+  //console.log(`inputs: Total_Price = ${Total_Price}, Size = ${Size}, Menu_Drink_ID = ${Menu_Drink_ID}, Ice_Level = ${Ice_Level}, Sugar_Level = ${Sugar_Level}`);
+  if (Total_Price == undefined || (Size < 0 || Size > 1 || Size == undefined) || Menu_Drink_ID == undefined || Ice_Level == undefined || (Sugar_Level < 0 || Sugar_Level > 4 || Sugar_Level == undefined)) {
     res.status(400).json({ error: 'Invalid parameters' });
     return;
   }
@@ -240,9 +241,7 @@ async function createTables(): Promise<number> {
       Ingredient_Name VARCHAR(50),
       Current_Amount DOUBLE PRECISION,
       Ideal_Amount DOUBLE PRECISION,
-      Restock_Price DOUBLE PRECISION,
       Consumer_Price DOUBLE PRECISION,
-      Amount_Used DOUBLE PRECISION,
       Is_Ingredient BOOLEAN
     );
     
@@ -347,45 +346,15 @@ app.get('/createTables', async (req, res) => {
   }
 });
 
-//create order drink
-app.post('/create-order-drink', async (req, res) => {
-  console.log('Received request body:', req.body); // Add this line for debugging
-  const { Total_Price, Size, Menu_Drink_ID, Ice_Level, Sugar_Level } = req.body;
-  if (Total_Price === null || Size === null || Menu_Drink_ID === null || Ice_Level === null || Sugar_Level === null) {
-    res.status(400).json({ error: 'Invalid parameters' });
-    return;
-  }
-
-  const result = await createOrderDrink(
-    parseFloat(Total_Price),
-    parseInt(Size, 10),
-    parseInt(Menu_Drink_ID, 10),
-    parseInt(Ice_Level, 10),
-    parseInt(Sugar_Level, 10)
-  );
-
-  if (result[1] === -1) {
-    res.status(500).json({ error: 'Failed to create order drink' });
-  } else {
-    res.json({
-      Total_Price: result[0],
-      generatedKey: result[1],
-      make_cost: result[2],
-    });
-  }
-});
-
-
+//create ingredient
 app.post('/create-ingredient', async (req, res) => {
-  const { name, currentAmount, idealAmount, restockPrice, consumerPrice, amountUsed, isIngredient } = req.body;
+  const { name, currentAmount, idealAmount, consumerPrice, isIngredient } = req.body;
 
   if (
     !name ||
     currentAmount === undefined ||
     idealAmount === undefined ||
-    restockPrice === undefined ||
     consumerPrice === undefined ||
-    amountUsed === undefined ||
     isIngredient === undefined
   ) {
     res.status(400).json({ error: 'Invalid parameters' });
@@ -394,12 +363,12 @@ app.post('/create-ingredient', async (req, res) => {
 
   try {
     const SQL = `
-      INSERT INTO ingredient (Ingredient_Name, Current_Amount, Ideal_Amount, Restock_Price, Consumer_Price, Amount_Used, Is_Ingredient)
-      VALUES ($1, $2, $3, $4, $5, $6, $7)
+      INSERT INTO ingredient (Ingredient_Name, Current_Amount, Ideal_Amount, Consumer_Price, Is_Ingredient)
+      VALUES ($1, $2, $3, $4, $5)
       RETURNING ID`;
 
     const client = await pool.connect();
-    const result = await client.query(SQL, [name, currentAmount, idealAmount, restockPrice, consumerPrice, amountUsed, isIngredient]);
+    const result = await client.query(SQL, [name, currentAmount, idealAmount, consumerPrice, isIngredient]);
     client.release();
 
     if (result.rows.length > 0) {
@@ -535,7 +504,6 @@ app.get('/manager-view-ingredient/:ingredientID', async (req, res) => {
 
     const ingredient = result.rows[0];
     const ingredientName = ingredient.ingredient_name;
-    const amountUsed = ingredient.amount_used;
     const ingredientAmount = ingredient.current_amount;
     const ingredientIdeal = ingredient.ideal_amount;
 
@@ -543,7 +511,6 @@ app.get('/manager-view-ingredient/:ingredientID', async (req, res) => {
       ingredientName,
       currentAmount: ingredientAmount,
       idealAmount: ingredientIdeal,
-      amountUsed,
     });
   } catch (error) {
     console.error('Error fetching ingredient data:', error);
@@ -1092,52 +1059,7 @@ app.get('/ingredients-for-menu-drinks/:menuDrinkIDs', async (req, res) => {
     res.status(500).json({ error: 'An error occurred while fetching ingredients for menu drinks' });
   }
 });
-//Make new seasonal menu drink
-app.post('/new-seasonal-menu-item', async (req, res) => {
-  const { name, normalCost, largeCost, normConsumerPrice, lgConsumerPrice, ingredientPKs } = req.body;
 
-  if (
-    !name ||
-    isNaN(normalCost) ||
-    isNaN(largeCost) ||
-    isNaN(normConsumerPrice) ||
-    isNaN(lgConsumerPrice) ||
-    !Array.isArray(ingredientPKs) ||
-    ingredientPKs.length === 0
-  ) {
-    res.status(400).json({ error: 'Invalid parameters in the request body' });
-    return;
-  }
-
-  try {
-    const client = await pool.connect();
-    client.query('BEGIN'); // Start a transaction
-
-    // Create the new menu drink with Category_ID set to 8
-    const insertMenuDrinkSQL = `
-      INSERT INTO Menu_Drink (Name, Normal_Cost, Large_Cost, Norm_Consumer_Price, Lg_Consumer_Price, Category_ID)
-      VALUES ($1, $2, $3, $4, $5, 8) -- Set Category_ID to 8
-      RETURNING ID`;
-
-    const menuDrinkValues = [name, normalCost, largeCost, normConsumerPrice, lgConsumerPrice];
-    const menuDrinkResult = await client.query(insertMenuDrinkSQL, menuDrinkValues);
-    const menuDrinkId = menuDrinkResult.rows[0].id;
-
-    // Insert ingredients into the Menu_Drink_Ingredient junction table
-    const insertMenuDrinkIngredientSQL = 'INSERT INTO Menu_Drink_Ingredient (Menu_Drink_ID, Ingredient_ID) VALUES ($1, $2)';
-    for (const ingredientPK of ingredientPKs) {
-      await client.query(insertMenuDrinkIngredientSQL, [menuDrinkId, ingredientPK]);
-    }
-
-    client.query('COMMIT'); // Commit the transaction to save changes
-    client.release();
-
-    res.status(201).json({ message: 'Seasonal menu item added successfully' });
-  } catch (error) {
-    console.error('Error adding new seasonal menu item:', error);
-    res.status(500).json({ error: 'An error occurred while adding the seasonal menu item' });
-  }
-});
 
 app.get('/sold-together/:startDate/:endDate', async (req, res) => {
   try {
@@ -1307,15 +1229,13 @@ app.get('/excess-report/:startDate', async (req, res) => {
 // Update Ingredient
 app.put('/update-ingredient/:id', async (req, res) => {
   const ingredientId = req.params.id;
-  const { name, currentAmount, idealAmount, restockPrice, consumerPrice, amountUsed, isIngredient } = req.body;
+  const { name, currentAmount, idealAmount, consumerPrice, isIngredient } = req.body;
 
   if (
     name === undefined ||
     currentAmount === undefined ||
     idealAmount === undefined ||
-    restockPrice === undefined ||
     consumerPrice === undefined ||
-    amountUsed === undefined ||
     isIngredient === undefined
   ) {
     res.status(400).json({ error: 'Invalid parameters' });
@@ -1326,11 +1246,11 @@ app.put('/update-ingredient/:id', async (req, res) => {
     const updateSQL = `
       UPDATE ingredient
       SET Ingredient_Name = $1, Current_Amount = $2, Ideal_Amount = $3,
-      Restock_Price = $4, Consumer_Price = $5, Amount_Used = $6, Is_Ingredient = $7
-      WHERE ID = $8`;
+      Consumer_Price = $4, Is_Ingredient = $5
+      WHERE ID = $6`;
 
     const client = await pool.connect();
-    const result = await client.query(updateSQL, [name, currentAmount, idealAmount, restockPrice, consumerPrice, amountUsed, isIngredient, ingredientId]);
+    const result = await client.query(updateSQL, [name, currentAmount, idealAmount, consumerPrice, isIngredient, ingredientId]);
     client.release();
 
     if (result.rowCount > 0) {
@@ -1466,14 +1386,16 @@ app.post('/create-menu-drink', async (req, res) => {
 
     const insertMenuDrinkSQL = `
       INSERT INTO Menu_Drink (Name, Normal_Cost, Large_Cost, Norm_Consumer_Price, Lg_Consumer_Price, Category_ID, Is_Offered)
-      VALUES ($1, $2, $3, $4, $5, $6, $7)`;
+      VALUES ($1, $2, $3, $4, $5, $6, $7)
+      RETURNING ID`; // Add RETURNING ID to get the generated ID
 
     const values = [name, normalCost, largeCost, normConsumerPrice, lgConsumerPrice, categoryID, isOffered !== undefined ? isOffered : true];
 
-    await client.query(insertMenuDrinkSQL, values);
+    const result = await client.query(insertMenuDrinkSQL, values);
+    const generatedId = result.rows[0].id; // Get the generated ID from the result
     client.release();
 
-    res.status(201).json({ message: 'Menu Drink created successfully' });
+    res.status(201).json({ message: 'Menu Drink created successfully', id: generatedId });
   } catch (error) {
     console.error('Error creating menu drink:', error);
     res.status(500).json({ error: 'An error occurred while creating the menu drink' });
@@ -1528,6 +1450,76 @@ app.put('/change-offered/:id', async (req, res) => {
   } catch (error) {
     console.error('Error changing Is_Offered:', error);
     res.status(500).json({ error: 'An error occurred while changing Is_Offered' });
+  }
+});
+
+//create menu drink ingredient
+app.post('/create-menu-drink-ingredient', async (req, res) => {
+  const { menuDrinkId, ingredientId } = req.body;
+
+  if (!menuDrinkId || !ingredientId) {
+    res.status(400).json({ error: 'Invalid parameters in the request body' });
+    return;
+  }
+
+  try {
+    const client = await pool.connect();
+
+    const insertMenuDrinkIngredientSQL = `
+      INSERT INTO Menu_Drink_Ingredient (Menu_Drink_ID, Ingredient_ID)
+      VALUES ($1, $2)
+      RETURNING Menu_Drink_ID, Ingredient_ID`;
+
+    const values = [menuDrinkId, ingredientId];
+
+    const result = await client.query(insertMenuDrinkIngredientSQL, values);
+    client.release();
+
+    if (result.rows.length > 0) {
+      const menuDrinkId = result.rows[0].menu_drink_id;
+      const ingredientId = result.rows[0].ingredient_id;
+      res.status(201).json({ message: 'Menu Drink Ingredient created successfully', menuDrinkId, ingredientId });
+    } else {
+      res.status(500).json({ error: 'Error creating Menu Drink Ingredient' });
+    }
+  } catch (error) {
+    console.error('Error creating Menu Drink Ingredient:', error);
+    res.status(500).json({ error: 'An error occurred while creating Menu Drink Ingredient' });
+  }
+});
+
+app.put('/change-is-ingredient/:id', async (req, res) => {
+  const ingredientId = req.params.id;
+
+  try {
+    const client = await pool.connect();
+
+    // Retrieve the current value of Is_Ingredient
+    const currentIsIngredientResult = await client.query('SELECT Is_Ingredient FROM Ingredient WHERE ID = $1', [ingredientId]);
+
+    if (currentIsIngredientResult.rows.length === 0) {
+      // If the ingredient is not found, return an error
+      res.status(404).json({ error: 'Ingredient not found' });
+      return;
+    }
+
+    const currentIsIngredient = currentIsIngredientResult.rows[0].is_ingredient;
+
+    // Toggle the value of Is_Ingredient
+    const newIsIngredient = !currentIsIngredient;
+
+    // Update the ingredient with the new value of Is_Ingredient
+    const updateIsIngredientResult = await client.query('UPDATE Ingredient SET Is_Ingredient = $1 WHERE ID = $2', [newIsIngredient, ingredientId]);
+    client.release();
+
+    if (updateIsIngredientResult.rowCount > 0) {
+      res.json({ message: 'Is_Ingredient changed successfully' });
+    } else {
+      res.status(500).json({ error: 'Error changing Is_Ingredient' });
+    }
+  } catch (error) {
+    console.error('Error changing Is_Ingredient:', error);
+    res.status(500).json({ error: 'An error occurred while changing Is_Ingredient' });
   }
 });
 

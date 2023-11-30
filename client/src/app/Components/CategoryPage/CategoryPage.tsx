@@ -8,22 +8,12 @@ import defualtDrinkImg2 from '/public/DrinkImages/Black Milk Tea.png'
 import {DrinkImage} from '../DinkImage/DrinkImage';
 import { useState, useEffect} from 'react';
 import OrderDrink from '../OrderDrink/OrderDrink';
+import ConfirmOrder from '../ConfirmOrder/ConfirmOrder'
 import "./styles.css"
-
 
 
 interface OpenModals {
   [key:string]: boolean;
-}
-
-interface orderDrink {
-  name: string;
-  ice: number;
-  sugar: number;
-  sz: number;
-  totalPrice: number; // cost for customer
-  costPrice: number; // cost for us to make
-  id: number;
 }
 
 type Drink = {
@@ -46,6 +36,7 @@ export default function CategoryPage({categoryDrinks}: CategoryPageProps){
     window.location.href = "../";
 }
   const [openModals, setOpenModals] = useState<OpenModals>({});
+  const [isOrderPlaced, setIsOrderPlaced] = useState(false);
 
   //const picture = require(`../../../../public/DrinkImages/${categoryDrinks[1].name}`);
 
@@ -59,46 +50,43 @@ export default function CategoryPage({categoryDrinks}: CategoryPageProps){
     setOpenModals({...openModals, [category]: false});
   };
 
+  const closeConfirmOrder = () => {
+    setIsOrderPlaced(false);
+  };
+
   function goToCategory(category: string){
     window.location.href = "../../Order/" + category;
 }
 
-  function placeOrder(){
-    const existingOrders = JSON.parse(localStorage.getItem('orders') || '[]');
-    const fetchPromises = existingOrders.forEach((drink: orderDrink) => {
-      alert(JSON.stringify(drink.sz, null, 2)); 
-      // Process each order here
-      // For example, you can log each order to the console
-      alert(JSON.stringify({Total_Price: drink.totalPrice, Size: drink.sz, Menu_Drink_ID: drink.id, Ice_Level: drink.ice, Sugar_Level: drink.sugar}));
-      fetch('http://18.191.166.59:5000/create-order-drink/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({Total_Price: drink.totalPrice, Size: drink.sz, Menu_Drink_ID: drink.id, Ice_Level: drink.ice, Sugar_Level: drink.sugar})
-      })
-  })
-  Promise.all(fetchPromises)
-    .then(responses => {
-      return Promise.all(responses.map(response => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return response.json();
-      }));
-    })
-    .then(data => {
-      console.log('All orders processed:', data);
-      // Handle the response data from all orders
-    })
-    .catch(error => {
-      console.error('Error processing orders:', error);
-      // Handle any errors that occurred during fetching
-    });
-  
-
-  
-  }
+  // function placeOrder(){
+  //   const existingOrders = JSON.parse(localStorage.getItem('orders') || '[]');
+    
+  //   existingOrders.forEach((drink: orderDrink) => {
+  //     setTotalOrderPrice(totalOrderPrice + drink.totalPrice);
+  //     fetch('http://18.191.166.59:5000/create-order-drink/', {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json'
+  //       },
+  //       body: JSON.stringify({Total_Price: drink.totalPrice, Size: drink.sz, Menu_Drink_ID: drink.id, Ice_Level: drink.ice, Sugar_Level: drink.sugar})
+  //     })
+  //     .then(response => {
+  //       if (!response.ok) {
+  //         throw new Error('Network response was not ok');
+  //       }
+  //       return response.json();
+  //     })
+  //     .then(data => {
+  //       setTotalOrderCost(totalOrderCost + data.make_cost);
+  //       setProfit(totalOrderPrice - totalOrderCost);
+  //       orderDrinkPKs.push(data.generatedKey)
+  //       setIsOrderPlaced(true);
+  //     })
+  //     .catch(error => {
+  //       console.error('There was a problem with the fetch operation:', error);
+  //     });
+  // })
+  // }
 
 const halfLength = Math.ceil(categoryDrinks.length / 2);
 
@@ -120,13 +108,21 @@ interface orderDrink {
 
 const [drinksState, setDrinksState] = useState<orderDrink[]>([]);
 
+
 useEffect(() => {
   const storedOrders = JSON.parse(localStorage.getItem('orders') || '[]');
   //alert(storedOrders)
   setDrinksState(storedOrders);
 })
     return(
+      
       <div className="relative mt-10">
+        {isOrderPlaced && (
+        <ConfirmOrder 
+            drinks={drinksState}
+            onClose={() => closeConfirmOrder()}
+        />
+    )}
       <button className='backContainter flex items-center' onClick={goBack}>
                 <svg className='ml-4' xmlns="http://www.w3.org/2000/svg" height="5em" viewBox="0 0 448 512"><path d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288 416 288c17.7 0 32-14.3 32-32s-14.3-32-32-32l-306.7 0L214.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg>
                 <div className='ml-8 text-4xl'>Catagories</div>
@@ -168,7 +164,6 @@ useEffect(() => {
             drinkID={category.id}>
              Customize Ingredients</Modal>
            </div>
-           
          ))}
       </div>
       <div className = "orderContainer bg-white border-black rounded-lg w-1/3 h-full text-center">
@@ -183,7 +178,7 @@ useEffect(() => {
           />
           
       ))}
-      <button className="bottom-0"onClick={() => {placeOrder(); localStorage.clear()}}>Place Order</button>
+      <button className="bottom-0"onClick={() => {setIsOrderPlaced(true); /*localStorage.clear()*/}}>Place Order</button>
       </div>
       </div>
       </div>

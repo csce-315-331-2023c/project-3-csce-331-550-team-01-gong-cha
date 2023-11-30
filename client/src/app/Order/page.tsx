@@ -4,7 +4,7 @@ import MenuItem from '../Components/MenuItem/MenuItem'
 import defualtDrinkImg from '../../../public/defualtDrinkImg.png'
 import { useGeolocated } from 'react-geolocated'
 import React, { useState, useEffect } from 'react'
-import './styles.css'
+import Suggestion from '../Components/Suggestion/Suggestion'
 import seasonalImage from '../../../public/drinkImages/seas.png'
 import coffeeImage from '../../../public/drinkImages/53.png'
 import bewedImage from '../../../public/drinkImages/49.png'
@@ -12,54 +12,61 @@ import milkImage from '../../../public/drinkImages/30.png'
 import creImage from '../../../public/drinkImages/18.png'
 import foamImage from '../../../public/drinkImages/31.png'
 import slushImage from '../../../public/drinkImages/44.png'
-import Suggestion from '../Components/Suggestion/Suggestion'
+
+import './styles.css'
+
 
 export default function Order() {
-
     const { coords, isGeolocationAvailable, isGeolocationEnabled } = 
-    useGeolocated({positionOptions: {enableHighAccuracy: false,},userDecisionTimeout: 5000,});
+        useGeolocated({positionOptions: {enableHighAccuracy: false,},userDecisionTimeout: 5000,});
 
     const [suggestionOpen, setSuggestionOpen] = useState(false);
     const [tempVal, setTempVal] = useState(80);
     const [raining, setRaining] = useState(false);
     const [suggested, setSuggested] = useState(false);
 
-    useEffect(() => {
-        if(coords && isGeolocationAvailable && isGeolocationEnabled && !suggested){
-            fetch(`https://api.open-meteo.com/v1/forecast?latitude=${coords?.latitude.toFixed(2)}&longitude=${coords?.longitude.toFixed(2)}&current=temperature_2m,is_day,rain,snowfall&temperature_unit=fahrenheit`) // Replace with the actual API endpoint URL
-            .then((response) => {
-                if (!response.ok) {
-                alert("did not pass");
-                throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then((data) => {
-                if(data?.current?.rain === 1){
-                    setRaining(true);
-                }
-                setTempVal(parseFloat(data?.current?.temperature_2m));    
-                // setSuggestionOpen(true);
-                // setSuggested(true);
-            })
+    function getData(suggested: boolean){
+        if(!suggested){
+            if(coords && isGeolocationAvailable && isGeolocationEnabled){
+                fetch(`https://api.open-meteo.com/v1/forecast?latitude=${coords?.latitude.toFixed(2)}&longitude=${coords?.longitude.toFixed(2)}&current=temperature_2m,is_day,rain,snowfall&temperature_unit=fahrenheit`) // Replace with the actual API endpoint URL
+                .then((response) => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then((data) => {
+                    if(data?.current?.rain === 1){
+                        setRaining(true);
+                    }
+                    setTempVal(parseFloat(data?.current?.temperature_2m));    
+                })
+                .then(() => {
+                    setSuggestionOpen(true);
+                    setSuggested(true);
+                })
+            }
         }
-    });
+    }
+    useEffect(() => getData(suggested));
 
     function goToCategory(category: string){
         window.location.href = "Order/Catagories/" + category;
     }
+
     function goBack(){
         window.location.href = "../";
     }
+
     return (
         <main className="bg-slate-200 bg-cover h-screen w-screen flex">
-            <Suggestion open={suggestionOpen} onClose={() => setSuggestionOpen(false)} temp={tempVal} raning={raining}>hello</Suggestion>
             <div className='ml-6 catagoryContainer w-4/5 flex-col h-full'>
                 <button className='backContainter flex items-center' onClick={goBack}>
                     <svg className='fill-rose-700 ml-4' xmlns="http://www.w3.org/2000/svg" height="5em" viewBox="0 0 448 512"><path d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288 416 288c17.7 0 32-14.3 32-32s-14.3-32-32-32l-306.7 0L214.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg>
                     <div className='ml-8 text-5xl text-rose-700 font-semibold'>Home Page</div>
                 </button>
                 <div className='flex h-full w-full'>
+                    <Suggestion open={suggestionOpen} onClose={() => setSuggestionOpen(false)} temp={tempVal} raning={raining}>hello</Suggestion>
                     <div className="flex flex-col items-center justify-start w-full h-full m-4">
                         <div className='h-1/5 w-full m-4'>
                             <MenuItem drinkName={"Milk Tea"} drinkImage={milkImage} altTxt={"Test Drink"} thisOnClick={() => goToCategory("MilkTea")}/>
