@@ -34,7 +34,6 @@ export default function ConfirmOrder({drinks, onClose}: ConfirmOrderProps){
     const [totalOrderPrice, setTotalOrderPrice] = useState(0);
     const [totalOrderCost, setTotalOrderCost] = useState(0);
     const [totalProfit, setTotalProfit] = useState(0);
-    let orderDrinkPKs: number[] = [];
     const today = new Date();
     const month = today.getMonth() + 1;
     const year = today.getFullYear();
@@ -47,76 +46,83 @@ export default function ConfirmOrder({drinks, onClose}: ConfirmOrderProps){
     function handleTakeOut(value: boolean){
         setTakeOut(value);
     }
+    function goBack(){
+        window.location.href = "../";
+    }
 
-    function placeOrder(){
+    function placeOrder() {
         const existingOrders = JSON.parse(localStorage.getItem('orders') || '[]');
+        let localTotalOrderPrice = 0;
+        let localTotalOrderCost = 0;
+        let localOrderDrinkPks: number[] = [];
     
-    existingOrders.forEach((drink: orderDrink) => {
-      setTotalOrderPrice(totalOrderPrice + drink.totalPrice);
-      fetch('http://18.191.166.59:5000/create-order-drink/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({Total_Price: drink.totalPrice, Size: drink.sz, Menu_Drink_ID: drink.id, Ice_Level: drink.ice, Sugar_Level: drink.sugar})
-      })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.json();
-      })
-      .then(data => {
-        setTotalOrderCost(totalOrderCost + data.make_cost);
-        setTotalProfit(totalOrderPrice - totalOrderCost);
-        orderDrinkPKs.push(data.generatedKey)
-      })
-      .catch(error => {
-        console.error('There was a problem with the fetch operation:', error);
-      });
-  })
-    fetch('http://18.191.166.59:5000/create-order/', {
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-    total_cost: totalOrderCost,
-    price: totalOrderPrice,
-    profit: totalProfit,
-    tipped: tip,
-    takeout: isTakeout,
-    date: currentDate,
-    time: currentTime,
-    name: "Customer Order"
-})
-    })
-    .then(response => {
-    if (!response.ok) {
-        throw new Error('Network response was not ok');
+        const orderDrinkPromises = existingOrders.map((drink: orderDrink) => {
+            localTotalOrderPrice += drink.totalPrice;
+            return fetch('http://18.191.166.59:5000/create-order-drink/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ Total_Price: drink.totalPrice, Size: drink.sz, Menu_Drink_ID: drink.id, Ice_Level: drink.ice, Sugar_Level: drink.sugar })
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('Network response was not ok');
+                return response.json();
+            })
+            .then(data => {
+                localTotalOrderCost += data.make_cost;
+                localOrderDrinkPks.push(data.generatedKey);
+            });
+        });
+    
+        Promise.all(orderDrinkPromises).then(() => {
+            setTotalOrderPrice(localTotalOrderPrice);
+            setTotalOrderCost(localTotalOrderCost);
+            setTotalProfit(localTotalOrderPrice - localTotalOrderCost);
+    
+            return fetch('http://18.191.166.59:5000/create-order/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    total_cost: localTotalOrderCost,
+                    price: localTotalOrderPrice,
+                    profit: localTotalOrderPrice - localTotalOrderCost,
+                    tipped: tip,
+                    takeout: isTakeout,
+                    date: currentDate,
+                    time: currentTime,
+                    name: "Customer Order"
+                })
+            });
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Network response was not ok');
+            return response.json();
+        })
+        .then(data => {
+            setOrderNumber(data.orderID);
+            return fetch('http://18.191.166.59:5000/create-order-order-drink/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    orderID: data.orderID,
+                    orderDrinkIDs: localOrderDrinkPks
+                })
+            });
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Network response was not ok');
+            return response.json();
+        })
+        .then(data => {
+            // Handle the final response
+            setCurrentModal(1);
+            goBack();
+            localStorage.clear();
+        })
+        .catch(error => {
+            console.error('There was a problem with the fetch operation:', error);
+        });
     }
-    return response.json();
-    })
-    .then(data => {
-    setOrderNumber(data.orderID)
-    })
-    .catch(error => {
-    console.error('There was a problem with the fetch operation:', error);
-    });
-    fetch('http://18.191.166.59:5000/create-order-order-drink/', {
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-    orderID: orderNumber,
-    orderDrinkIDs: orderDrinkPKs
-})
-    })
-      setCurrentModal(1);
-      localStorage.clear();
-    }
-
+    
     const [currentModal, setCurrentModal] = useState(0);
 
     const modals = [(
