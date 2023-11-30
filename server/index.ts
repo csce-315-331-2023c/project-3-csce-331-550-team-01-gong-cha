@@ -1525,6 +1525,47 @@ app.put('/change-is-ingredient/:id', async (req, res) => {
   }
 });
 
+//create order order drink
+
+app.post('/create-order-order-drink', async (req, res) => {
+  const { orderID, orderDrinkIDs } = req.body;
+
+  if (!orderID || !orderDrinkIDs || !Array.isArray(orderDrinkIDs)) {
+    res.status(400).json({ error: 'Invalid parameters' });
+    return;
+  }
+
+  try {
+    const client = await pool.connect();
+
+    // Iterate through each order drink ID and create an Order_Order_Drink entry
+    const orderOrderDrinkIDs: number[] = [];
+    for (const orderDrinkID of orderDrinkIDs) {
+      const orderOrderDrinkSQL = `
+        INSERT INTO order_order_drink (order_id, order_drink_id)
+        VALUES ($1, $2)
+        RETURNING order_drink_id`;
+
+      const orderOrderDrinkResult = await client.query(orderOrderDrinkSQL, [
+        orderID,
+        orderDrinkID
+      ]);
+
+      orderOrderDrinkIDs.push(orderOrderDrinkResult.rows[0].order_drink_id);
+    }
+
+    client.release();
+
+    res.json({
+      message: 'Order_Order_Drinks created successfully',
+      order_order_drink_ids: orderOrderDrinkIDs
+    });
+  } catch (error) {
+    console.error('Error creating Order_Order_Drinks:', error);
+    res.status(500).json({ error: (error as Error).message });
+  }
+});
+
 app.listen(port, () => {
 console.log(`Example listening at  http://localhost:${port}`);
 });
