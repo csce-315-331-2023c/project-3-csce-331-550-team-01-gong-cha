@@ -34,7 +34,7 @@ export default function ConfirmOrder({drinks, onClose}: ConfirmOrderProps){
     const [totalOrderPrice, setTotalOrderPrice] = useState(0);
     const [totalOrderCost, setTotalOrderCost] = useState(0);
     const [totalProfit, setTotalProfit] = useState(0);
-    let orderDrinkPKs = [];
+    let orderDrinkPKs: number[] = [];
     const today = new Date();
     const month = today.getMonth() + 1;
     const year = today.getFullYear();
@@ -75,34 +75,44 @@ export default function ConfirmOrder({drinks, onClose}: ConfirmOrderProps){
         console.error('There was a problem with the fetch operation:', error);
       });
   })
-        fetch('http://18.191.166.59:5000/create-order-drink/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-        total_cost: totalOrderCost,
-        price: totalOrderPrice,
-        profit: totalProfit,
-        tipped: tip,
-        takeout: isTakeout,
-        date: currentDate,
-        time: currentTime,
-        name: "Customer Order"
+    fetch('http://18.191.166.59:5000/create-order/', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+    total_cost: totalOrderCost,
+    price: totalOrderPrice,
+    profit: totalProfit,
+    tipped: tip,
+    takeout: isTakeout,
+    date: currentDate,
+    time: currentTime,
+    name: "Customer Order"
+})
     })
-      })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.json();
-      })
-      .then(data => {
-        // setOrderNumber(data.)
-      })
-      .catch(error => {
-        console.error('There was a problem with the fetch operation:', error);
-      });
+    .then(response => {
+    if (!response.ok) {
+        throw new Error('Network response was not ok');
+    }
+    return response.json();
+    })
+    .then(data => {
+    setOrderNumber(data.orderID)
+    })
+    .catch(error => {
+    console.error('There was a problem with the fetch operation:', error);
+    });
+    fetch('http://18.191.166.59:5000/create-order-order-drink/', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+    orderID: orderNumber,
+    orderDrinkIDs: orderDrinkPKs
+})
+    })
       setCurrentModal(1);
       localStorage.clear();
     }
@@ -142,7 +152,7 @@ export default function ConfirmOrder({drinks, onClose}: ConfirmOrderProps){
             </div>
             <div className="flex justify-evenly">
                 <button onClick={onClose}className="border-white border-2 rounded-md w-1/4 bg-rose-700 hover:bg-white">Exit</button>
-                <button onClick={() => setCurrentModal(1)} className="border-white border-2 rounded-md w-1/4 bg-rose-700 hover:bg-white">Place Order</button>
+                <button onClick={() => {placeOrder(); setCurrentModal(1)}} className="border-white border-2 rounded-md w-1/4 bg-rose-700 hover:bg-white">Place Order</button>
             </div>
             </div>
             
