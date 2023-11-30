@@ -388,6 +388,8 @@ app.post('/create-ingredient', async (req, res) => {
 });
 //Create order
 app.post('/create-order', async (req, res) => {
+  console.log('Received request body:', req.body);
+
   const {
     total_cost,
     price,
@@ -418,7 +420,8 @@ app.post('/create-order', async (req, res) => {
 
     const insertOrderSQL = `
       INSERT INTO Orders (Name, Cost, Price, Profit, Tip, Takeout, Date, Time)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`;
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      RETURNING ID`; // Add RETURNING ID to get the primary key
 
     const values = [
       name,
@@ -431,10 +434,17 @@ app.post('/create-order', async (req, res) => {
       time,
     ];
 
-    await client.query(insertOrderSQL, values);
+    const result = await client.query(insertOrderSQL, values);
+
+    const orderID = result.rows[0].id; // Extract the ID from the result
+
     client.release();
 
-    res.status(201).json({ message: 'Order created successfully' });
+    // Log the result to the terminal
+    console.log('Order created successfully. Order ID:', orderID);
+
+    // Send the result in the response
+    res.status(201).json({ message: 'Order created successfully', orderID });
   } catch (error) {
     console.error('Error creating order:', error);
     res.status(500).json({ error: 'An error occurred while creating the order' });
@@ -1524,6 +1534,8 @@ app.put('/change-is-ingredient/:id', async (req, res) => {
 //create order order drink
 
 app.post('/create-order-order-drink', async (req, res) => {
+  console.log('Received request body:', req.body);
+
   const { orderID, orderDrinkIDs } = req.body;
 
   if (!orderID || !orderDrinkIDs || !Array.isArray(orderDrinkIDs)) {
@@ -1552,6 +1564,10 @@ app.post('/create-order-order-drink', async (req, res) => {
 
     client.release();
 
+    // Log the result to the terminal
+    console.log('Order_Order_Drinks created successfully. Order_Order_Drink IDs:', orderOrderDrinkIDs);
+
+    // Send the result in the response
     res.json({
       message: 'Order_Order_Drinks created successfully',
       order_order_drink_ids: orderOrderDrinkIDs
