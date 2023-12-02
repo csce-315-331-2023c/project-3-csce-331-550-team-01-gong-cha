@@ -62,7 +62,6 @@ export default function Modal({ open, children, onClose, drinkName, lgDrinkPrice
       costPrice: selectedOptions.totalCost,
       id: selectedOptions.id
     }
-    alert(JSON.stringify(newDrink, null, 2)); 
     const existingOrders = JSON.parse(localStorage.getItem('orders') || '[]');
       localStorage.setItem('orders', JSON.stringify([...existingOrders, newDrink]));
   

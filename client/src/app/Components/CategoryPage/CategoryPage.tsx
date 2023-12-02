@@ -58,35 +58,6 @@ export default function CategoryPage({categoryDrinks}: CategoryPageProps){
     window.location.href = "../../Order/" + category;
 }
 
-  // function placeOrder(){
-  //   const existingOrders = JSON.parse(localStorage.getItem('orders') || '[]');
-    
-  //   existingOrders.forEach((drink: orderDrink) => {
-  //     setTotalOrderPrice(totalOrderPrice + drink.totalPrice);
-  //     fetch('http://18.191.166.59:5000/create-order-drink/', {
-  //       method: 'POST',
-  //       headers: {
-  //         'Content-Type': 'application/json'
-  //       },
-  //       body: JSON.stringify({Total_Price: drink.totalPrice, Size: drink.sz, Menu_Drink_ID: drink.id, Ice_Level: drink.ice, Sugar_Level: drink.sugar})
-  //     })
-  //     .then(response => {
-  //       if (!response.ok) {
-  //         throw new Error('Network response was not ok');
-  //       }
-  //       return response.json();
-  //     })
-  //     .then(data => {
-  //       setTotalOrderCost(totalOrderCost + data.make_cost);
-  //       setProfit(totalOrderPrice - totalOrderCost);
-  //       orderDrinkPKs.push(data.generatedKey)
-  //       setIsOrderPlaced(true);
-  //     })
-  //     .catch(error => {
-  //       console.error('There was a problem with the fetch operation:', error);
-  //     });
-  // })
-  // }
 
 const halfLength = Math.ceil(categoryDrinks.length / 2);
 
