@@ -1578,6 +1578,28 @@ app.post('/create-order-order-drink', async (req, res) => {
   }
 });
 
+//get total number of menu drinks offered
+app.get('/get-offered-menu-drinks', async (req, res) => {
+  try {
+    const client = await pool.connect();
+
+    const countMenuDrinksSQL = `
+      SELECT COUNT(*) AS offered_menu_drinks_count
+      FROM Menu_Drink
+      WHERE Is_Offered = true`;
+
+    const result = await client.query(countMenuDrinksSQL);
+    const offeredMenuDrinksCount = result.rows[0].offered_menu_drinks_count;
+
+    client.release();
+
+    res.json({ offered_menu_drinks_count: offeredMenuDrinksCount });
+  } catch (error) {
+    console.error('Error getting offered menu drinks count:', error);
+    res.status(500).json({ error: (error as Error).message });
+  }
+});
+
 app.listen(port, () => {
 console.log(`Example listening at  http://localhost:${port}`);
 });

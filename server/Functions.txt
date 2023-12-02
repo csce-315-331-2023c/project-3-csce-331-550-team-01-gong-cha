@@ -1,4 +1,4 @@
-This is a list of the functions that we have in index.ts. Date of last update: 11/27/23
+This is a list of the functions that we have in index.ts. Date of last update: 12/2/23
 
 /employees: This gets all the employees in the database:
 
@@ -165,3 +165,5 @@ This is a list of the functions that we have in index.ts. Date of last update: 1
     "orderID": 123, // Replace with the actual order ID
     "orderDrinkIDs": [456, 789, 1011] // Replace with the actual order drink IDs
     }
+
+/get-offered-menu-drinks: This function returns the number of menu drinks that are currently offered.
