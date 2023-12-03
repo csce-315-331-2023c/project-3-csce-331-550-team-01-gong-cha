@@ -1612,7 +1612,7 @@ app.post('/get-email', async (req, res) => {
   try {
     const client = await pool.connect();
 
-    const countMenuDrinksSQL = `SELECT count(*) FROM employee WHERE email = '$1';`;
+    const countMenuDrinksSQL = `SELECT public.getUser('$1');`;
 
     const result = await client.query(countMenuDrinksSQL, email);
 
