@@ -1600,17 +1600,17 @@ app.get('/get-offered-menu-drinks', async (req, res) => {
   }
 });
 
-app.post('/get-email', async (req, res) => {
+app.get('/get-email/:email', async (req, res) => {
   console.log('Received request body:', req.body);
 
-  const {email} = req.body;
+  const email = req.params.email;
 
   try {
     const client = await pool.connect();
 
     const countMenuDrinksSQL = `SELECT public.getUser(\'$1\');`;
 
-    const result = await client.query(countMenuDrinksSQL, email);
+    const result = await client.query(countMenuDrinksSQL, [email]);
 
     client.release();
 
