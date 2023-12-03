@@ -167,3 +167,5 @@ This is a list of the functions that we have in index.ts. Date of last update: 1
     }
 
 /get-offered-menu-drinks: This function returns the number of menu drinks that are currently offered.
+
+/sales-report/:startDate/:endDate - This function should generate the sales report. Working on it.

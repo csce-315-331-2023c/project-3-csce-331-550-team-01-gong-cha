@@ -1332,7 +1332,12 @@ app.get('/categories', async (req, res) => {
   }
 });
 
-//Get all drinks from a category given the category primary key and Is_Offered is true
+
+/*
+* Gets all drinks from a category given the category primary key and Is_Offered is true
+* @param json containing the primary key of the category you want to get all the drinks from
+* @return   json containing all the menu drinks from that are offered
+*/
 app.get('/drinks-from-category/:categoryId', async (req, res) => {
   try {
     const categoryId = parseInt(req.params.categoryId, 10); // Convert the string to a number
@@ -1366,6 +1371,11 @@ app.get('/drinks-from-category/:categoryId', async (req, res) => {
 });
 
 //create menu drink
+/*
+* Creates a menu drink
+* @param json containing menu drink attributes (name, costs, consumer prices, category primary key, isOffered)
+* @return   json containing primary key of the new menu drink and success status
+*/
 app.post('/create-menu-drink', async (req, res) => {
   const {
     name,
@@ -1410,7 +1420,11 @@ app.post('/create-menu-drink', async (req, res) => {
   }
 });
 
-//gets all ingredients that are actually ingredients 
+
+/*
+* Gets all ingredients that aren't toppings
+* @return   json containing all ingredients that aren't toppings
+*/
 app.get('/is-ingredient', async (req, res) => {
   try {
     const SQL = 'SELECT * FROM ingredient WHERE Is_Ingredient = true';
@@ -1426,6 +1440,11 @@ app.get('/is-ingredient', async (req, res) => {
   }
 });
 
+/*
+* Changes the IsOffered variable for a menu drink
+* @param json containing primary key of menu drink that you want to change IsOffered for
+* @return   json containing success status
+*/
 app.put('/change-offered/:id', async (req, res) => {
   const menuDrinkId = req.params.id;
 
@@ -1462,6 +1481,11 @@ app.put('/change-offered/:id', async (req, res) => {
 });
 
 //create menu drink ingredient
+/*
+* makes a menu drink ingredient
+* @param json containing menu drink ingredient attributes (menu drink and ingredient primary keys)
+* @return   json containing the two primary keys and a success status
+*/
 app.post('/create-menu-drink-ingredient', async (req, res) => {
   const { menuDrinkId, ingredientId } = req.body;
 
@@ -1496,6 +1520,11 @@ app.post('/create-menu-drink-ingredient', async (req, res) => {
   }
 });
 
+/*
+* Changes whether ot not an ingredient is considered a topping
+* @param primary key for the ingredient you want to change is ingredient for
+* @return   json containing success status
+*/
 app.put('/change-is-ingredient/:id', async (req, res) => {
   const ingredientId = req.params.id;
 
@@ -1533,6 +1562,11 @@ app.put('/change-is-ingredient/:id', async (req, res) => {
 
 //create order order drink
 
+/*
+* Gets total number of menu drinks offered
+* @param json containing order order drink attributes: (order id and array of order drink ids)
+* @return   json containing primary key of the order order drink
+*/
 app.post('/create-order-order-drink', async (req, res) => {
   console.log('Received request body:', req.body);
 
@@ -1579,6 +1613,11 @@ app.post('/create-order-order-drink', async (req, res) => {
 });
 
 //get total number of menu drinks offered
+
+/*
+* Gets total number of menu drinks offered
+* @return   json containing the number of menu drinks offered (int)
+*/
 app.get('/get-offered-menu-drinks', async (req, res) => {
   try {
     const client = await pool.connect();
