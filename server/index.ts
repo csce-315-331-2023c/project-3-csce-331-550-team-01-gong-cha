@@ -1614,7 +1614,7 @@ app.post('/get-email', async (req, res) => {
 
     const countMenuDrinksSQL = `SELECT count(*) FROM employee WHERE email = '$1';`;
 
-    const result = await client.query(countMenuDrinksSQL, [email]);
+    const result = await client.query(countMenuDrinksSQL, email);
 
     client.release();
 
