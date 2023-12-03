@@ -12,7 +12,7 @@ function getIngredients(profile){
         body: JSON.stringify({email: profile.email}),
     })
     .then((response) => {
-        console.log(profile.email);
+        console.log(`[${profile.email}]`);
         if (!response.ok) {
             console.log("net error")
             throw new Error('Network response was not ok');
@@ -20,7 +20,8 @@ function getIngredients(profile){
         return response.json();
     })
     .then((data) => {
-        console.log(data.exist);
+        //console.log(data.exist);
+        console.log(`[${profile.email}]`);
         if(hasCookie('userID')){
             setCookie('userID', data.exist);
         }

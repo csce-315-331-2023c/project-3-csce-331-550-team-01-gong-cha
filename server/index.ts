@@ -1600,10 +1600,6 @@ app.get('/get-offered-menu-drinks', async (req, res) => {
   }
 });
 
-app.listen(port, () => {
-console.log(`Example listening at  http://localhost:${port}`);
-});
-
 app.post('/get-email', async (req, res) => {
   console.log('Received request body:', req.body);
 
@@ -1624,3 +1620,7 @@ app.post('/get-email', async (req, res) => {
     res.status(500).json({ error: (error as Error).message });
   }
 });
+
+app.listen(port, () => {
+  console.log(`Example listening at  http://localhost:${port}`);
+  });
