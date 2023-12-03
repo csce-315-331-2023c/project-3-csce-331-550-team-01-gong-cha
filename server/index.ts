@@ -1603,3 +1603,27 @@ app.get('/get-offered-menu-drinks', async (req, res) => {
 app.listen(port, () => {
 console.log(`Example listening at  http://localhost:${port}`);
 });
+
+app.get('/get-email', async (req, res) => {
+  console.log('Received request body:', req.body);
+
+  const {email} = req.body;
+
+  try {
+    const client = await pool.connect();
+
+    const countMenuDrinksSQL = `
+      SELECT EXIST (
+      SELECT * FROM employee
+      WHERE email = \'$1\')`;
+
+    const result = await client.query(countMenuDrinksSQL, [email]);
+
+    client.release();
+
+    res.json({exist: result});
+  } catch (error) {
+    console.error('Error getting offered menu drinks count:', error);
+    res.status(500).json({ error: (error as Error).message });
+  }
+});
