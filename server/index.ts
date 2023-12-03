@@ -1600,7 +1600,7 @@ app.get('/get-offered-menu-drinks', async (req, res) => {
   }
 });
 
-app.post('/get-email', async (req, res) => {
+app.get('/get-email', async (req, res) => {
   console.log('Received request body:', req.body);
 
   const {email} = req.body;
