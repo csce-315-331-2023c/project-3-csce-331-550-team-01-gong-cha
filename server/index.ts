@@ -1604,7 +1604,7 @@ app.listen(port, () => {
 console.log(`Example listening at  http://localhost:${port}`);
 });
 
-app.get('/get-email', async (req, res) => {
+app.put('/get-email', async (req, res) => {
   console.log('Received request body:', req.body);
 
   const {email} = req.body;
