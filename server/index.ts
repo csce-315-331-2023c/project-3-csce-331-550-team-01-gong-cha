@@ -56,7 +56,10 @@ const data = { name: 'Mario' };
 res.json(data);
 });
 
-//gets all the employees
+/*
+* gets all the employees
+* @ returns A status and a JSON body containing the result. On success the body contains all employee names, on failure output contains the error code
+*/
 app.get('/employees', (req, res) => {
     pool
       .query('SELECT * FROM Employee') // Use the correct table name
@@ -73,7 +76,10 @@ app.get('/employees', (req, res) => {
       });
   });
 
-//gets all menu drinks
+/*
+* gets all menu drinks
+* @returns A status and a JSON body containing the result. On success the body contains a dictionary containing menu drink primary keys and the corresponding names, on failure it contains the error message
+*/
 app.get('/menu-drink', (req, res) => {
   pool
     .query('SELECT * FROM menu_drink') // Use the correct table name
@@ -90,7 +96,10 @@ app.get('/menu-drink', (req, res) => {
     });
 });
 
-//gets all the ingredients
+/*
+* gets all the ingredients
+* @returns A status and a JSON body containing the result. On success the body contains a dictionary with the ingredient primary keys and corresponding names, on failure it contains the error code.
+*/
 app.get('/ingredients', (req, res) => {
   pool
     .query('SELECT * FROM Ingredient') // Use the correct table name
@@ -144,6 +153,16 @@ app.get('/drop-tables', async (req, res) => {
   }
 });
 
+/*
+* Asynchronous function to create an order drink
+* @params ToppingCost The cost of the toppings used on the order drink
+* @params size The size of the drink. Valid inputs include 0 for regular and 1 for large
+* @params mdID The primary key of the menu drink used as the base for the order drink
+* @params iceLevel The level of ice to put in the drink. Valid inputs include 1, 2, or 3 for different levels of ice
+* @params sugarLevel The level of sugar in the drink. Valid inputs include 0-4, inclusive
+* @params total_price_override The final price of the order drink
+* @returns An array containing the total_price, the primary key of the new drink, and the cost it takes the store to make the drink. on failure, array contains [0, -1, 0]
+*/
 async function createOrderDrink(
   toppingCost: number,
   size: number,
@@ -203,6 +222,10 @@ async function createOrderDrink(
   return [total_price, generatedKey, make_cost];
 }
 
+/*
+* @params body A JSON body containing the total price, size, menu drink id, ice level, and sugar level of the new order drink
+* @returns A status and a JSON body. On success the body contains the total price, newly generated key, and make cost of the drink, on failure it contains the error code.
+*/
 app.post('/create-order-drink', async (req, res) => {
   console.log('Received request body:', req.body);
 
@@ -351,7 +374,11 @@ app.get('/createTables', async (req, res) => {
   }
 });
 
-//create ingredient
+/*
+* create ingredient
+* @params body A JSON body containing the name of the ingredient, the current amount in the store, the ideal amount for the store to have, the price to add to the drink, and whether it is a topping or an ingredient
+* @returns A status and a JSON body. On success the body contains the primary key of the new ingredient, on failure it contains the error code
+*/
 app.post('/create-ingredient', async (req, res) => {
   const { name, currentAmount, idealAmount, consumerPrice, isIngredient } = req.body;
 
