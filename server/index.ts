@@ -1610,7 +1610,7 @@ app.get('/get-email/:email', async (req, res) => {
 
     const countMenuDrinksSQL = `SELECT public.getUser(\'$1\');`;
 
-    const result = await client.query(countMenuDrinksSQL, [email]);
+    const result = await client.query(countMenuDrinksSQL, email);
 
     client.release();
 
