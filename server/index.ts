@@ -1152,6 +1152,8 @@ app.get('/excess-report/:startDate', async (req, res) => {
   try {
     const startDate = req.params.startDate;
 
+    const client = await pool.connect();
+
     //Get a list of all PK's for menu drinks and ingredients
     const menuDrinkResponse = await axios.get<{id:number}[]>(`${serverUrl}/menu-drink`);
     const drinkIDs =  menuDrinkResponse.data.map((item) => item.id);
@@ -1168,7 +1170,7 @@ app.get('/excess-report/:startDate', async (req, res) => {
     for (let i = 0; i < ingredientIDs.length; i++) {
       ingredients[ingredientIDs[i]] = 0;
     }
-    let report = '';
+    let report : number[] = [];
 
     // Retrieve order pairs for the given start date
     const orderPairsResponse = await axios.get<{orderdrinkid:number}[]>(`${serverUrl}/order-drink-pairs/${startDate}`);
@@ -1207,15 +1209,21 @@ app.get('/excess-report/:startDate', async (req, res) => {
       const idealAmount = idealAmountResponse.data.idealAmount;
 
       if (ingredients[ing] / idealAmount < 0.1) {
-        // Use Axios to get the ingredient name
-        const ingredientNameResponse = await axios.get(`${serverUrl}/get-ingredient-name/${ing}`);
-        const ingredientName = ingredientNameResponse.data.ingredientName;
-
-        report += `${ingredientName}\n`;
+        report.push(ing);
       }
     }
+    let querySQL = `SELECT id, ingredient_name FROM ingredient WHERE id IN (${report.join()})`
 
-    res.send(report);
+    const result = await client.query(querySQL);
+    client.release();
+
+    const excessReport = result.rows.map((row) => ({
+        Ingredient_ID: row.id,
+        Ingredient_Name: row.ingredient_name,
+    }));
+
+    res.status(200).json(excessReport);
+    
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal Server Error' });
