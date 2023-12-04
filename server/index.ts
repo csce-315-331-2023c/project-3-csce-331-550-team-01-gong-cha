@@ -1614,7 +1614,7 @@ app.get('/get-email/:email', async (req, res) => {
 
     client.release();
 
-    res.json({exist: result.rows[0]});
+    res.json({exist: result.rows[0].getuser});
   } catch (error) {
     console.error('Error getting offered menu drinks count:', error);
     res.status(500).json({ error: (error as Error).message });
