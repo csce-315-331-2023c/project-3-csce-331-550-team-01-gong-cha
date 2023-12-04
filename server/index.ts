@@ -1634,6 +1634,32 @@ app.delete('/delete-menu-drink-ingredients/:menuDrinkID', async (req, res) => {
   }
 });
 
+//delete ingredient
+app.delete('/delete-ingredient/:ingredientID', async (req, res) => {
+  const ingredientID = req.params.ingredientID;
+
+  try {
+    const client = await pool.connect();
+
+    const deleteIngredientSQL = `
+      DELETE FROM Ingredient
+      WHERE ID = $1
+      RETURNING ID`;
+
+    const result = await client.query(deleteIngredientSQL, [ingredientID]);
+    client.release();
+
+    if (result.rows.length > 0) {
+      const deletedIngredientID = result.rows[0].id;
+      res.json({ message: 'Ingredient deleted successfully', deletedIngredientID });
+    } else {
+      res.status(404).json({ error: 'Ingredient not found' });
+    }
+  } catch (error) {
+    console.error('Error deleting ingredient:', error);
+    res.status(500).json({ error: (error as Error).message });
+  }
+});
 
 app.listen(port, () => {
 console.log(`Example listening at  http://localhost:${port}`);
