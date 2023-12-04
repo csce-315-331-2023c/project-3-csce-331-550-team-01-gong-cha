@@ -1443,14 +1443,14 @@ app.put('/change-offered/:id', async (req, res) => {
 
 //create menu drink ingredient
 /*
-* makes a menu drink ingredient
-* @param json containing menu drink ingredient attributes (menu drink and ingredient primary keys)
+* makes menu drink ingredients
+* @param json containing menu drink ingredient attributes (menu drink and ingredients primary keys)
 * @return   json containing the two primary keys and a success status
 */
 app.post('/create-menu-drink-ingredient', async (req, res) => {
-  const { menuDrinkId, ingredientId } = req.body;
+  const { menuDrinkId, ingredientIds } = req.body;
 
-  if (!menuDrinkId || !ingredientId) {
+  if (!menuDrinkId || !ingredientIds || !Array.isArray(ingredientIds) || ingredientIds.length === 0) {
     res.status(400).json({ error: 'Invalid parameters in the request body' });
     return;
   }
@@ -1458,26 +1458,27 @@ app.post('/create-menu-drink-ingredient', async (req, res) => {
   try {
     const client = await pool.connect();
 
-    const insertMenuDrinkIngredientSQL = `
+    // Use VALUES construct to insert multiple rows in a single query
+    const insertMenuDrinkIngredientsSQL = `
       INSERT INTO Menu_Drink_Ingredient (Menu_Drink_ID, Ingredient_ID)
-      VALUES ($1, $2)
+      VALUES ${ingredientIds.map((_, index) => `($1, $${index + 2})`).join(', ')}
       RETURNING Menu_Drink_ID, Ingredient_ID`;
 
-    const values = [menuDrinkId, ingredientId];
+    const values = [menuDrinkId, ...ingredientIds];
 
-    const result = await client.query(insertMenuDrinkIngredientSQL, values);
+    const result = await client.query(insertMenuDrinkIngredientsSQL, values);
     client.release();
 
     if (result.rows.length > 0) {
-      const menuDrinkId = result.rows[0].menu_drink_id;
-      const ingredientId = result.rows[0].ingredient_id;
-      res.status(201).json({ message: 'Menu Drink Ingredient created successfully', menuDrinkId, ingredientId });
+      const menuDrinkIds = result.rows.map(row => row.menu_drink_id);
+      const ingredientIds = result.rows.map(row => row.ingredient_id);
+      res.status(201).json({ message: 'Menu Drink Ingredients created successfully', menuDrinkIds, ingredientIds });
     } else {
-      res.status(500).json({ error: 'Error creating Menu Drink Ingredient' });
+      res.status(500).json({ error: 'Error creating Menu Drink Ingredients' });
     }
   } catch (error) {
-    console.error('Error creating Menu Drink Ingredient:', error);
-    res.status(500).json({ error: 'An error occurred while creating Menu Drink Ingredient' });
+    console.error('Error creating Menu Drink Ingredients:', error);
+    res.status(500).json({ error: 'An error occurred while creating Menu Drink Ingredients' });
   }
 });
 
@@ -1617,6 +1618,60 @@ app.get('/get-email/:email', async (req, res) => {
     res.json({exist: result.rows[0].getuser});
   } catch (error) {
     console.error('Error getting offered menu drinks count:', error);
+    res.status(500).json({ error: (error as Error).message });
+  }
+});
+
+app.get('/get-ingredients-for-menu-drink/:menuDrinkID', async (req, res) => {
+  const menuDrinkID = req.params.menuDrinkID;
+
+  try {
+    const client = await pool.connect();
+
+    const getIngredientsSQL = `
+      SELECT Ingredient_ID
+      FROM Menu_Drink_Ingredient
+      WHERE Menu_Drink_ID = $1`;
+
+    const result = await client.query(getIngredientsSQL, [menuDrinkID]);
+    const ingredientIDs = result.rows.map((row) => row.ingredient_id);
+
+    client.release();
+
+    res.json({ ingredientIDs });
+  } catch (error) {
+    console.error('Error getting ingredients for menu drink:', error);
+    res.status(500).json({ error: (error as Error).message });
+  }
+});
+
+//delete menu drink ingredient
+app.delete('/delete-menu-drink-ingredients/:menuDrinkID', async (req, res) => {
+  const menuDrinkID = req.params.menuDrinkID;
+  const ingredientIDs = req.body.ingredientIDs;
+
+  if (!Array.isArray(ingredientIDs)) {
+    res.status(400).json({ error: 'Invalid parameters' });
+    return;
+  }
+
+  try {
+    const client = await pool.connect();
+
+    // Iterate through each ingredient primary key and delete corresponding entries
+    for (const ingredientID of ingredientIDs) {
+      const deleteIngredientSQL = `
+        DELETE FROM Menu_Drink_Ingredient
+        WHERE Menu_Drink_ID = $1 AND Ingredient_ID = $2`;
+
+      await client.query(deleteIngredientSQL, [menuDrinkID, ingredientID]);
+    }
+
+    client.release();
+
+    res.json({ message: 'Menu drink ingredients deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting menu drink ingredients:', error);
     res.status(500).json({ error: (error as Error).message });
   }
 });
