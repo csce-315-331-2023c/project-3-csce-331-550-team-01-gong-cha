@@ -305,8 +305,10 @@ async function createTables(): Promise<number> {
       Manager_ID INTEGER,
       Name VARCHAR(50),
       isManager BOOLEAN,
-      Username VARCHAR(50),
-      Password VARCHAR(200),
+      Email VARCHAR(50),
+      IsAdmin BOOLEAN DEFAULT FALSE,
+      IsEmployed BOOLEAN DEFAULT FALSE,
+      IsManager BOOLEAN DEFAULT FALSE,
       FOREIGN KEY (Manager_ID) REFERENCES Employee(ID)
     );
 
@@ -727,50 +729,9 @@ app.get('/get-all-drink-names', async (req, res) => {
   }
 });
 
-//getEmployeeUsernamesandPasswords
-app.get('/get-employee-usernames-and-passwords', async (req, res) => {
-  try {
-    const result: string[][] = [[], []];
-    const SQL = 'SELECT Username, Password FROM Employee';
-    const client = await pool.connect();
-    const queryResult = await client.query(SQL);
-    client.release();
 
-    queryResult.rows.forEach((row: any) => {
-      result[0].push(row.username);
-      result[1].push(row.password);
-    });
 
-    res.json(result);
-  } catch (error) {
-    console.error('Error fetching employee usernames and passwords:', error);
-    res.status(500).json({ error: (error as Error).message });
-  }
-});
 
-app.get('/confirm-username-password-match/:username/:password', async (req, res) => {
-  const username : string = req.params.username;
-  const password : string = req.params.password;
-  try {
-    var result = false
-    const SQL = 'SELECT Username, Password FROM Employee';
-    const client = await pool.connect();
-    const queryResult = await client.query(SQL);
-    client.release();
-
-    queryResult.rows.forEach((row: any) => {
-      if (row.username == username && row.password == password) {
-        result = true;
-      }
-    });
-    res.json(result);
-
-  } catch (error) {
-    console.error('Error fetching employee usernames and passwords:', error);
-    res.status(500).json({ error: (error as Error).message });
-  }
-
-});
 
 //getIngredientNameAndPrice
 app.get('/get-ingredient-name-and-price', async (req, res) => {
@@ -1665,6 +1626,28 @@ app.get('/get-offered-menu-drinks', async (req, res) => {
     res.status(500).json({ error: (error as Error).message });
   }
 });
+
+app.get('/get-email/:email', async (req, res) => {
+  console.log('Received request body:', req.body);
+
+  const email = req.params.email;
+
+  try {
+    const client = await pool.connect();
+
+    const countMenuDrinksSQL = `SELECT public.getUser(\'${email}\');`;
+
+    const result = await client.query(countMenuDrinksSQL);
+
+    client.release();
+
+    res.json({exist: result.rows[0].getuser});
+  } catch (error) {
+    console.error('Error getting offered menu drinks count:', error);
+    res.status(500).json({ error: (error as Error).message });
+  }
+});
+
 
 app.listen(port, () => {
 console.log(`Example listening at  http://localhost:${port}`);

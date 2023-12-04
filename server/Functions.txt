@@ -1,4 +1,4 @@
-This is a list of the functions that we have in index.ts. Date of last update: 12/2/23
+This is a list of the functions that we have in index.ts. Date of last update: 12/3/23
 
 /employees: This gets all the employees in the database:
 
@@ -71,11 +71,6 @@ This is a list of the functions that we have in index.ts. Date of last update: 1
 
 /get-all-drink-names: This function returns an array of each drink and it's primary key.
 
-/get-employee-usernames-and-passwords: This function gets all employee usernames and passwords. Not exactly very secure. 
-    We'll probably get rid of this before the final project. 
-
-/confirm-username-password-match/:username/:password - This function checks if a username and password match.
-    The request would go: /confirm-username-password-match/<username>/<password>
 
 /get-ingredient-name-and-price: This function gets all the ingredients and their prices
 
