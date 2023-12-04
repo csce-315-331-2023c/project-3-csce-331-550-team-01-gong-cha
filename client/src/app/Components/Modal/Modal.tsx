@@ -14,6 +14,8 @@ interface orderDrink {
   totalPrice: number; // cost for customer
   costPrice: number; // cost for us to make
   id: number;
+  toppingPks: number[];
+  toppingAmounts: number[];
 }
 
 interface ModalProps {
@@ -41,7 +43,10 @@ export default function Modal({ open, children, onClose, drinkName, lgDrinkPrice
     sugarLevel: 0,
     totalPrice: nmDrinkPrice,
     totalCost: 0,
-    id: drinkID
+    id: drinkID,
+    toppingPks: [],
+    toppingAmounts: [],
+
   });
 
 
@@ -60,10 +65,14 @@ export default function Modal({ open, children, onClose, drinkName, lgDrinkPrice
       sz: selectedOptions.size,
       totalPrice: selectedOptions.totalPrice + toppingsPrice,
       costPrice: selectedOptions.totalCost,
-      id: selectedOptions.id
+      id: selectedOptions.id,
+      toppingPks: toppingPks,
+      toppingAmounts: ingredientQuantities,
     }
     const existingOrders = JSON.parse(localStorage.getItem('orders') || '[]');
       localStorage.setItem('orders', JSON.stringify([...existingOrders, newDrink]));
+      // alert(newDrink.toppingPks);
+      // alert(newDrink.toppingAmounts);
   
   }
   const resetModalState = () => {
@@ -75,9 +84,12 @@ export default function Modal({ open, children, onClose, drinkName, lgDrinkPrice
       sugarLevel: 0,
       totalPrice: nmDrinkPrice,
       totalCost: 0,
-      id: drinkID
+      id: drinkID,
+      toppingPks: [],
+      toppingAmounts: []
     });
     setCurrentModal(0);
+    clearToppings()
   };
 
   const handleClose = () => {
@@ -85,6 +97,9 @@ export default function Modal({ open, children, onClose, drinkName, lgDrinkPrice
     onClose();
   };
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
+  const [toppingPks, setToppingPks] = useState<number[]>([]);
+  const [ingredientQuantities, setIngredientQuantities] = useState<number[]>([]);
+  
   useEffect(() => {
       if (open && currentModal == 1) {
         fetch('http://18.191.166.59:5000/ingredients') 
@@ -110,17 +125,46 @@ export default function Modal({ open, children, onClose, drinkName, lgDrinkPrice
           });
       }
     }, [open, currentModal]);
+
+  const clearToppings = () => {
+
+    setToppingPks([]);
+    setIngredientQuantities([]);
+  }
   
-  const addTopping = (price: number) => {
+  const addTopping = (price: number, pk: number, name: string) => {
     setToppingsPrice(toppingsPrice + price)
+
+    // toppingsInOrder.push({id: pk, name: name});
+    const index = toppingPks.indexOf(pk);
+    if (index >= 0) {
+      const newQuantities = [...ingredientQuantities];
+      newQuantities[index] += 1;
+      setIngredientQuantities(newQuantities);
+    } else {
+      setToppingPks([...toppingPks, pk]);
+      setIngredientQuantities([...ingredientQuantities, 1]);
+  }
   }
 
-  const removeTopping = (price: number) => {
+  const removeTopping = (price: number, pk:number) => {
     if (toppingsPrice >= price){
       setToppingsPrice(toppingsPrice - price)
     }
-    
+
+    const index = toppingPks.indexOf(pk);
+      if (index >= 0 && ingredientQuantities[index] > 0) {
+        const newQuantities = [...ingredientQuantities];
+        newQuantities[index] -= 1;
+        setIngredientQuantities(newQuantities);
+      }
+      else if (index >= 0 && ingredientQuantities[index] == 0){
+        delete ingredientQuantities[index];
+      }
   }
+
+
+  const [toppingsInOrder, setToppingsInOrder] = useState<Ingredient[]>([]);
 
   const handleNext = () => {
     if (currentModal < 1) {
@@ -230,8 +274,10 @@ const getSizeButtonStyle = (size: number) => {
             toppingName={ingredient.name}
             price={ingredient.price}
             toppingID={ingredient.id}
-            addTopping={addTopping}
-            removeTopping={removeTopping}
+            addTopping={() => addTopping(ingredient.price, ingredient.id, ingredient.name)}
+            removeTopping={() => removeTopping(ingredient.price, ingredient.id)}
+            toppingPks={toppingPks}
+            toppingAmounts={ingredientQuantities}
         />
       ))}
         

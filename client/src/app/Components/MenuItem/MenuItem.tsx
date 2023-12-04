@@ -4,7 +4,7 @@ import Image, { StaticImageData } from 'next/image'
 
 interface MenuItemProps {
     drinkName: string;
-    drinkImage: string;
+    drinkImage: StaticImageData;
     altTxt: string;
     thisOnClick: () => void;
   }

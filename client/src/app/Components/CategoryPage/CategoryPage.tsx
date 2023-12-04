@@ -74,7 +74,9 @@ interface orderDrink {
   sz: number;
   totalPrice: number; // cost for customer
   costPrice: number; // cost for us to make
-  id: number
+  id: number,
+  toppingPks: number[],
+  toppingAmounts: number[],
 }
 
 const [drinksState, setDrinksState] = useState<orderDrink[]>([]);
@@ -107,7 +109,7 @@ useEffect(() => {
             
           <MenuItem 
            drinkName={category.name}
-            drinkImage={DrinkImage[`_${category.id}`]} 
+            drinkImage={DrinkImage[`_${category.id}` as keyof typeof DrinkImage]} 
             altTxt={"Test Drink"}
            thisOnClick={() => openModal(category.name)}/>
            <Modal open={openModals[category.name]} onClose={() => closeModal(category.name)} 
@@ -125,7 +127,7 @@ useEffect(() => {
           <div className="h-1/4 w-full mt-10" key={category.name} >
             <MenuItem
            drinkName={category.name}
-          drinkImage={DrinkImage[`_${category.id}`]} 
+          drinkImage={DrinkImage[`_${category.id}` as keyof typeof DrinkImage]} 
             altTxt={"Test Drink"} 
             thisOnClick={() => openModal(category.name)}/>
             <Modal open={openModals[category.name]} onClose={() => closeModal(category.name)} 
@@ -146,10 +148,17 @@ useEffect(() => {
           sugar = {drink.sugar}
           size={drink.sz}
           price={drink.totalPrice}
+          toppingPks={drink.toppingPks}
+          toppingAmounts={drink.toppingAmounts}
           />
           
       ))}
-      <button className="bottom-0"onClick={() => {setIsOrderPlaced(true); /*localStorage.clear()*/}}>Place Order</button>
+      <div className="flex flex-col items-center">
+    <button className="mb-2 bottom-0" onClick={() => {setIsOrderPlaced(true);}}>Place Order</button>
+    <button onClick={() => {localStorage.clear();}}>Clear Order</button>
+    </div>
+
+      
       </div>
       </div>
       </div>
