@@ -725,33 +725,40 @@ app.get('/get-ingredient-name-and-price', async (req, res) => {
 //restock ingredients
 app.post('/restock-ingredients', async (req, res) => {
   try {
-    const querySQL = `
+    const fetchIngredientsSQL = `
       SELECT * 
       FROM ingredient 
       WHERE current_amount < (ideal_amount * 0.4);
     `;
 
     const client = await pool.connect();
-    const { rows } = await client.query(querySQL);
-    client.release();
+    const { rows } = await client.query(fetchIngredientsSQL);
 
     if (rows.length > 0) {
-      const result: string[] = [];
+      const updateIngredientsSQL = `
+        UPDATE ingredient
+        SET current_amount = ideal_amount
+        WHERE current_amount < (ideal_amount * 0.4);
+      `;
 
+      await client.query(updateIngredientsSQL);
+
+      const result: string[] = [];
       result.push("| Name of Ingredient                        | Current Amount  | Ideal Amount       |");
 
       for (const row of rows) {
         const name: string = row.ingredient_name;
-        const currentAmount: number = row.current_amount;
         const idealAmount: number = row.ideal_amount;
 
-        result.push(`| ${name.padEnd(40)} | ${currentAmount.toString().padEnd(15)} | ${idealAmount.toString().padEnd(20)} |`);
+        result.push(`| ${name.padEnd(40)} | ${idealAmount.toString().padEnd(15)} | ${idealAmount.toString().padEnd(20)} |`);
       }
 
       res.status(200).json({ message: 'Ingredients restocked successfully', result });
     } else {
       res.status(404).json({ error: 'No ingredients require restocking' });
     }
+
+    client.release();
   } catch (error) {
     console.error('Error restocking ingredients:', error);
     res.status(500).json({ error: 'An error occurred while restocking ingredients' });
@@ -1580,6 +1587,11 @@ app.get('/get-email/:email', async (req, res) => {
   }
 });
 
+/*
+* Gets the ingredients for a menu drink given the menu drinks primary key
+* @param the primary key of the menu drink you want the ingredients for
+* @return   json containing an array of the ingredient primary keys used in that menu drink
+*/
 app.get('/get-ingredients-for-menu-drink/:menuDrinkID', async (req, res) => {
   const menuDrinkID = req.params.menuDrinkID;
 
@@ -1604,6 +1616,11 @@ app.get('/get-ingredients-for-menu-drink/:menuDrinkID', async (req, res) => {
 });
 
 //delete menu drink ingredient
+/*
+* Deletes menu drink ingredient pairs of a menu drink
+* @param the menu Drink primary key for the menu drink ingredients you want deleted
+* @return   json containing the number of menu drinks offered (int)
+*/
 app.delete('/delete-menu-drink-ingredients/:menuDrinkID', async (req, res) => {
   const menuDrinkID = req.params.menuDrinkID;
   const ingredientIDs = req.body.ingredientIDs;
@@ -1635,6 +1652,11 @@ app.delete('/delete-menu-drink-ingredients/:menuDrinkID', async (req, res) => {
 });
 
 //delete ingredient
+/*
+* Deletes an ingredient
+* @param the ingredient primary key you want to delete
+* @return   json containing the number of menu drinks offered (int)
+*/
 app.delete('/delete-ingredient/:ingredientID', async (req, res) => {
   const ingredientID = req.params.ingredientID;
 
