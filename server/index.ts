@@ -49,12 +49,7 @@ process.on('SIGINT', function () {
 app.set('view engine', 'ejs');
 
 
-//From here down is where the converted functions will go
 
-app.get('/', (req, res) => {
-const data = { name: 'Mario' };
-res.json(data);
-});
 
 //gets all the employees
 app.get('/employees', (req, res) => {
