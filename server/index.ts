@@ -903,6 +903,10 @@ app.get('/get-ideal-ingredients-amount', async (req, res) => {
   }
 });
 
+/*
+* View what ingredients need to be restocked
+* @returns A 2D array, the outer array contains arrays containing the name, current amount, and ideal amount for each ingredient
+*/
 app.get('/report-restock', async (req, res) => {
 
   pool
@@ -935,7 +939,11 @@ app.get('/report-restock', async (req, res) => {
 });
 
 
-//get ingredient name given primary key
+/*
+* get ingredient name given primary key
+* @params ingredientID
+* @returns A JSON body containing the name of the target ingredient
+*/
 app.get('/get-ingredient-name/:ingredientId', async (req, res) => {
   const ingredientId = parseInt(req.params.ingredientId);
 
@@ -967,7 +975,11 @@ app.get('/get-ingredient-name/:ingredientId', async (req, res) => {
   }
 });
 
-//getMenuDrinks for Order Drinks
+/*
+* getMenuDrinks for Order Drinks
+* @params idTuple A tuple containing the primary keys of the target order drinks
+* @returns A JSON body containing the corresponding menu drink used as a base for each order drink
+*/
 app.get('/get-menu-drinks-for-order-drinks/:idTuple', async (req, res) => {
   const idTuple = req.params.idTuple as string;
 
@@ -996,7 +1008,10 @@ app.get('/get-menu-drinks-for-order-drinks/:idTuple', async (req, res) => {
   }
 });
 
-//get number of menu drinks
+/*
+* get number of menu drinks
+* @returns A JSON body containing the total number of menu drinks in the system
+*/
 app.get('/menu-drink-amount', async (req, res) => {
   try {
     const querySQL = 'SELECT COUNT(ID) FROM menu_drink';
@@ -1018,7 +1033,10 @@ app.get('/menu-drink-amount', async (req, res) => {
   }
 });
 
-//get number of ingredients
+/* 
+* get number of ingredients
+* @returns A JSON body containing the total number of ingredients in the system
+*/
 app.get('/ingredient-amount', async (req, res) => {
   try {
     const querySQL = 'SELECT COUNT(ID) FROM ingredient';
@@ -1039,7 +1057,11 @@ app.get('/ingredient-amount', async (req, res) => {
   }
 });
 
-//order drink pairs
+/*
+* order drink pairs
+* @params startDate The start date, in yyyy-mm-dd format, for the report
+* @returns A JSON body containing every order drink since the start date until the current date, and its corresponding order number
+*/
 app.get('/order-drink-pairs/:startDate', async (req, res) => {
   const startDate = req.params.startDate;
 
@@ -1068,11 +1090,12 @@ app.get('/order-drink-pairs/:startDate', async (req, res) => {
   }
 });
 
-
-
-
-
-
+/*
+* reports on what drinks were sold together in a certain date range
+* @params startDate The start date of the report, in yyyy-mm-dd format
+* @params endDate The end date of the report, in yyyy-mm-dd format
+* @returns A JSON body that contains each pair of drinks sold together in the date range, as well as the numebr of times they were sold together
+*/
 app.get('/sold-together/:startDate/:endDate', async (req, res) => {
   try {
       const startDate = req.params.startDate;
@@ -1121,6 +1144,12 @@ app.get('/sold-together/:startDate/:endDate', async (req, res) => {
   }
 });
 
+/*
+* reports on what drinks were sold together in a certain date range
+* @params startDate The start date of the report, in yyyy-mm-dd format
+* @params endDate The end date of the report, in yyyy-mm-dd format
+* @returns A JSON body that contains the name, price, and numeber of each specific drink sold in the given time range
+*/
 app.get('/sales-report/:startDate/:endDate', async (req, res) => {
   try {
       const startDate = req.params.startDate;
@@ -1160,6 +1189,10 @@ app.get('/sales-report/:startDate/:endDate', async (req, res) => {
   }
 });
 
+/*
+* @params startDate The start date of the report, in yyyy-mm-dd format
+* @returns A JSON containing the primary key and name of each ingredient that has not sold more than 10% of its ideal amount since the start date
+*/
 app.get('/excess-report/:startDate', async (req, res) => {
   try {
     const startDate = req.params.startDate;
@@ -1242,7 +1275,11 @@ app.get('/excess-report/:startDate', async (req, res) => {
   }
 });
 
-// Update Ingredient
+/*
+* Update Ingredient
+* @params id A primary key for an ingredient
+* @params body A JSON body containing the name, current amount, ideal amount, consumer price, and is ingredient, used to update the given id
+*/
 app.put('/update-ingredient/:id', async (req, res) => {
   const ingredientId = req.params.id;
   const { name, currentAmount, idealAmount, consumerPrice, isIngredient } = req.body;
@@ -1280,7 +1317,11 @@ app.put('/update-ingredient/:id', async (req, res) => {
   }
 });
 
-// Update Menu Drink
+/*
+* Update Menu Drink
+* @params id
+* @params body A JSON body containing the name, normal cost, large cost, normal consumer price, large consumer price, category, and is offered, used to update the given id
+*/
 app.put('/update-menu-drink/:id', async (req, res) => {
   const menuDrinkId = req.params.id;
   const { name, normalCost, largeCost, normConsumerPrice, lgConsumerPrice, category, isOffered } = req.body;
@@ -1320,7 +1361,10 @@ app.put('/update-menu-drink/:id', async (req, res) => {
 });
 
 
-//Get all drink categories 
+/* 
+* Get all drink categories 
+* @returns A JSON body containing the name of all drink categories
+*/
 app.get('/categories', async (req, res) => {
   try {
     const SQL = `SELECT Drink_Category FROM Category`;
