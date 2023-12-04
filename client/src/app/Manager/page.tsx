@@ -7,8 +7,12 @@ import ReportsModal from '../Components/ReportModal/ReportModal';
 import ReportModalWithDate from '../Components/ReportModalWithDate/ReportModalWithDate';
 import { useSession, signIn, signOut } from 'next-auth/react'
 import AddIngredients from '../Components/AddIngredients/AddIngredients'
+import { getCookie, hasCookie, setCookie } from 'cookies-next';
 
 export default function Dashboard() {
+
+  const [acess, setAcess] = useState(false);
+  const [first, setFirst] = useState(false);
 
   const [addIngredintOpen, setAddIngredintOpen] = useState(false);
 
@@ -34,6 +38,7 @@ export default function Dashboard() {
     priceNormal: string;
     priceLarge: string;
     category: string;
+    isOffered: boolean;
   }
 
   const [IngredientItems, setIngredientItems] = useState<IngredientItem[]>([]);
@@ -115,6 +120,7 @@ export default function Dashboard() {
                 priceNormal: item.norm_consumer_price,
                 priceLarge: item.lg_consumer_price,
                 category: item.category_id,
+                isOffered: item.is_offered
             }));
             setmenuDrinkItems(menuDrinkData);
         })
@@ -136,11 +142,32 @@ export default function Dashboard() {
     }
   }
 
-  useEffect(() => {getMenuInital(loaded)});
+  function getEmail(email: string) {
+      setFirst(true);
+      fetch(`http://18.191.166.59:5000/get-email/${email}`)
+      .then((response) => {
+        if (!response.ok) {
+        alert("did not pass");
+        throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then((data) => {
+        setAcess(parseInt(data.exist) >= 2);
+      })
+  }
+
+  useEffect(() => {
+    if(!first && session){
+      setFirst(true);
+      getEmail(session?.user.email);
+    }
+    getMenuInital(loaded)
+  }, [session, IngredientItems, menuDrinkItems]);
 
   return (
     <main className="flex-col w-screen h-screen bg-slate-200">
-      {session  ?
+      {acess ?
       <div>
       <div className='backContainter flex items-center'>
         <button className='h-full flex items-center' onClick={goBack}>
@@ -235,7 +262,7 @@ export default function Dashboard() {
             </div>
             <div className='ingredientTableOuter flex justify-center mt-4'>
               <div className="ingredientTabel flex-col justify-evenly border-rose-700 border-4 rounded-xl h-full w-full overflow-auto">
-              {menuDrinkItems.map((menuDrinkItem, index) => (
+              {menuDrinkItems.filter((drink) => drink.isOffered).map((menuDrinkItem, index) => (
                   <MenuItem
                       key={index}
                       pk={menuDrinkItem.pk}

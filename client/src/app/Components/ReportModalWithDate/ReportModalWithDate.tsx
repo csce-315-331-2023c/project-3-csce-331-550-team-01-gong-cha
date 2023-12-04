@@ -61,7 +61,7 @@ export default function ReportsModal({open, children, onClose, whichReport}: Mod
     }
 
     function soldTogether(date1: string, date2: string){
-        fetch(`http://18.191.166.59:5000/soldTogether/:${date1}/:${date2}`) // Replace with the actual API endpoint URL
+        fetch(`http://18.191.166.59:5000/sold-together/:${date1}/:${date2}`) // Replace with the actual API endpoint URL
             .then((response) => {
                 if (!response.ok) {
                 alert("did not pass");
@@ -114,8 +114,8 @@ export default function ReportsModal({open, children, onClose, whichReport}: Mod
                         </div>
                     </Conditional>
                     <Conditional condition={whichReport === 1}>
-                        <div className='w-4/5'>
-                            <div className='bg-cyan-300 font-bold w-full flex justify-evenly border-white border-2 h-10'>
+                        <div className='w-full'>
+                            <div className='bg-rose-700 font-bold text-slate-200 text-xl w-full flex justify-evenly h-14 rounded-xl mb-2'>
                                 <div className='flex justify-center items-center w-2/6'>
                                     Drink 1 Name
                                 </div>
@@ -127,7 +127,7 @@ export default function ReportsModal({open, children, onClose, whichReport}: Mod
                                 </div>
                             </div>
                         </div>
-                        <div className="flex-col justify-evenly border-white border-2 rounded-md h-full w-4/5 overflow-auto">
+                        <div className="flex-col justify-evenly border-white border-2 rounded-md h-full w-full overflow-auto">
                         {soldTogetherItems.map((soldTogethertItem, index) => (
                             <SoldTogetherItem
                                 key={index}

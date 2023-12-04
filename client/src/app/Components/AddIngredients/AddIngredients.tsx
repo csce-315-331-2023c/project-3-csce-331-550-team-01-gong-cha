@@ -23,7 +23,7 @@ export default function AddIngredients({open, onClose, drinkName, lgDrinkPrice, 
     ButtonStyles.fill('text-rose-700 bg-slate-200');
     ButtonStyles[num] = 'text-slate-200 bg-rose-700';
   }
-  
+
   function addIngredient(pk: number){
     DrinkIngredients.push(pk);
   }
@@ -90,7 +90,6 @@ export default function AddIngredients({open, onClose, drinkName, lgDrinkPrice, 
         }
     }
     onClose();
-
   }
 
   useEffect(() => {
