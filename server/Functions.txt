@@ -96,7 +96,6 @@ This is a list of the functions that we have in index.ts. Date of last update: 1
 /order-drink-pairs/:startDate - This function returns an array of arrays of orders and their order drinks
     Here is an example of the request: /order-drink-pairs/2023-09-30
 
-/ingredients-for-menu-drinks/:menuDrinkIDs - This function returns the ingredients of a menu drink given that menu drinks primary key
 
 
 /sold-together/:startDate/:endDate - This function takes a start date and end date and returns drinks that are commonly sold together
