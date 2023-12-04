@@ -148,8 +148,12 @@ This is a list of the functions that we have in index.ts. Date of last update: 1
 /change-offered/:id - This function changes whether or not a menu drink is offered given it's primary key
     If the drink was offered, now it isn't. If the drink wasn't offered, now it is.
 
-/create-menu-drink-ingredient: This function takes in a menu drink pk and an ingredient pk and makes a 
-    menu drink ingredient.
+/create-menu-drink-ingredient: This function takes in a menu drink pk and an array of ingredient pks and makes  
+    menu drink ingredients.
+    {
+    "menuDrinkId": 1,
+    "ingredientIds": [1, 2, 3]
+    }
 
 /change-is-ingredient/:id - This function changes the Is_Ingredient field of an ingredient given its primary key
 
@@ -163,4 +167,13 @@ This is a list of the functions that we have in index.ts. Date of last update: 1
 
 /get-offered-menu-drinks: This function returns the number of menu drinks that are currently offered.
 
-/sales-report/:startDate/:endDate - This function should generate the sales report. Working on it.
+/sales-report/:startDate/:endDate - This function generates a sales report given the dates
+
+/get-ingredients-for-menu-drink/:menuDrinkID - This function gets all ingredients that are used in a menu drink
+
+/delete-menu-drink-ingredients/:menuDrinkID - This function takes in a menu drink primary key and an array of ingredient primary keys   
+    And deletes any menu drink ingredients that match with those pairs. Here is an example
+    http://localhost:4000/delete-menu-drink-ingredients/1
+        {
+            "ingredientIDs": [31, 30]
+        }
