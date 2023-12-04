@@ -49,12 +49,7 @@ process.on('SIGINT', function () {
 app.set('view engine', 'ejs');
 
 
-//From here down is where the converted functions will go
 
-app.get('/', (req, res) => {
-const data = { name: 'Mario' };
-res.json(data);
-});
 
 //gets all the employees
 app.get('/employees', (req, res) => {
@@ -282,8 +277,10 @@ async function createTables(): Promise<number> {
       Manager_ID INTEGER,
       Name VARCHAR(50),
       isManager BOOLEAN,
-      Username VARCHAR(50),
-      Password VARCHAR(200),
+      Email VARCHAR(50),
+      IsAdmin BOOLEAN DEFAULT FALSE,
+      IsEmployed BOOLEAN DEFAULT FALSE,
+      IsManager BOOLEAN DEFAULT FALSE,
       FOREIGN KEY (Manager_ID) REFERENCES Employee(ID)
     );
 
@@ -700,50 +697,9 @@ app.get('/get-all-drink-names', async (req, res) => {
   }
 });
 
-//getEmployeeUsernamesandPasswords
-app.get('/get-employee-usernames-and-passwords', async (req, res) => {
-  try {
-    const result: string[][] = [[], []];
-    const SQL = 'SELECT Username, Password FROM Employee';
-    const client = await pool.connect();
-    const queryResult = await client.query(SQL);
-    client.release();
 
-    queryResult.rows.forEach((row: any) => {
-      result[0].push(row.username);
-      result[1].push(row.password);
-    });
 
-    res.json(result);
-  } catch (error) {
-    console.error('Error fetching employee usernames and passwords:', error);
-    res.status(500).json({ error: (error as Error).message });
-  }
-});
 
-app.get('/confirm-username-password-match/:username/:password', async (req, res) => {
-  const username : string = req.params.username;
-  const password : string = req.params.password;
-  try {
-    var result = false
-    const SQL = 'SELECT Username, Password FROM Employee';
-    const client = await pool.connect();
-    const queryResult = await client.query(SQL);
-    client.release();
-
-    queryResult.rows.forEach((row: any) => {
-      if (row.username == username && row.password == password) {
-        result = true;
-      }
-    });
-    res.json(result);
-
-  } catch (error) {
-    console.error('Error fetching employee usernames and passwords:', error);
-    res.status(500).json({ error: (error as Error).message });
-  }
-
-});
 
 //getIngredientNameAndPrice
 app.get('/get-ingredient-name-and-price', async (req, res) => {
@@ -1031,46 +987,9 @@ app.get('/order-drink-pairs/:startDate', async (req, res) => {
   }
 });
 
-//getIngredientsForMenuDrinks
-//the listening happens here
 
-app.get('/ingredients-for-menu-drinks/:menuDrinkIDs', async (req, res) => {
-  const menuDrinkIDs: string = req.params.menuDrinkIDs as string;
 
-  if (!menuDrinkIDs) {
-    res.status(400).json({ error: 'Missing or invalid "menuDrinkIDs" query parameter' });
-    return;
-  }
 
-  // Split the menuDrinkIDs string into an array of integers
-  const menuDrinkIDsArray: number[] = menuDrinkIDs.split(',').map((id) => parseInt(id, 10));
-
-  try {
-    const ingsForMenuDrinks: Array<number[]> = new Array(menuDrinkIDsArray.length).fill(null).map(() => []);
-
-    const querySQL = `
-      SELECT i.ID AS Ingredient_ID, i.Ingredient_Name, mdi.Menu_Drink_ID
-      FROM Menu_Drink_Ingredient mdi
-      JOIN Ingredient i ON mdi.Ingredient_ID = i.ID
-      WHERE mdi.Menu_Drink_ID IN (${menuDrinkIDs})
-    `;
-
-    const client = await pool.connect();
-    const result = await client.query(querySQL);
-    client.release();
-
-    result.rows.forEach((row: any) => {
-      const menuDrinkID: number = row.menu_drink_id;
-      const ingredientID: number = row.ingredient_id;
-      ingsForMenuDrinks[menuDrinkIDsArray.indexOf(menuDrinkID)].push(ingredientID);
-    });
-
-    res.status(200).json(ingsForMenuDrinks);
-  } catch (error) {
-    console.error('Error getting ingredients for menu drinks:', error);
-    res.status(500).json({ error: 'An error occurred while fetching ingredients for menu drinks' });
-  }
-});
 
 
 app.get('/sold-together/:startDate/:endDate', async (req, res) => {
@@ -1332,7 +1251,12 @@ app.get('/categories', async (req, res) => {
   }
 });
 
-//Get all drinks from a category given the category primary key and Is_Offered is true
+
+/*
+* Gets all drinks from a category given the category primary key and Is_Offered is true
+* @param json containing the primary key of the category you want to get all the drinks from
+* @return   json containing all the menu drinks from that are offered
+*/
 app.get('/drinks-from-category/:categoryId', async (req, res) => {
   try {
     const categoryId = parseInt(req.params.categoryId, 10); // Convert the string to a number
@@ -1366,6 +1290,11 @@ app.get('/drinks-from-category/:categoryId', async (req, res) => {
 });
 
 //create menu drink
+/*
+* Creates a menu drink
+* @param json containing menu drink attributes (name, costs, consumer prices, category primary key, isOffered)
+* @return   json containing primary key of the new menu drink and success status
+*/
 app.post('/create-menu-drink', async (req, res) => {
   const {
     name,
@@ -1410,7 +1339,11 @@ app.post('/create-menu-drink', async (req, res) => {
   }
 });
 
-//gets all ingredients that are actually ingredients 
+
+/*
+* Gets all ingredients that aren't toppings
+* @return   json containing all ingredients that aren't toppings
+*/
 app.get('/is-ingredient', async (req, res) => {
   try {
     const SQL = 'SELECT * FROM ingredient WHERE Is_Ingredient = true';
@@ -1426,6 +1359,11 @@ app.get('/is-ingredient', async (req, res) => {
   }
 });
 
+/*
+* Changes the IsOffered variable for a menu drink
+* @param json containing primary key of menu drink that you want to change IsOffered for
+* @return   json containing success status
+*/
 app.put('/change-offered/:id', async (req, res) => {
   const menuDrinkId = req.params.id;
 
@@ -1462,10 +1400,15 @@ app.put('/change-offered/:id', async (req, res) => {
 });
 
 //create menu drink ingredient
+/*
+* makes menu drink ingredients
+* @param json containing menu drink ingredient attributes (menu drink and ingredients primary keys)
+* @return   json containing the two primary keys and a success status
+*/
 app.post('/create-menu-drink-ingredient', async (req, res) => {
-  const { menuDrinkId, ingredientId } = req.body;
+  const { menuDrinkId, ingredientIds } = req.body;
 
-  if (!menuDrinkId || !ingredientId) {
+  if (!menuDrinkId || !ingredientIds || !Array.isArray(ingredientIds) || ingredientIds.length === 0) {
     res.status(400).json({ error: 'Invalid parameters in the request body' });
     return;
   }
@@ -1473,29 +1416,35 @@ app.post('/create-menu-drink-ingredient', async (req, res) => {
   try {
     const client = await pool.connect();
 
-    const insertMenuDrinkIngredientSQL = `
+    // Use VALUES construct to insert multiple rows in a single query
+    const insertMenuDrinkIngredientsSQL = `
       INSERT INTO Menu_Drink_Ingredient (Menu_Drink_ID, Ingredient_ID)
-      VALUES ($1, $2)
+      VALUES ${ingredientIds.map((_, index) => `($1, $${index + 2})`).join(', ')}
       RETURNING Menu_Drink_ID, Ingredient_ID`;
 
-    const values = [menuDrinkId, ingredientId];
+    const values = [menuDrinkId, ...ingredientIds];
 
-    const result = await client.query(insertMenuDrinkIngredientSQL, values);
+    const result = await client.query(insertMenuDrinkIngredientsSQL, values);
     client.release();
 
     if (result.rows.length > 0) {
-      const menuDrinkId = result.rows[0].menu_drink_id;
-      const ingredientId = result.rows[0].ingredient_id;
-      res.status(201).json({ message: 'Menu Drink Ingredient created successfully', menuDrinkId, ingredientId });
+      const menuDrinkIds = result.rows.map(row => row.menu_drink_id);
+      const ingredientIds = result.rows.map(row => row.ingredient_id);
+      res.status(201).json({ message: 'Menu Drink Ingredients created successfully', menuDrinkIds, ingredientIds });
     } else {
-      res.status(500).json({ error: 'Error creating Menu Drink Ingredient' });
+      res.status(500).json({ error: 'Error creating Menu Drink Ingredients' });
     }
   } catch (error) {
-    console.error('Error creating Menu Drink Ingredient:', error);
-    res.status(500).json({ error: 'An error occurred while creating Menu Drink Ingredient' });
+    console.error('Error creating Menu Drink Ingredients:', error);
+    res.status(500).json({ error: 'An error occurred while creating Menu Drink Ingredients' });
   }
 });
 
+/*
+* Changes whether ot not an ingredient is considered a topping
+* @param primary key for the ingredient you want to change is ingredient for
+* @return   json containing success status
+*/
 app.put('/change-is-ingredient/:id', async (req, res) => {
   const ingredientId = req.params.id;
 
@@ -1533,6 +1482,11 @@ app.put('/change-is-ingredient/:id', async (req, res) => {
 
 //create order order drink
 
+/*
+* Gets total number of menu drinks offered
+* @param json containing order order drink attributes: (order id and array of order drink ids)
+* @return   json containing primary key of the order order drink
+*/
 app.post('/create-order-order-drink', async (req, res) => {
   console.log('Received request body:', req.body);
 
@@ -1579,6 +1533,11 @@ app.post('/create-order-order-drink', async (req, res) => {
 });
 
 //get total number of menu drinks offered
+
+/*
+* Gets total number of menu drinks offered
+* @return   json containing the number of menu drinks offered (int)
+*/
 app.get('/get-offered-menu-drinks', async (req, res) => {
   try {
     const client = await pool.connect();
@@ -1617,6 +1576,88 @@ app.get('/get-email/:email', async (req, res) => {
     res.json({exist: result.rows[0].getuser});
   } catch (error) {
     console.error('Error getting offered menu drinks count:', error);
+    res.status(500).json({ error: (error as Error).message });
+  }
+});
+
+
+app.get('/get-ingredients-for-menu-drink/:menuDrinkID', async (req, res) => {
+  const menuDrinkID = req.params.menuDrinkID;
+
+  try {
+    const client = await pool.connect();
+
+    const getIngredientsSQL = `
+      SELECT Ingredient_ID
+      FROM Menu_Drink_Ingredient
+      WHERE Menu_Drink_ID = $1`;
+
+    const result = await client.query(getIngredientsSQL, [menuDrinkID]);
+    const ingredientIDs = result.rows.map((row) => row.ingredient_id);
+
+    client.release();
+
+    res.json({ ingredientIDs });
+  } catch (error) {
+    console.error('Error getting ingredients for menu drink:', error);
+    res.status(500).json({ error: (error as Error).message });
+  }
+});
+
+//delete menu drink ingredient
+app.delete('/delete-menu-drink-ingredients/:menuDrinkID', async (req, res) => {
+  const menuDrinkID = req.params.menuDrinkID;
+  const ingredientIDs = req.body.ingredientIDs;
+
+  if (!Array.isArray(ingredientIDs)) {
+    res.status(400).json({ error: 'Invalid parameters' });
+    return;
+  }
+
+  try {
+    const client = await pool.connect();
+
+    // Iterate through each ingredient primary key and delete corresponding entries
+    for (const ingredientID of ingredientIDs) {
+      const deleteIngredientSQL = `
+        DELETE FROM Menu_Drink_Ingredient
+        WHERE Menu_Drink_ID = $1 AND Ingredient_ID = $2`;
+
+      await client.query(deleteIngredientSQL, [menuDrinkID, ingredientID]);
+    }
+
+    client.release();
+
+    res.json({ message: 'Menu drink ingredients deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting menu drink ingredients:', error);
+    res.status(500).json({ error: (error as Error).message });
+  }
+});
+
+//delete ingredient
+app.delete('/delete-ingredient/:ingredientID', async (req, res) => {
+  const ingredientID = req.params.ingredientID;
+
+  try {
+    const client = await pool.connect();
+
+    const deleteIngredientSQL = `
+      DELETE FROM Ingredient
+      WHERE ID = $1
+      RETURNING ID`;
+
+    const result = await client.query(deleteIngredientSQL, [ingredientID]);
+    client.release();
+
+    if (result.rows.length > 0) {
+      const deletedIngredientID = result.rows[0].id;
+      res.json({ message: 'Ingredient deleted successfully', deletedIngredientID });
+    } else {
+      res.status(404).json({ error: 'Ingredient not found' });
+    }
+  } catch (error) {
+    console.error('Error deleting ingredient:', error);
     res.status(500).json({ error: (error as Error).message });
   }
 });
