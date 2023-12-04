@@ -1587,15 +1587,9 @@ app.get('/get-email/:email', async (req, res) => {
   }
 });
 
-<<<<<<< HEAD
-/*
-* Gets the ingredients for a menu drink given the menu drinks primary key
-* @param the primary key of the menu drink you want the ingredients for
-* @return   json containing an array of the ingredient primary keys used in that menu drink
-*/
-=======
 
->>>>>>> b52152667f54418c7f7066b6390939546e848db8
+
+
 app.get('/get-ingredients-for-menu-drink/:menuDrinkID', async (req, res) => {
   const menuDrinkID = req.params.menuDrinkID;
 
@@ -1684,6 +1678,40 @@ app.delete('/delete-ingredient/:ingredientID', async (req, res) => {
   } catch (error) {
     console.error('Error deleting ingredient:', error);
     res.status(500).json({ error: (error as Error).message });
+  }
+});
+//delete menu drink
+app.delete('/delete-menu-drink/:menuDrinkID', async (req, res) => {
+  const menuDrinkID = Number(req.params.menuDrinkID);
+
+  if (!menuDrinkID || isNaN(menuDrinkID)) {
+    res.status(400).json({ error: 'Invalid menu drink ID' });
+    return;
+  }
+
+  try {
+    const client = await pool.connect();
+
+    // Check if the menu drink exists
+    const checkMenuDrinkSQL = 'SELECT * FROM Menu_Drink WHERE ID = $1';
+    const checkMenuDrinkResult = await client.query(checkMenuDrinkSQL, [menuDrinkID]);
+
+    if (checkMenuDrinkResult.rows.length === 0) {
+      client.release();
+      res.status(404).json({ error: 'Menu drink not found' });
+      return;
+    }
+
+    // Delete the menu drink
+    const deleteMenuDrinkSQL = 'DELETE FROM Menu_Drink WHERE ID = $1';
+    await client.query(deleteMenuDrinkSQL, [menuDrinkID]);
+
+    client.release();
+
+    res.json({ message: 'Menu drink deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting menu drink:', error);
+    res.status(500).json({ error: 'An error occurred while deleting menu drink' });
   }
 });
 
