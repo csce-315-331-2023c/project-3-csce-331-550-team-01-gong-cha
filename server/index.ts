@@ -3,13 +3,15 @@ import { Pool, Client } from 'pg';
 import dotenv from 'dotenv';
 import axios from 'axios';
 import { Queue } from 'queue-typescript';
+//const { Queue } = require('queue-typescript')
 
 dotenv.config({path: 'Credentials.env'} );
 //Create experss app
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-const port: number = 5000;
+const port: number = 4000;
+const serverUrl: String = `http://localhost:${port}`;
 
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
@@ -1576,7 +1578,6 @@ app.get('/get-email/:email', async (req, res) => {
     console.error('Error getting offered menu drinks count:', error);
     res.status(500).json({ error: (error as Error).message });
   }
-<<<<<<< HEAD
 });
 
 
