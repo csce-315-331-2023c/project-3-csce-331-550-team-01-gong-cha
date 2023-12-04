@@ -58,9 +58,9 @@ export default function RestockReportIngredient({pk, name, priceNormal, priceLar
     return(
         <div className='flex justify-center bg-slate-200 w-ful h-12 mt-1'>
             <div className='total bg-slate-100 w-full flex justify-start border-rose-700 border-2 rounded-lg'>
-                <input className='name w-2/6 flex justify-center items-center  text-center rounded-lg' placeholder={name} type="Iname" id="Iname" value={Iname} onChange={(e) => setIname(e.target.value)}/>
-                <input className='normPrice w-1/5 flex justify-center items-center text-center' placeholder={priceNormal} type="InormalPrice" id="InormalPrice" value={InormalPrice} onChange={(e) => setInormalPrice(e.target.value)}/>
-                <input className='lgPrice w-1/5 flex justify-center items-center text-center' placeholder={priceLarge} type="IlargePrice" id="IlargePrice" value={IlargePrice} onChange={(e) => setIlargePrice(e.target.value)}/>
+                <input className='name w-2/6 flex justify-center items-center  text-center rounded-lg outline-none text-rose-700' placeholder={name} type="Iname" id="Iname" value={Iname} onChange={(e) => setIname(e.target.value)}/>
+                <input className='normPrice w-1/5 flex justify-center items-center text-center outline-none text-rose-700' placeholder={priceNormal} type="InormalPrice" id="InormalPrice" value={InormalPrice} onChange={(e) => setInormalPrice(e.target.value)}/>
+                <input className='lgPrice w-1/5 flex justify-center items-center text-center outline-none text-rose-700' placeholder={priceLarge} type="IlargePrice" id="IlargePrice" value={IlargePrice} onChange={(e) => setIlargePrice(e.target.value)}/>
                 <Conditional condition={true}>
                     <div className='ingredient flex items-center w-1/6'>
                         <button className="w-full bg-green-600 items-center mr-2 rounded-lg h-5/6" onClick={setInStock}>Yes</button>
