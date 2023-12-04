@@ -1090,6 +1090,45 @@ app.get('/order-drink-pairs/:startDate', async (req, res) => {
   }
 });
 
+
+app.get('/ingredients-for-menu-drinks/:menuDrinkIDs', async (req, res) => {
+  const menuDrinkIDs: string = req.params.menuDrinkIDs as string;
+
+  if (!menuDrinkIDs) {
+    res.status(400).json({ error: 'Missing or invalid "menuDrinkIDs" query parameter' });
+    return;
+  }
+
+  // Split the menuDrinkIDs string into an array of integers
+  const menuDrinkIDsArray: number[] = menuDrinkIDs.split(',').map((id) => parseInt(id, 10));
+
+  try {
+    const ingsForMenuDrinks: Array<number[]> = new Array(menuDrinkIDsArray.length).fill(null).map(() => []);
+
+    const querySQL = `
+      SELECT i.ID AS Ingredient_ID, i.Ingredient_Name, mdi.Menu_Drink_ID
+      FROM Menu_Drink_Ingredient mdi
+      JOIN Ingredient i ON mdi.Ingredient_ID = i.ID
+      WHERE mdi.Menu_Drink_ID IN (${menuDrinkIDs})
+    `;
+
+    const client = await pool.connect();
+    const result = await client.query(querySQL);
+    client.release();
+
+    result.rows.forEach((row: any) => {
+      const menuDrinkID: number = row.menu_drink_id;
+      const ingredientID: number = row.ingredient_id;
+      ingsForMenuDrinks[menuDrinkIDsArray.indexOf(menuDrinkID)].push(ingredientID);
+    });
+
+    res.status(200).json(ingsForMenuDrinks);
+  } catch (error) {
+    console.error('Error getting ingredients for menu drinks:', error);
+    res.status(500).json({ error: 'An error occurred while fetching ingredients for menu drinks' });
+  }
+});
+
 /*
 * reports on what drinks were sold together in a certain date range
 * @params startDate The start date of the report, in yyyy-mm-dd format
@@ -1709,29 +1748,6 @@ app.get('/get-email/:email', async (req, res) => {
     res.json({exist: result.rows[0].getuser});
   } catch (error) {
     console.error('Error getting offered menu drinks count:', error);
-    res.status(500).json({ error: (error as Error).message });
-  }
-});
-
-app.get('/get-ingredients-for-menu-drink/:menuDrinkID', async (req, res) => {
-  const menuDrinkID = req.params.menuDrinkID;
-
-  try {
-    const client = await pool.connect();
-
-    const getIngredientsSQL = `
-      SELECT Ingredient_ID
-      FROM Menu_Drink_Ingredient
-      WHERE Menu_Drink_ID = $1`;
-
-    const result = await client.query(getIngredientsSQL, [menuDrinkID]);
-    const ingredientIDs = result.rows.map((row) => row.ingredient_id);
-
-    client.release();
-
-    res.json({ ingredientIDs });
-  } catch (error) {
-    console.error('Error getting ingredients for menu drink:', error);
     res.status(500).json({ error: (error as Error).message });
   }
 });
