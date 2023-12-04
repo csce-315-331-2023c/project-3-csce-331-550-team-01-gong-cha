@@ -1608,9 +1608,9 @@ app.get('/get-email/:email', async (req, res) => {
   try {
     const client = await pool.connect();
 
-    const countMenuDrinksSQL = `SELECT public.getUser(\'$1\');`;
+    const countMenuDrinksSQL = `SELECT public.getUser(\'${email}\');`;
 
-    const result = await client.query(countMenuDrinksSQL, [email,]);
+    const result = await client.query(countMenuDrinksSQL);
 
     client.release();
 
