@@ -1664,6 +1664,3 @@ app.delete('/delete-ingredient/:ingredientID', async (req, res) => {
 app.listen(port, () => {
   console.log(`Example listening at  http://localhost:${port}`);
   });
-=======
-});
->>>>>>> c41e87b (fixing server stuff)
