@@ -6,8 +6,15 @@ import MenuItem from '../Components/TabelItems/MenuDrink/MenuDrink'
 import ReportsModal from '../Components/ReportModal/ReportModal';
 import ReportModalWithDate from '../Components/ReportModalWithDate/ReportModalWithDate';
 import { useSession, signIn, signOut } from 'next-auth/react'
+import AddIngredients from '../Components/AddIngredients/AddIngredients'
+import { getCookie, hasCookie, setCookie } from 'cookies-next';
 
 export default function Dashboard() {
+
+  const [acess, setAcess] = useState(false);
+  const [first, setFirst] = useState(false);
+
+  const [addIngredintOpen, setAddIngredintOpen] = useState(false);
 
   const { data: session } = useSession();
 
@@ -22,6 +29,7 @@ export default function Dashboard() {
     IdealStock: string;
     AmountUsed: string;
     ConsumerPrice: string;
+    isIngredient: boolean;
   }
 
   interface MenuDrink {
@@ -30,6 +38,7 @@ export default function Dashboard() {
     priceNormal: string;
     priceLarge: string;
     category: string;
+    isOffered: boolean;
   }
 
   const [IngredientItems, setIngredientItems] = useState<IngredientItem[]>([]);
@@ -69,6 +78,7 @@ export default function Dashboard() {
                 IdealStock: item.ideal_amount,
                 AmountUsed: item.amount_used,
                 ConsumerPrice: item.consumer_price,
+                isIngredient: item.is_ingredient,
             }));
             setIngredientItems(ingredientData);
         })
@@ -110,9 +120,16 @@ export default function Dashboard() {
                 priceNormal: item.norm_consumer_price,
                 priceLarge: item.lg_consumer_price,
                 category: item.category_id,
+                isOffered: item.is_offered
             }));
             setmenuDrinkItems(menuDrinkData);
         })
+  }
+
+  function clearFeilds(){
+    setDrinkName("");
+    setNormalPrice("");
+    setLargePrice("");
   }
 
   const [loaded, setLoaded] = useState(false);
@@ -125,11 +142,32 @@ export default function Dashboard() {
     }
   }
 
-  useEffect(() => {getMenuInital(loaded)});
+  function getEmail(email: string) {
+      setFirst(true);
+      fetch(`http://18.191.166.59:5000/get-email/${email}`)
+      .then((response) => {
+        if (!response.ok) {
+        alert("did not pass");
+        throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then((data) => {
+        setAcess(parseInt(data.exist) >= 2);
+      })
+  }
+
+  useEffect(() => {
+    if(!first && session){
+      setFirst(true);
+      getEmail(session?.user.email);
+    }
+    getMenuInital(loaded)
+  }, [session, IngredientItems, menuDrinkItems]);
 
   return (
     <main className="flex-col w-screen h-screen bg-slate-200">
-      {session  ?
+      {acess ?
       <div>
       <div className='backContainter flex items-center'>
         <button className='h-full flex items-center' onClick={goBack}>
@@ -163,10 +201,10 @@ export default function Dashboard() {
                   Ideal Stock
               </div>
               <div className="amountUsed flex justify-center text-center">
-                  Amount Used
+                  Price
               </div>
               <div className="consumerPrice flex justify-center text-center">
-                  Price
+                  Topping
               </div>
               <div className='button flex justify-center text-center'>
                   Update
@@ -184,6 +222,7 @@ export default function Dashboard() {
                     IdealStock={ingredientItem.IdealStock}
                     FAmountUsed={ingredientItem.AmountUsed}
                     FConsumerPrice={ingredientItem.ConsumerPrice}
+                    isIngredient={ingredientItem.isIngredient}
                     reload={getIngredients}
                 />
               ))}
@@ -191,11 +230,10 @@ export default function Dashboard() {
           </div>
           
             <div className='createIng flex align-center items-start justify-center w-full mt-4'>
-              <input className='name h-2/5 mx-2 text-center bg-slate-100 rounded-lg border-rose-700 border-2' placeholder='Name' type='Iname' id='IName' value={Iname} onChange={(e) => setIName(e.target.value)}/>
-              <input className='currentStock h-2/5 mr-2 text-center bg-slate-100 rounded-lg border-rose-700 border-2' placeholder='Current' type='currentStock' id='currentStock' value={currentStock} onChange={(e) => setCurrentStock(e.target.value)}/>
-              <input  className='idealStock h-2/5 mr-2 text-center bg-slate-100 rounded-lg border-rose-700 border-2' placeholder='Ideal' type='idealStock' id='idealStock' value={idealStock} onChange={(e) => setIdealStock(e.target.value)}/>
-              <input  className='amountUsed h-2/5 mr-2 text-center bg-slate-100 rounded-lg border-rose-700 border-2'  placeholder='Used' type='amountUsed' id='amountUsed' value={amountUsed} onChange={(e) => setAmountUsed(e.target.value)}/>
-              <input  className='consumerPrice h-2/5 mr-2 text-center bg-slate-100 rounded-lg border-rose-700 border-2' placeholder='Price' type='price' id='price' value={price} onChange={(e) => setPrice(e.target.value)}/>
+              <input className='name h-2/5 mx-2 text-center bg-slate-100 rounded-lg border-rose-700 border-2 outline-none text-rose-700' placeholder='Name' type='Iname' id='IName' value={Iname} onChange={(e) => setIName(e.target.value)}/>
+              <input className='currentStock h-2/5 mr-2 text-center bg-slate-100 rounded-lg border-rose-700 border-2 outline-none text-rose-700' placeholder='Current' type='currentStock' id='currentStock' value={currentStock} onChange={(e) => setCurrentStock(e.target.value)}/>
+              <input  className='idealStock h-2/5 mr-2 text-center bg-slate-100 rounded-lg border-rose-700 border-2 outline-none text-rose-700' placeholder='Ideal' type='idealStock' id='idealStock' value={idealStock} onChange={(e) => setIdealStock(e.target.value)}/>
+              <input  className='consumerPrice h-2/5 mr-2 text-center bg-slate-100 rounded-lg border-rose-700 border-2 outline-none text-rose-700' placeholder='Price' type='price' id='price' value={price} onChange={(e) => setPrice(e.target.value)}/>
               <button className='button h-2/5 bg-rose-700 mr-2 text-center text-slate-200 rounded-lg' onClick={() => createIngredient(Iname, currentStock, idealStock, price, amountUsed)}>Create Ingredient</button>
             </div>
           </div>
@@ -224,7 +262,7 @@ export default function Dashboard() {
             </div>
             <div className='ingredientTableOuter flex justify-center mt-4'>
               <div className="ingredientTabel flex-col justify-evenly border-rose-700 border-4 rounded-xl h-full w-full overflow-auto">
-              {menuDrinkItems.map((menuDrinkItem, index) => (
+              {menuDrinkItems.filter((drink) => drink.isOffered).map((menuDrinkItem, index) => (
                   <MenuItem
                       key={index}
                       pk={menuDrinkItem.pk}
@@ -238,11 +276,12 @@ export default function Dashboard() {
               </div>
             </div>
             <div className='createIng flex align-center items-start justify-center h-1/6 mt-4'>
-              <input className='w-2/5 h-2/5 mx-2 text-center border-rose-700 border-2 bg-slate-100 rounded-lg' placeholder='Name' type='drinkName' id='drinkName' value={drinkName} onChange={(e) => setDrinkName(e.target.value)} />
-              <input className='w-1/5 h-2/5 mr-2 text-center border-rose-700 border-2 bg-slate-100 rounded-lg' placeholder='Normal Price' type='normalPrice' id='normalPrice' value={normalPrice} onChange={(e) => setNormalPrice(e.target.value)} />
-              <input className='w-1/5 h-2/5 mr-2 text-center border-rose-700 border-2 bg-slate-100 rounded-lg' placeholder='Large Price' type='largePrice' id='largePrice' value={largePrice} onChange={(e) => setLargePrice(e.target.value)} />
-              <button className='w-1/5 h-2/5 bg-rose-700 text-slate-200 rounded-lg mr-2'>Create Drink</button>
+              <input className='w-2/5 h-2/5 mx-2 text-center border-rose-700 border-2 bg-slate-100 rounded-lg outline-none text-rose-700' placeholder='Name' type='drinkName' id='drinkName' value={drinkName} onChange={(e) => setDrinkName(e.target.value)} />
+              <input className='w-1/5 h-2/5 mr-2 text-center border-rose-700 border-2 bg-slate-100 rounded-lg outline-none text-rose-700' placeholder='Normal Price' type='normalPrice' id='normalPrice' value={normalPrice} onChange={(e) => setNormalPrice(e.target.value)} />
+              <input className='w-1/5 h-2/5 mr-2 text-center border-rose-700 border-2 bg-slate-100 rounded-lg outline-none text-rose-700' placeholder='Large Price' type='largePrice' id='largePrice' value={largePrice} onChange={(e) => setLargePrice(e.target.value)} />
+              <button className='w-1/5 h-2/5 bg-rose-700 text-slate-200 rounded-lg mr-2' onClick={() => {setAddIngredintOpen(true)}}>Create Drink</button>
             </div> 
+            <AddIngredients open={addIngredintOpen} onClose={() => {setAddIngredintOpen(false), clearFeilds()}} drinkName={drinkName} lgDrinkPrice={parseFloat(largePrice)} nmDrinkPrice={parseFloat(normalPrice)}></AddIngredients>
           </div>
       </div>
       </div>

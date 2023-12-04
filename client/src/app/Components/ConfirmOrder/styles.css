@@ -23,20 +23,3 @@
     background-color: rgba(0, 0, 0, 0.7);
     z-index: 1000;
 }
-
-.viewer{
-    height: 300%;
-}
-
-.input{
-    width: 40%
-}
-
-.button{
-    width: 30%;
-}
-
-.exit{
-    height: 200%;
-    width: 30%;
-}

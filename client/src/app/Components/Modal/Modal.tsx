@@ -58,18 +58,32 @@ export default function Modal({ open, children, onClose, drinkName, lgDrinkPrice
       ice: selectedOptions.iceLevel,
       sugar: selectedOptions.sugarLevel,
       sz: selectedOptions.size,
-      totalPrice: selectedOptions.totalPrice,
+      totalPrice: selectedOptions.totalPrice + toppingsPrice,
       costPrice: selectedOptions.totalCost,
       id: selectedOptions.id
-
-      // price: selectedOptions.price
     }
-    alert(JSON.stringify(newDrink, null, 2)); 
     const existingOrders = JSON.parse(localStorage.getItem('orders') || '[]');
       localStorage.setItem('orders', JSON.stringify([...existingOrders, newDrink]));
   
   }
+  const resetModalState = () => {
+    setToppingsPrice(0);
+    setSelectedOptions({
+      name: drinkName,
+      size: 0,
+      iceLevel: 1,
+      sugarLevel: 0,
+      totalPrice: nmDrinkPrice,
+      totalCost: 0,
+      id: drinkID
+    });
+    setCurrentModal(0);
+  };
 
+  const handleClose = () => {
+    resetModalState();
+    onClose();
+  };
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
   useEffect(() => {
       if (open && currentModal == 1) {
@@ -141,7 +155,7 @@ export default function Modal({ open, children, onClose, drinkName, lgDrinkPrice
     setSelectedOptions((prevOptions) => ({
       ...prevOptions,
       size: newSize,
-      totalPrice: cost + toppingsPrice
+      totalPrice: toppingsPrice + cost
     }))
 
   }
@@ -227,8 +241,8 @@ const getSizeButtonStyle = (size: number) => {
       <div className="flex justify-evenly  ">
       <button  onClick={handleBack} className="border-white border-2 rounded-md w-1/4 bg-rose-700 hover:bg-white">Back</button>
         
-      <button onClick={() => {setCurrentModal(0); onClose(); handleIce(1); handleSize(0, nmDrinkPrice); handleSugar(0)}} className="border-white border-2 rounded-md w-1/4 bg-rose-700 hover:bg-white">Exit</button>
-      <button  onClick={() => {handleStateUpdate(); onClose(); handleBack(); handleIce(1); handleSize(0, nmDrinkPrice); handleSugar(0)}} className="border-white border-2 rounded-md w-1/4 bg-rose-700 hover:bg-white">Add Drink</button>
+      <button onClick={() => {handleClose()}} className="border-white border-2 rounded-md w-1/4 bg-rose-700 hover:bg-white">Exit</button>
+      <button  onClick={() => {handleStateUpdate(); handleClose()}} className="border-white border-2 rounded-md w-1/4 bg-rose-700 hover:bg-white">Add Drink</button>
       </div>
       <div className="w-full place-items-center flex justify-center">
         <div className="border-white border-2 rounded-md w-1/3 text-xl bg-rose-700">

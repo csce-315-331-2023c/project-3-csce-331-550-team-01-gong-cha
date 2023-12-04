@@ -53,11 +53,11 @@ export default function ReportsModal({open, children, onClose}: ModalProps) {
     return (
         <div>
             <div className='Overlay_Styles'>
-                <div className='Modal_Styles bg-slate-400 flex items-center justify-start'>
-                    <div className='mb-8 text-2xl'>{children}</div>
-                <div className='w-4/5'>
-                <div className='bg-cyan-300 font-bold w-full flex justify-evenly border-white border-2 h-10'>
-                        <div className='flex justify-center items-center w-4/6'>
+                <div className='Modal_Styles bg-slate-200 border-8 border-rose-700 rounded-3xl flex items-center justify-start'>
+                    <div className='mb-8  font-semibold text-5xl text-rose-700'>{children}</div>
+                <div className='w-full mb-2'>
+                <div className='bg-rose-700 font-bold w-full flex justify-evenl h-10 rounded-xl text-slate-200'>
+                        <div className='flex justify-center items-center w-4/6 '>
                             Topping Name
                         </div>
                         <div className="flex justify-evenly w-1/6">
@@ -68,18 +68,17 @@ export default function ReportsModal({open, children, onClose}: ModalProps) {
                         </div>
                     </div>
                 </div>
-                    <div className="flex-col justify-evenly border-white border-2 rounded-md h-full w-4/5 overflow-auto">
-                    
-                    {ingredients.map((ingredient, index) => (
-                        <RestockReportIngredient
-                            key={index}
-                            name={ingredient.name}
-                            currentAmount={ingredient.currentAmount}
-                            idealAmount={ingredient.idealAmount}
-                        />
-                    ))}
+                    <div className="flex-col justify-evenly border-rose-700 border-4 rounded-md h-full w-full overflow-auto">
+                        {ingredients.map((ingredient, index) => (
+                            <RestockReportIngredient
+                                key={index}
+                                name={ingredient.name}
+                                currentAmount={ingredient.currentAmount}
+                                idealAmount={ingredient.idealAmount}
+                            />
+                        ))}
                     </div>
-                    <button className='bg-cyan-200 h-1/6 w-1/6 mb-8 mt-10' onClick={() => onClose()}>Exit</button>
+                    <button className='bg-rose-700 text-slate-200 font-semibold text-4xl rounded-xl h-1/6 w-2/6 mb-8 mt-10' onClick={() => onClose()}>Exit</button>
                 </div>
             </div>
         </div>
