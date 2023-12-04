@@ -1587,11 +1587,15 @@ app.get('/get-email/:email', async (req, res) => {
   }
 });
 
+<<<<<<< HEAD
 /*
 * Gets the ingredients for a menu drink given the menu drinks primary key
 * @param the primary key of the menu drink you want the ingredients for
 * @return   json containing an array of the ingredient primary keys used in that menu drink
 */
+=======
+
+>>>>>>> b52152667f54418c7f7066b6390939546e848db8
 app.get('/get-ingredients-for-menu-drink/:menuDrinkID', async (req, res) => {
   const menuDrinkID = req.params.menuDrinkID;
 
@@ -1684,5 +1688,5 @@ app.delete('/delete-ingredient/:ingredientID', async (req, res) => {
 });
 
 app.listen(port, () => {
-console.log(`Example listening at  http://localhost:${port}`);
-});
+  console.log(`Example listening at  http://localhost:${port}`);
+  });

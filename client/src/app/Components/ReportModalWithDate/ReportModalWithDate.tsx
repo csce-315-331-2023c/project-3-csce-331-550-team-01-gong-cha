@@ -40,7 +40,7 @@ export default function ReportsModal({open, children, onClose, whichReport}: Mod
     const [soldTogetherItems, setSoldTogetherItems] = useState<SoldTogetherItem[]>([]);
 
     function saleReport(date1: string, date2: string){
-        fetch(`http://18.191.166.59:5000/salesReport/:${date1}/:${date2}`) // Replace with the actual API endpoint URL
+        fetch(`http://18.191.166.59:5000/sales-report/:${date1}/:${date2}`) // Replace with the actual API endpoint URL
             .then((response) => {
                 if (!response.ok) {
                 alert("did not pass");
@@ -86,11 +86,11 @@ export default function ReportsModal({open, children, onClose, whichReport}: Mod
     return (
         <div>
             <div className='Overlay_Styles'>
-                <div className='Modal_Styles bg-slate-400 flex items-center justify-start'>
-                    <div className='mb-8 text-2xl'>{children}</div>
+                <div className='Modal_Styles bg-slate-200 flex items-center justify-start border-rose-700 border-8 rounded-3xl'>
+                    <div className='mb-8 text-5xl font-semibold text-rose-700'>{children}</div>
                     <Conditional condition={whichReport === 0}>
-                        <div className='w-4/5'>
-                            <div className='bg-cyan-300 font-bold w-full flex justify-evenly border-white border-2 h-10'>
+                        <div className='w-full'>
+                            <div className='bg-rose-700 font-bold text-slate-200 text-xl w-full flex justify-evenly h-14 rounded-xl mb-2'>
                                 <div className='flex justify-center items-center w-4/6'>
                                     Topping Name
                                 </div>
@@ -102,7 +102,7 @@ export default function ReportsModal({open, children, onClose, whichReport}: Mod
                                 </div>
                             </div>
                         </div>
-                        <div className="flex-col justify-evenly border-white border-2 rounded-md h-full w-4/5 overflow-auto">
+                        <div className="viewer flex-col justify-evenly border-rose-700 border-4 rounded-md h-full w-full overflow-auto">
                         {salesReportItems.map((salesReportItem, index) => (
                             <SalesReportItem
                                 key={index}
@@ -140,18 +140,18 @@ export default function ReportsModal({open, children, onClose, whichReport}: Mod
                     </Conditional>
                 
                     <div className=' h-1/6 w-full mb-8 mt-10 flex justify-center'>
-                        <input className='bg-cyan-200 h-full w-1/6 mx-8' type="startDate" id="startDate" placeholder="Start: YYYY-MM-DD" value={startDate} onChange={(e) => setStartDate(e.target.value)}/>
-                        <div className='text-6xl h-full mx-1'>-</div>
-                        <input className='bg-cyan-200 h-full w-1/6 mx-8' type="endDate" id="endDate" placeholder="End: YYYY-MM-DD" value={endDate} onChange={(e) => setEndDate(e.target.value)}/>
+                        <input className='input bg-slate-100 h-full mx-4 border-4 border-rose-700 rounded-xl text-md outline-none text-rose-700 text-center' type="startDate" id="startDate" placeholder="Start: YYYY-MM-DD" value={startDate} onChange={(e) => setStartDate(e.target.value)}/>
+                        <div className='text-6xl text-rose-700 h-full mx-1'>-</div>
+                        <input className='input bg-slate-100 h-full mx-4 border-4 border-rose-700 rounded-xl outline-none text-rose-700 text-center' type="endDate" id="endDate" placeholder="End: YYYY-MM-DD" value={endDate} onChange={(e) => setEndDate(e.target.value)}/>
                         <Conditional condition={whichReport === 0}>
-                            <button className='bg-cyan-200 h-full w-1/6 mx-8' onClick={() => saleReport(startDate, endDate)}>Enter Range</button>
+                            <button className='button bg-rose-700 h-full mx-8 border-4 border-rose-700 rounded-xl text-slate-200 font-semibold text-2xl' onClick={() => saleReport(startDate, endDate)}>Enter Range</button>
                         </Conditional>
                         <Conditional condition={whichReport === 1}>
-                            <button className='bg-cyan-200 h-full w-1/6 mx-8' onClick={() => soldTogether(startDate, endDate)}>Enter Range</button>
+                            <button className='button bg-rose-700 h-full mx-8 border-4 border-rose-700 rounded-xl text-slate-200 font-semibold text-2xl' onClick={() => soldTogether(startDate, endDate)}>Enter Range</button>
                         </Conditional>
                     </div>
-                    <div className=' h-2/6 w-full mt-2 flex justify-center'>
-                        <button className='bg-cyan-200 h-full w-1/6 mx-8' onClick={() => onClose()}>Exit</button>
+                    <div className='w-full -mt-2 flex justify-center'>
+                        <button className='exit bg-rose-700 rounded-xl font-semibold text-slate-200 text-3xl' onClick={() => onClose()}>Exit</button>
                     </div>
                 </div>
             </div>

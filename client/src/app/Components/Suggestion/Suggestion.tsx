@@ -26,6 +26,7 @@ export default function Suggestion({open, children, onClose, temp, raning}: Moda
     const [suggested, setSuggested] = useState(false);
 
     const [drinkImage, setDrinkImage] = useState(coffeeImage);
+    const [addtoOrder, setAddtoOrder] = useState(false);
 
     function setString(suggested: boolean){
         if(!suggested){

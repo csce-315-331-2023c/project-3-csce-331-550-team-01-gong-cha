@@ -5,8 +5,8 @@
     transform: translate(-50%, -50%);
     padding: 50px;
     z-index: 1000;
-    height: 70%;
-    width: 80%;
+    height: 90%;
+    width: 50%;
     display: flex;
     flex-direction: column;
     text-align: center;
@@ -24,19 +24,26 @@
     z-index: 1000;
 }
 
-.viewer{
-    height: 300%;
+.innerList{
+    width: 98%;
 }
 
-.input{
-    width: 40%
+.buttonRow{
+    height: 14%;
 }
 
-.button{
-    width: 30%;
+.buttonRow2{
+    height: 17%;
 }
 
-.exit{
-    height: 200%;
-    width: 30%;
+.list{
+    height: 60%;
+}
+
+.button1{
+    width: 28%;
+}
+
+.button2{
+    width: 18%;
 }
