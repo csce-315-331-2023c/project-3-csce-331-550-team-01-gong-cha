@@ -49,7 +49,6 @@ process.on('SIGINT', function () {
 app.set('view engine', 'ejs');
 
 
-//From here down is where the converted functions will go
 
 /*
 * gets all the employees
@@ -1069,46 +1068,9 @@ app.get('/order-drink-pairs/:startDate', async (req, res) => {
   }
 });
 
-//getIngredientsForMenuDrinks
-//the listening happens here
 
-app.get('/ingredients-for-menu-drinks/:menuDrinkIDs', async (req, res) => {
-  const menuDrinkIDs: string = req.params.menuDrinkIDs as string;
 
-  if (!menuDrinkIDs) {
-    res.status(400).json({ error: 'Missing or invalid "menuDrinkIDs" query parameter' });
-    return;
-  }
 
-  // Split the menuDrinkIDs string into an array of integers
-  const menuDrinkIDsArray: number[] = menuDrinkIDs.split(',').map((id) => parseInt(id, 10));
-
-  try {
-    const ingsForMenuDrinks: Array<number[]> = new Array(menuDrinkIDsArray.length).fill(null).map(() => []);
-
-    const querySQL = `
-      SELECT i.ID AS Ingredient_ID, i.Ingredient_Name, mdi.Menu_Drink_ID
-      FROM Menu_Drink_Ingredient mdi
-      JOIN Ingredient i ON mdi.Ingredient_ID = i.ID
-      WHERE mdi.Menu_Drink_ID IN (${menuDrinkIDs})
-    `;
-
-    const client = await pool.connect();
-    const result = await client.query(querySQL);
-    client.release();
-
-    result.rows.forEach((row: any) => {
-      const menuDrinkID: number = row.menu_drink_id;
-      const ingredientID: number = row.ingredient_id;
-      ingsForMenuDrinks[menuDrinkIDsArray.indexOf(menuDrinkID)].push(ingredientID);
-    });
-
-    res.status(200).json(ingsForMenuDrinks);
-  } catch (error) {
-    console.error('Error getting ingredients for menu drinks:', error);
-    res.status(500).json({ error: 'An error occurred while fetching ingredients for menu drinks' });
-  }
-});
 
 
 app.get('/sold-together/:startDate/:endDate', async (req, res) => {
