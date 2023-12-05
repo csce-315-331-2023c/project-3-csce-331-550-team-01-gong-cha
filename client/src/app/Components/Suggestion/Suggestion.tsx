@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import './styles.css'
 import Image from 'next/image'
 import coffeeImage from '../../../../public/drinkImages/53.png'
@@ -30,8 +30,6 @@ interface ModalProps {
 
 export default function Suggestion({onDataSelect, open, children, onClose, temp, raning}: ModalProps) {
 
-    if (!open) return null
-
     const [tempString, setTempString] = useState("");
 
     const [suggested, setSuggested] = useState(false);
@@ -43,23 +41,9 @@ export default function Suggestion({onDataSelect, open, children, onClose, temp,
     const [thisnormPrice, setNormPrice] = useState(0);
     const [thislargePrice, setLargePrice] = useState(0);
     const [thisnormCost, setNormCost] = useState(0);
-    const [thislargeCost, setLargeCost] = useState(0);
-    
-    const sendDataBack = () => {
-        const data: SelectedData = {
-            name: thisdrinkName,
-            ID: thisdrinkID,
-            normPrice: thisnormPrice,
-            largePrice: thislargePrice,
-            normCost: thisnormCost,
-            largeCost: thislargeCost
-        };
+    const [thislargeCost, setLargeCost] = useState(0);4
 
-        onDataSelect(data);
-    }
-    function setString(suggested: boolean){
-
-        
+    const setString = useCallback((suggested: boolean) => {
         if(!suggested){
             if(raning){
                 setTempString("Dont let the rain get you down show your creative side with a Strawberry Green Tea!");
@@ -111,9 +95,28 @@ export default function Suggestion({onDataSelect, open, children, onClose, temp,
             }
             setSuggested(true);
         }
-    }
+    }, [raning, temp, setTempString, setDrinkImage, setDrinkName, setDrinkID, setNormPrice, setLargePrice, setNormCost, setLargeCost, setSuggested]);
+    useEffect(() => {
+        setString(suggested)
+    }, [suggested, temp, raning, setString]);
 
-    useEffect(() => setString(suggested));
+
+    if (!open) return null;
+    const sendDataBack = () => {
+        const data: SelectedData = {
+            name: thisdrinkName,
+            ID: thisdrinkID,
+            normPrice: thisnormPrice,
+            largePrice: thislargePrice,
+            normCost: thisnormCost,
+            largeCost: thislargeCost
+        };
+
+        onDataSelect(data);
+    }
+    
+
+    
 
     return (
         <div>

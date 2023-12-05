@@ -98,7 +98,7 @@ export default function OrderDrink({key, drinkName, sugar, ice, size, price, top
             <div className="flex justify-evenly">
                 <div className="text-sm">
                     {drinkName}
-                    <div className="overflow-scroll">Toppings: {toppings.map((topping) => <p>{topping.toppingName}</p>
+                    <div className="overflow-scroll">Toppings: {toppings.map((topping, index) => <p key={index}>{topping.toppingName}</p>
                         )}</div>
 
                     
