@@ -114,10 +114,6 @@ export default function Suggestion({onDataSelect, open, children, onClose, temp,
 
         onDataSelect(data);
     }
-    
-
-    
-
     return (
         <div>
             <div className='Overlay_Styles'>
