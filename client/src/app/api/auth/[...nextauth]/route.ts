@@ -3,7 +3,10 @@ import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import { getCookie, hasCookie, setCookie } from 'cookies-next';
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 468844c (Added full menu component)
 const handler = NextAuth({
 
     providers: [

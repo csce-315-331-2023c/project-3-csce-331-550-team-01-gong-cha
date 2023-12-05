@@ -7,6 +7,7 @@ import ReportsModal from '../Components/ReportModal/ReportModal';
 import ReportModalWithDate from '../Components/ReportModalWithDate/ReportModalWithDate';
 import { useSession, signIn, signOut } from 'next-auth/react'
 import AddIngredients from '../Components/AddIngredients/AddIngredients'
+import ExcessItems from '../Components/TabelItems/excessItens/excessItems'
 import { getCookie, hasCookie, setCookie } from 'cookies-next';
 
 export default function Dashboard() {
@@ -19,7 +20,7 @@ export default function Dashboard() {
   const { data: session } = useSession();
 
   function goBack(){
-    signOut({ callbackUrl: 'http://localhost:3000' });
+    signOut({ callbackUrl: 'http://localhost:3000'});
   }
 
   interface IngredientItem {
@@ -49,6 +50,7 @@ export default function Dashboard() {
   const [idealStock, setIdealStock] = useState('');
   const [amountUsed, setAmountUsed] = useState('');
   const [price, setPrice] = useState('');
+  const [isIngredient, setIsIngredient] = useState();
 
   const [drinkName, setDrinkName] = useState('');
   const [largePrice, setLargePrice] = useState('');
@@ -84,13 +86,13 @@ export default function Dashboard() {
         })
   }
 
-  function createIngredient(nameI: string, curA: string, idealA: string, consumP: string, amountU: string){
+  function createIngredient(nameI: string, curA: string, idealA: string, consumP: string, isIng: boolean){
     fetch('http://18.191.166.59:5000/create-ingredient', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({name: nameI, currentAmount: curA, idealAmount: idealA, restockPrice: 0, consumerPrice: consumP, amountUsed: amountU}),
+      body: JSON.stringify({name: nameI, currentAmount: curA, idealAmount: idealA, consumerPrice: consumP, isIngredient: isIng}),
     })
     .then(() => {
       setIName("");
@@ -163,7 +165,12 @@ export default function Dashboard() {
       getEmail(session?.user.email);
     }
     getMenuInital(loaded)
-  }, [session, IngredientItems, menuDrinkItems]);
+  }, [session]);
+
+  const [seed, setSeed] = useState(1);
+  const reset = () => {
+    setSeed(Math.random());
+  }
 
   return (
     <main className="flex-col w-screen h-screen bg-slate-200">
@@ -178,11 +185,12 @@ export default function Dashboard() {
           <button onClick={() => setRestockReportOpen(true)} className='bg-rose-700 h-4/6 w-1/5 rounded-2xl text-slate-200 text-3xl font-semibold'>Restock Report</button>
           <button onClick={() => setSalesReportOpen(true)} className='bg-rose-700 h-4/6 w-1/5 rounded-2xl text-slate-200 text-3xl font-semibold'>Sales Report</button>
           <button onClick={() => setSoldTogetherReportOpen(true)} className='bg-rose-700 h-4/6 w-1/5 rounded-2xl text-slate-200 text-3xl font-semibold'>Sold Together</button>
-          <button onClick={() => setRestockReportOpen(true)} className='bg-rose-700 h-4/6 w-1/5 rounded-2xl text-slate-200 text-3xl font-semibold'>Excess Report</button>
+          <button onClick={() => setExcessReportOpen(true)} className='bg-rose-700 h-4/6 w-1/5 rounded-2xl text-slate-200 text-3xl font-semibold'>Excess Report</button>
         </div>
         <ReportsModal open={restockReportOpen} onClose={() => setRestockReportOpen(false)}>Restock Report</ReportsModal>
         <ReportModalWithDate open={salesReportOpen} onClose={() => setSalesReportOpen(false)} whichReport={0}>Sales Report</ReportModalWithDate>
         <ReportModalWithDate open={soldTogetherReportOpen} onClose={() => setSoldTogetherReportOpen(false)} whichReport={1}>Sold Together Report</ReportModalWithDate>
+        <ReportModalWithDate open={excessReportOpen} onClose={() => setExcessReportOpen(false)} whichReport={2}>Excess Report</ReportModalWithDate>
       </div>
       <div className='mainContainer w-full flex items-top justify-center'>
         <div className='flex-col align-center items-center justify-center w-full bg-slate-200 rounded-3xl border-rose-700 border-8 mx-6'>
@@ -211,7 +219,7 @@ export default function Dashboard() {
               </div>
             </div>
           </div>
-          <div className='ingredientTableOuter flex justify-center mt-4'>
+          <div key={seed} className='ingredientTableOuter flex justify-center mt-4'>
             <div className="ingredientTabel flex-col justify-center items-center border-rose-700 border-4 h-full w-full overflow-auto rounded-xl">
               {IngredientItems.map((ingredientItem, index) => (
                 <Ingredient
@@ -220,10 +228,9 @@ export default function Dashboard() {
                     FIName={ingredientItem.name}
                     CurrentStock={ingredientItem.CurrentStock}
                     IdealStock={ingredientItem.IdealStock}
-                    FAmountUsed={ingredientItem.AmountUsed}
                     FConsumerPrice={ingredientItem.ConsumerPrice}
-                    isIngredient={ingredientItem.isIngredient}
-                    reload={getIngredients}
+                    isIngre={ingredientItem.isIngredient}
+                    reload={() => {getIngredients(), reset()}}
                 />
               ))}
             </div>
@@ -234,7 +241,7 @@ export default function Dashboard() {
               <input className='currentStock h-2/5 mr-2 text-center bg-slate-100 rounded-lg border-rose-700 border-2 outline-none text-rose-700' placeholder='Current' type='currentStock' id='currentStock' value={currentStock} onChange={(e) => setCurrentStock(e.target.value)}/>
               <input  className='idealStock h-2/5 mr-2 text-center bg-slate-100 rounded-lg border-rose-700 border-2 outline-none text-rose-700' placeholder='Ideal' type='idealStock' id='idealStock' value={idealStock} onChange={(e) => setIdealStock(e.target.value)}/>
               <input  className='consumerPrice h-2/5 mr-2 text-center bg-slate-100 rounded-lg border-rose-700 border-2 outline-none text-rose-700' placeholder='Price' type='price' id='price' value={price} onChange={(e) => setPrice(e.target.value)}/>
-              <button className='button h-2/5 bg-rose-700 mr-2 text-center text-slate-200 rounded-lg' onClick={() => createIngredient(Iname, currentStock, idealStock, price, amountUsed)}>Create Ingredient</button>
+              <button className='button h-2/5 bg-rose-700 mr-2 text-center text-slate-200 rounded-lg' onClick={() => createIngredient(Iname, currentStock, idealStock, price, false)}>Create Ingredient</button>
             </div>
           </div>
           <div className='flex-col w-full bg-slate-200 rounded-3xl border-rose-700 border-8 mx-6'>

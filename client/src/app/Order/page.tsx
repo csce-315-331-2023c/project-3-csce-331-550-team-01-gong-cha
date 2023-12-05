@@ -13,8 +13,12 @@ import creImage from '../../../public/drinkImages/18.png'
 import foamImage from '../../../public/drinkImages/31.png'
 import slushImage from '../../../public/drinkImages/44.png'
 import GoogleTranslate from '../GoogleTranslate/GoogleTranslate.js'
+<<<<<<< HEAD
 import Modal from '../Components/Modal/Modal'
 // import FullMenu from '../Components/FullMenu/FullMenu'
+=======
+import FullMenu from '../Components/FullMenu/FullMenu'
+>>>>>>> 468844c (Added full menu component)
 import { getCookie, hasCookie, setCookie } from 'cookies-next';
 import Router from "next/router";
 
@@ -150,8 +154,13 @@ export default function Order() {
                     <GoogleTranslate/>
                 </div>
                 <div className='flex h-full w-full'>
+<<<<<<< HEAD
                     <Suggestion onDataSelect={handleSelectedData} open={suggestionOpen} onClose={() => setSuggestionOpen(false)} temp={tempVal} raning={raining}>hello</Suggestion>
                     {/* <FullMenu open={menuOpen} onClose={() => setMenuOpen(false)}>Meer</FullMenu> */}
+=======
+                    <Suggestion open={suggestionOpen} onClose={() => setSuggestionOpen(false)} temp={tempVal} raning={raining}>hello</Suggestion>
+                    <FullMenu open={menuOpen} onClose={() => setMenuOpen(false)}>Meer</FullMenu>
+>>>>>>> 468844c (Added full menu component)
                     <div className="flex flex-col items-center justify-start w-full h-full m-4">
                         <div className='h-1/5 w-full m-4'>
                             <MenuItem drinkName={"Milk Tea"} drinkImage={milkImage} altTxt={"Test Drink"} thisOnClick={() => goToCategory("MilkTea")}/>

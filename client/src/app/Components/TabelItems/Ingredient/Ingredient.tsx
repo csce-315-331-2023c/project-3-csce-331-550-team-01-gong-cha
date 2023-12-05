@@ -7,24 +7,23 @@ interface IngredientProps {
     FIName: string;
     CurrentStock: string;
     IdealStock: string;
-    FAmountUsed: string;
     FConsumerPrice: string;
-    isIngredient: boolean;
+    isIngre: boolean;
     reload: () => void;
 }
 
-export default function RestockReportIngredient({pk, FIName, CurrentStock, IdealStock, FAmountUsed, FConsumerPrice, isIngredient, reload}: IngredientProps){
+export default function RestockReportIngredient({pk, FIName, CurrentStock, IdealStock, FConsumerPrice, isIngre, reload}: IngredientProps){
 
-    const [style, setStyle] = useState(isIngredient ? 'bg-green-600' : 'bg-red-600');
-    const [letters, setLetters] = useState(isIngredient ? 'Yes' : 'No');
+    const [style, setStyle] = useState(isIngre ? 'bg-green-600' : 'bg-red-600');
+    const [letters, setLetters] = useState(isIngre ? 'Yes' : 'No');
 
-    function updateIngredient(pkk: number, Iname: string, cStock: string, idealStock: string, aUsed: string, price: string){
+    function updateIngredient(pkk: number, Iname: string, cStock: string, idealStock: string, price: string){
 
         var newName = "";
         var newCurStock = "";
         var newIdealStock = "";
-        var newAmountUsed = "";
         var newPrice = "";
+        var isIngred = isIngre ? "TRUE" : "FALSE";
 
         if(Iname === newName){ newName = FIName; }
         else{ newName = Iname; }
@@ -32,19 +31,19 @@ export default function RestockReportIngredient({pk, FIName, CurrentStock, Ideal
         else{ newCurStock = cStock; }
         if(idealStock === newIdealStock){ newIdealStock = IdealStock; }
         else{ newIdealStock = idealStock; }
-        if(aUsed === newAmountUsed){ newAmountUsed = FAmountUsed; }
-        else{ newAmountUsed = aUsed; }
         if(price === newPrice){ newPrice = FConsumerPrice; }
         else{ newPrice = price; }
-        
+        console.log(JSON.stringify({name: newName, currentAmount: newCurStock, idealAmount: newIdealStock, consumerPrice: newPrice, isIngredient: isIngred}));
+        alert(JSON.stringify({name: newName, currentAmount: newCurStock, idealAmount: newIdealStock, consumerPrice: newPrice, isIngredient: isIngred}));
         fetch(`http://18.191.166.59:5000/update-ingredient/${pkk}`, {
-            method: 'PUT',
+            method: 'POST',
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify({name: newName, currentAmount: newCurStock, idealAmount: newIdealStock, restockPrice: '0', consumerPrice: newPrice, amountUsed: newAmountUsed}),
+            body: JSON.stringify({name: newName, currentAmount: newCurStock, idealAmount: newIdealStock, consumerPrice: newPrice, isIngredient: isIngred}),
           })
-          .then(() => {
+          .then((response) => {
+            alert(response);
             setIName('');
             setCurrentStock('');
             setIdealStock('');
@@ -55,8 +54,11 @@ export default function RestockReportIngredient({pk, FIName, CurrentStock, Ideal
     }
 
     function deleteTopping(iPk: number){
-        fetch(`http://18.191.166.59:5000/delete-ingredient/:${iPk}`, {
-            method: 'PUT',
+        fetch(`http://18.191.166.59:5000/delete-ingredient/${iPk}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+              },
         })
         .then(() => {
             reload();
@@ -64,12 +66,13 @@ export default function RestockReportIngredient({pk, FIName, CurrentStock, Ideal
     }
 
     function setTopping(iPk: number){
-        alert('why');
-        fetch(`http://18.191.166.59:5000/change-is-ingredient/:${iPk}`, {
+        fetch(`http://18.191.166.59:5000/change-is-ingredient/${iPk}`, {
             method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+              },
         })
         .then((response) => {
-            alert('wah');
             reload();
         });
         
@@ -95,7 +98,7 @@ export default function RestockReportIngredient({pk, FIName, CurrentStock, Ideal
                     <button className={`w-full ${style} items-center mr-2 rounded-lg h-5/6`} onClick={() => setTopping(pk)}>{letters}</button>
                 </div>
                 <div className='mew flex justify-center align-center items-center mr-1'>
-                    <button className="bg-rose-700 w-full h-5/6 items-center rounded-md text-slate-200" onClick={() => updateIngredient(pk, Iname, IcurrentStock, idealStock, IamountUsed, Iprice)}>Update</button>
+                    <button className="bg-rose-700 w-full h-5/6 items-center rounded-md text-slate-200" onClick={() => updateIngredient(pk, Iname, IcurrentStock, idealStock, IamountUsed)}>Update</button>
                 </div>
             </div>
         </div>
