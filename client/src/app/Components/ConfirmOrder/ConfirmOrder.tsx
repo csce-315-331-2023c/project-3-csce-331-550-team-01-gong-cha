@@ -10,6 +10,11 @@ import { useState, useEffect} from 'react';
 import OrderDrink from '../OrderDrink/OrderDrink';
 
 
+interface Topping {
+    id: number;
+    toppingName: string;
+  }
+
 interface orderDrink {
     name: string;
     ice: number;
@@ -17,7 +22,9 @@ interface orderDrink {
     sz: number;
     totalPrice: number; // cost for customer
     costPrice: number; // cost for us to make
-    id: number
+    id: number,
+    toppings: Topping[],
+    toppingAmounts: number[],
   }
 
 
@@ -47,7 +54,7 @@ export default function ConfirmOrder({drinks, onClose}: ConfirmOrderProps){
         setTakeOut(value);
     }
     function goBack(){
-        window.location.href = "../";
+        window.location.href = "../..";
     }
 
     function placeOrder() {
@@ -68,10 +75,23 @@ export default function ConfirmOrder({drinks, onClose}: ConfirmOrderProps){
                 return response.json();
             })
             .then(data => {
+                
                 localTotalOrderCost += data.make_cost;
                 localOrderDrinkPks.push(data.generatedKey);
+                const toppingPks = drink.toppings.map(topping => topping.id);
+                fetch(`http://18.191.166.59:5000/create-ingredient-order-drink`,{
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ toppingPKs: toppingPks, toppingAmounts: drink.toppingAmounts, orderDrinkPK: data.generatedKey})
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.json();
+                })
             });
         });
+
+        
     
         Promise.all(orderDrinkPromises).then(() => {
             setTotalOrderPrice(localTotalOrderPrice);
@@ -115,7 +135,6 @@ export default function ConfirmOrder({drinks, onClose}: ConfirmOrderProps){
         .then(data => {
             // Handle the final response
             setCurrentModal(1);
-            goBack();
             localStorage.clear();
         })
         .catch(error => {
@@ -137,6 +156,8 @@ export default function ConfirmOrder({drinks, onClose}: ConfirmOrderProps){
                 sugar = {drink.sugar}
                 size={drink.sz}
                 price={drink.totalPrice}
+                toppings={drink.toppings}
+                toppingAmounts={drink.toppingAmounts}
                 />
                 
             ))}
@@ -173,7 +194,7 @@ export default function ConfirmOrder({drinks, onClose}: ConfirmOrderProps){
                     <p>Thank you for your Money!</p>
                     Your Order Number is #{orderNumber}
                     <div>
-                    <button onClick={onClose}className="border-white border-2 rounded-md w-1/4 bg-rose-700 hover:bg-white">Exit</button>
+                    <button onClick={() => {onClose; goBack();}} className="border-white border-2 rounded-md w-1/4 bg-rose-700 hover:bg-white">Exit</button>
                     </div>
                     
                     </div>

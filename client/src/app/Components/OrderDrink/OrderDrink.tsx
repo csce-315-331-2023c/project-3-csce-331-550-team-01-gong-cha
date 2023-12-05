@@ -10,63 +10,68 @@ interface OrderDrinkProps {
     ice: number;
     size: number;
     price: number;
-    toppingPks: number[];
+    toppings: Topping[];
     toppingAmounts: number[];
 }
 
-export default function OrderDrink({key, drinkName, sugar, ice, size, price, toppingPks, toppingAmounts}: OrderDrinkProps){
+interface Topping {
+    id: number;
+    toppingName: string;
+  }
 
-    const [toppingNames, setToppingNames] = useState<string[]>([]);
-    const [toppingsLoaded, setToppingLoaded] = useState(false);
+export default function OrderDrink({key, drinkName, sugar, ice, size, price, toppings, toppingAmounts}: OrderDrinkProps){
 
-    function getNameFromPk(){
-        if (!toppingsLoaded) {
-            setToppingLoaded(true);
-            toppingPks.map((pk) =>
-            fetch(`http://18.191.166.59:5000/get-ingredient-name/${pk}`)
-            .then((response) => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then((data) => {
-                toppingNames.push(data.ingredientName); //prevToppings => [...prevToppings, data.ingredientName]
-                //alert(toppingNames);
-            })
-            )
-        }
-    }
+    // const [toppingNames, setToppingNames] = useState<string[]>([]);
+    // const [toppingsLoaded, setToppingLoaded] = useState(false);
+
+    // function getNameFromPk(){
+    //     if (!toppingsLoaded) {
+    //         setToppingLoaded(true);
+    //         toppings.map((topping) =>
+    //         fetch(`http://18.191.166.59:5000/get-ingredient-name/${topping.id}`)
+    //         .then((response) => {
+    //             if (!response.ok) {
+    //                 throw new Error('Network response was not ok');
+    //             }
+    //             return response.json();
+    //         })
+    //         .then((data) => {
+    //             toppingNames.push(data.ingredientName); //prevToppings => [...prevToppings, data.ingredientName]
+    //             //alert(toppingNames);
+    //         })
+    //         )
+    //     }
+    // }
     
-    useEffect(() => {
-        //alert(`First call ${toppingPks}`);
-        //if (!toppingsLoaded) {
-            //setToppingLoaded(true);
-           // Promise.all(
-            //alert(toppingPks);
-            //setToppingLoaded(true);
-            getNameFromPk();
-                //toppingPks.map((pk) => alert(pk)
-                    // fetch(`http://18.191.166.59:5000/get-ingredient-name/${pk}`)
-                    // .then((response) => {
-                    //     if (!response.ok) {
-                    //         throw new Error('Network response was not ok');
-                    //     }
-                    //     return response.json();
-                    // })
-                    // .then((data) => {
-                    //     toppingNames.push(data.ingredientName); //prevToppings => [...prevToppings, data.ingredientName]
-                    //     alert(toppingNames);
-                    // })
-                    // .catch((error) => {
-                    //     console.error('There was a problem with the fetch operation:', error);
-                    // })
-                //)
-            // ).then(() => {
-            //     //setToppingLoaded(true);
-            // });
-        //}
-    }, [toppingPks]);
+    // useEffect(() => {
+    //     //alert(`First call ${toppingPks}`);
+    //     //if (!toppingsLoaded) {
+    //         //setToppingLoaded(true);
+    //        // Promise.all(
+    //         //alert(toppingPks);
+    //         //setToppingLoaded(true);
+    //         getNameFromPk();
+    //             //toppingPks.map((pk) => alert(pk)
+    //                 // fetch(`http://18.191.166.59:5000/get-ingredient-name/${pk}`)
+    //                 // .then((response) => {
+    //                 //     if (!response.ok) {
+    //                 //         throw new Error('Network response was not ok');
+    //                 //     }
+    //                 //     return response.json();
+    //                 // })
+    //                 // .then((data) => {
+    //                 //     toppingNames.push(data.ingredientName); //prevToppings => [...prevToppings, data.ingredientName]
+    //                 //     alert(toppingNames);
+    //                 // })
+    //                 // .catch((error) => {
+    //                 //     console.error('There was a problem with the fetch operation:', error);
+    //                 // })
+    //             //)
+    //         // ).then(() => {
+    //         //     //setToppingLoaded(true);
+    //         // });
+    //     //}
+    // }, [toppingPks]);
 
     const sizeLabels: { [key: number]: string } = {
         0: "Normal",
@@ -87,18 +92,15 @@ export default function OrderDrink({key, drinkName, sugar, ice, size, price, top
         2: "More Ice"
     }
 
-    function some(){
-        //alert(toppingNames);
-    }
-
+    console.log(toppings);
     return (
         <div className="flex-col w-full bg-cyan-200 rounded-sm mt-3">
             <div className="flex justify-evenly">
                 <div className="text-sm">
                     {drinkName}
-                    <div className="overflow-scroll">Toppings: {toppingNames.map((name) => <p>{name}</p>
+                    <div className="overflow-scroll">Toppings: {toppings.map((topping) => <p>{topping.toppingName}</p>
                         )}</div>
-                        <button onClick={some}>click</button>
+
                     
                 </div>
                 <div className="text-xs">

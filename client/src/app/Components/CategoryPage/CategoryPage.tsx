@@ -67,6 +67,11 @@ const secondHalfCategories = categoryDrinks.slice(halfLength);
 const firstHalfPictures = pictures.slice(0, halfLength);
 const secondHalfPictures = pictures.slice(halfLength);
 
+interface Topping {
+  id: number;
+  toppingName: string;
+}
+
 interface orderDrink {
   name: string;
   ice: number;
@@ -75,18 +80,20 @@ interface orderDrink {
   totalPrice: number; // cost for customer
   costPrice: number; // cost for us to make
   id: number,
-  toppingPks: number[],
+  toppings: Topping[],
   toppingAmounts: number[],
 }
 
 const [drinksState, setDrinksState] = useState<orderDrink[]>([]);
+const [stateUpdate, setStateUpdate] = useState(false);
 
 
 useEffect(() => {
   const storedOrders = JSON.parse(localStorage.getItem('orders') || '[]');
   //alert(storedOrders)
   setDrinksState(storedOrders);
-})
+  setStateUpdate(false);
+}, [stateUpdate])
     return(
       
       <div className="relative mt-10">
@@ -116,7 +123,8 @@ useEffect(() => {
             drinkName={category.name}
             lgDrinkPrice={category.lg_consumer_price} nmDrinkPrice={category.norm_consumer_price}
             lgCost={category.large_cost} nmCost={category.normal_cost}
-            drinkID={category.id}>
+            drinkID={category.id}
+            setStateUpdate={setStateUpdate}>
              Customize Ingredients</Modal>
           </div>
            
@@ -134,7 +142,9 @@ useEffect(() => {
             drinkName={category.name}
             lgDrinkPrice={category.lg_consumer_price} nmDrinkPrice={category.norm_consumer_price}
             lgCost={category.large_cost} nmCost={category.normal_cost}
-            drinkID={category.id}>
+            drinkID={category.id}
+            setStateUpdate={setStateUpdate}>
+            
              Customize Ingredients</Modal>
            </div>
          ))}
@@ -148,14 +158,14 @@ useEffect(() => {
           sugar = {drink.sugar}
           size={drink.sz}
           price={drink.totalPrice}
-          toppingPks={drink.toppingPks}
+          toppings={drink.toppings}
           toppingAmounts={drink.toppingAmounts}
           />
           
       ))}
       <div className="flex flex-col items-center">
-    <button className="mb-2 bottom-0" onClick={() => {setIsOrderPlaced(true);}}>Place Order</button>
-    <button onClick={() => {localStorage.clear();}}>Clear Order</button>
+    <button className="mb-2 bottom-0" onClick={() => {setIsOrderPlaced(true);setStateUpdate(true)}}>Place Order</button>
+    <button onClick={() => {localStorage.clear(); setStateUpdate(true)}}>Clear Order</button>
     </div>
 
       

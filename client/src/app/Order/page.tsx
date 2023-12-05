@@ -73,6 +73,10 @@ export default function Order() {
         window.location.href = "../";
     }
 
+    function setStateUpdate(state: boolean){
+        setRecommended(false);
+    }
+
     return (
         <main className="bg-slate-200 bg-cover h-screen w-screen flex">
             <div className='ml-6 catagoryContainer w-4/5 flex-col h-full'>
@@ -86,6 +90,7 @@ export default function Order() {
                     lgDrinkPrice={selectedData?.largePrice || 0}
                     nmCost={selectedData?.normCost || 0}
                     lgCost={selectedData?.largeCost || 0}
+                    setStateUpdate={setStateUpdate}
                 >Customize Ingredients</Modal>
                 )}
                 <button className='backContainter flex items-center' onClick={goBack}>
@@ -95,6 +100,7 @@ export default function Order() {
                 <div className='flex h-full w-full'>
                     <Suggestion onDataSelect={handleSelectedData} open={suggestionOpen} onClose={() => setSuggestionOpen(false)} temp={tempVal} raning={raining}>hello</Suggestion>
                     <div className="flex flex-col items-center justify-start w-full h-full m-4">
+                        {/* Milk Tea, Creative Mix, Milk Foam, SLush, Tea Latte, Brewed Tea, Coffee, Seasonal */}
                         <div className='h-1/5 w-full m-4'>
                             <MenuItem drinkName={"Milk Tea"} drinkImage={milkImage} altTxt={"Test Drink"} thisOnClick={() => goToCategory("MilkTea")}/>
                         </div>
