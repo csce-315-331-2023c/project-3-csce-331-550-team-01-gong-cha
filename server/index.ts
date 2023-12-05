@@ -1406,6 +1406,49 @@ app.put('/update-menu-drink/:id', async (req, res) => {
   }
 });
 
+/*
+* Update employee
+* @params id A primary key for an ingredient
+* @params body A JSON body containing the name, current amount, ideal amount, consumer price, and is ingredient, used to update the given id
+*/
+app.put('/update-employee/:id', async (req, res) => {
+  const employeeId = req.params.id;
+  const { manager_id, name, isManager, email, isAdmin, isEmployed } = req.body;
+
+  if (
+    name === undefined ||
+    manager_id === undefined ||
+    isManager === undefined ||
+    isEmployed === undefined ||
+    isAdmin === undefined ||
+    email === undefined
+  ) {
+    res.status(400).json({ error: 'Invalid parameters' });
+    return;
+  }
+
+  try {
+    const updateSQL = `
+      UPDATE employee
+      SET manager_id = $1, name = $2, ismanager = $3,
+      email = $4, isadmin = $5, isemployed = $6
+      WHERE ID = $7`;
+
+    const client = await pool.connect();
+    const result = await client.query(updateSQL, [manager_id, name, isManager, email, isAdmin, isEmployed, employeeId]);
+    client.release();
+
+    if (result.rowCount > 0) {
+      res.json({ message: 'Employee updated successfully' });
+    } else {
+      res.status(404).json({ error: 'Employee not found' });
+    }
+  } catch (error) {
+    console.error('Error updating employee:', error);
+    res.status(500).json({ error: (error as Error).message });
+  }
+});
+
 
 /* 
 * Get all drink categories 
