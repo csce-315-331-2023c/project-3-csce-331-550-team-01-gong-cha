@@ -1715,6 +1715,83 @@ app.delete('/delete-menu-drink/:menuDrinkID', async (req, res) => {
   }
 });
 
+//get an employees info
+app.get('/get-employee-info/:employeeID', async (req, res) => {
+  const employeeID = Number(req.params.employeeID);
+
+  if (isNaN(employeeID)) {
+    res.status(400).json({ error: 'Invalid employee ID' });
+    return;
+  }
+
+  try {
+    const client = await pool.connect();
+
+    const querySQL = `
+      SELECT *
+      FROM Employee
+      WHERE ID = $1;
+    `;
+
+    const result = await client.query(querySQL, [employeeID]);
+    client.release();
+
+    if (result.rows.length > 0) {
+      const employeeInfo = result.rows[0];
+      res.status(200).json({ message: 'Employee information retrieved successfully', employeeInfo });
+    } else {
+      res.status(404).json({ error: 'Employee not found' });
+    }
+  } catch (error) {
+    console.error('Error retrieving employee information:', error);
+    res.status(500).json({ error: 'An error occurred while retrieving employee information' });
+  }
+});
+
+//update employee
+/*
+* Update employee
+* @params id A primary key for an employee
+* @params body A JSON body containing the manager id, name, is manager, email, is admin, and is employed, used to update the given id
+*/
+app.put('/update-employee/:id', async (req, res) => {
+  const employeeId = req.params.id;
+  const { manager_id, name, isManager, email, isAdmin, isEmployed } = req.body;
+
+  if (
+    name === undefined ||
+    manager_id === undefined ||
+    isManager === undefined ||
+    isEmployed === undefined ||
+    isAdmin === undefined ||
+    email === undefined
+  ) {
+    res.status(400).json({ error: 'Invalid parameters' });
+    return;
+  }
+
+  try {
+    const updateSQL = `
+      UPDATE employee
+      SET manager_id = $1, name = $2, ismanager = $3,
+      email = $4, isadmin = $5, isemployed = $6
+      WHERE ID = $7`;
+
+    const client = await pool.connect();
+    const result = await client.query(updateSQL, [manager_id, name, isManager, email, isAdmin, isEmployed, employeeId]);
+    client.release();
+
+    if (result.rowCount > 0) {
+      res.json({ message: 'Employee updated successfully' });
+    } else {
+      res.status(404).json({ error: 'Employee not found' });
+    }
+  } catch (error) {
+    console.error('Error updating employee:', error);
+    res.status(500).json({ error: (error as Error).message });
+  }
+});
+
 app.listen(port, () => {
   console.log(`Example listening at  http://localhost:${port}`);
   });

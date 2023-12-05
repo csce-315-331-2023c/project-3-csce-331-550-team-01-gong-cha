@@ -180,3 +180,15 @@ This is a list of the functions that we have in index.ts. Date of last update: 1
 /delete-ingredient/:IngredientID - This function takes an ingredient primary key and deletes it from the database
 
 /delete-menu-drink/:menuDrinkID - takes a primary key of a menu drink and deletes it
+
+//get-employee-info/:employeeID - takes an employee primary key and returns all the info
+
+/update-employee/:id - takes an employee primary key and a json full of parameters and updates it
+{
+  "name": "Thomas",
+  "manager_id": 1,
+  "isManager": true,
+  "isEmployed": true,
+  "isAdmin": true,
+  "email": "tkhall03@tamu.edu"
+}
