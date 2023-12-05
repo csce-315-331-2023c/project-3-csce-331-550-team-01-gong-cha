@@ -1,0 +1,36 @@
+.name {
+    width: 40%;
+}
+
+.currentStock {
+    width:10%;
+}
+
+.idealStock {
+    width: 10%;
+}
+
+.consumerPrice {
+    width: 10%;
+}
+
+.button{
+    width: 10%;
+}
+
+.total {
+    width: 98%
+}
+
+.ingredient {
+    width: 10%;
+}
+
+.meer{
+    width: 20%;
+}
+
+.mew{
+    width: 20%
+}
+

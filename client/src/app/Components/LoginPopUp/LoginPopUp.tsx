@@ -30,14 +30,20 @@ export default function ReportsModal({open, children, onClose}: ModalProps) {
         }
     }
 
+    function openAdmin(){
+
+    }
+
     if (!open) return null
 
     return (
         <div>
             <div className='Overlay_Styles'>
-                <div className='Modal_Styles bg-slate-400 flex items-center justify-start'>
-                    <button className='bg-cyan-200 h-3/6 w-4/5 mb-4' onClick={() => redirectManager()}>Manager</button>
-                    <button className='bg-cyan-200 h-3/6 w-4/5 mt-4' onClick={() => redirectServer()}>Server</button> {/* onClick={() => userExist(userName, password)} */}
+                <div className='Modal_Styles bg-slate-200 flex items-center justify-start border-8 border-rose-700 rounded-3xl'>
+                    <button className='bg-rose-700 h-3/6 w-4/5 rounded-2xl text-slate-200 fone font-semibold text-4xl' onClick={() => redirectManager()}>Server</button>
+                    <button className='bg-rose-700 h-3/6 w-4/5 mt-4 rounded-2xl text-slate-200 fone font-semibold text-4xl' onClick={() => redirectServer()}>Manager</button> 
+                    <button className='bg-rose-700 h-3/6 w-4/5 mt-4 rounded-2xl text-slate-200 fone font-semibold text-3xl' onClick={() => openAdmin()}>Employee Manager</button>
+                    <button className='bg-rose-700 h-3/6 w-4/5 mt-4 rounded-2xl text-slate-200 fone font-semibold text-4xl' onClick={() => onClose()}>Exit</button>
                 </div>
             </div>
         </div>

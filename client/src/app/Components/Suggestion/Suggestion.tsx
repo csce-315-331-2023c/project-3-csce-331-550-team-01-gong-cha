@@ -1,13 +1,21 @@
 "use client"
 
+<<<<<<< HEAD
 import React, { useState, useEffect, useCallback } from 'react'
 import './styles.css'
+=======
+import React, { useState, useEffect } from 'react'
+>>>>>>> 468844c (Added full menu component)
 import Image from 'next/image'
 import coffeeImage from '../../../../public/drinkImages/53.png'
 import milkImage from '../../../../public/drinkImages/30.png'
 import creImage from '../../../../public/drinkImages/18.png'
 import slushImage from '../../../../public/drinkImages/44.png'
+<<<<<<< HEAD
 import Modal from '../Modal/Modal'
+=======
+import './styles.css'
+>>>>>>> 468844c (Added full menu component)
 
 
 interface SelectedData {

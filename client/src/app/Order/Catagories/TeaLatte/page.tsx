@@ -19,6 +19,7 @@ export default function Order() {
     
     const [drinks, setDrinks] = useState([]);
     const [loaded, setLoaded] = useState(false);
+<<<<<<< HEAD
     
   const getDrinks = useCallback(() => {
     if (!loaded) {
@@ -37,6 +38,30 @@ export default function Order() {
           console.error('There was a problem with the fetch operation:', error);
         });
       setLoaded(true);
+=======
+
+    //const drinkNames
+
+    function getDrinks(){
+      if(!loaded){
+        fetch('http://18.191.166.59:5000/drinks-from-category/5') // Replace with the actual API endpoint URL
+            .then((response) => {
+              if (!response.ok) {
+                alert("did not pass");
+                throw new Error('Network response was not ok');
+              }
+              return response.json();
+            })
+            .then((data) => {
+                //onst drinkNames = data.drinks.map((drink : Drink) => drink);
+                setDrinks(data.drinks.map((drink : Drink) => drink));
+              })
+            .catch((error) => {
+              console.error('There was a problem with the fetch operation:', error);
+            });
+            setLoaded(true);
+      }
+>>>>>>> 468844c (Added full menu component)
     }
   }, [loaded, setDrinks, setLoaded]);
 
