@@ -21,58 +21,6 @@ interface Topping {
 
 export default function OrderDrink({key, drinkName, sugar, ice, size, price, toppings, toppingAmounts}: OrderDrinkProps){
 
-    // const [toppingNames, setToppingNames] = useState<string[]>([]);
-    // const [toppingsLoaded, setToppingLoaded] = useState(false);
-
-    // function getNameFromPk(){
-    //     if (!toppingsLoaded) {
-    //         setToppingLoaded(true);
-    //         toppings.map((topping) =>
-    //         fetch(`http://18.191.166.59:5000/get-ingredient-name/${topping.id}`)
-    //         .then((response) => {
-    //             if (!response.ok) {
-    //                 throw new Error('Network response was not ok');
-    //             }
-    //             return response.json();
-    //         })
-    //         .then((data) => {
-    //             toppingNames.push(data.ingredientName); //prevToppings => [...prevToppings, data.ingredientName]
-    //             //alert(toppingNames);
-    //         })
-    //         )
-    //     }
-    // }
-    
-    // useEffect(() => {
-    //     //alert(`First call ${toppingPks}`);
-    //     //if (!toppingsLoaded) {
-    //         //setToppingLoaded(true);
-    //        // Promise.all(
-    //         //alert(toppingPks);
-    //         //setToppingLoaded(true);
-    //         getNameFromPk();
-    //             //toppingPks.map((pk) => alert(pk)
-    //                 // fetch(`http://18.191.166.59:5000/get-ingredient-name/${pk}`)
-    //                 // .then((response) => {
-    //                 //     if (!response.ok) {
-    //                 //         throw new Error('Network response was not ok');
-    //                 //     }
-    //                 //     return response.json();
-    //                 // })
-    //                 // .then((data) => {
-    //                 //     toppingNames.push(data.ingredientName); //prevToppings => [...prevToppings, data.ingredientName]
-    //                 //     alert(toppingNames);
-    //                 // })
-    //                 // .catch((error) => {
-    //                 //     console.error('There was a problem with the fetch operation:', error);
-    //                 // })
-    //             //)
-    //         // ).then(() => {
-    //         //     //setToppingLoaded(true);
-    //         // });
-    //     //}
-    // }, [toppingPks]);
-
     const sizeLabels: { [key: number]: string } = {
         0: "Normal",
         1: "Large"
@@ -94,16 +42,16 @@ export default function OrderDrink({key, drinkName, sugar, ice, size, price, top
 
     console.log(toppings);
     return (
-        <div className="flex-col w-full bg-cyan-200 rounded-sm mt-3">
+        <div className="flex-col w-full bg-rose-800 p-3 text-sm rounded-3xl mt-3 text-slate-100 font-semibold">
             <div className="flex justify-evenly">
                 <div className="text-sm">
                     {drinkName}
-                    <div className="overflow-scroll">Toppings: {toppings.map((topping, index) => <p key={index}>{topping.toppingName}</p>
-                        )}</div>
+                    <div className="">Toppings {toppings.map((topping, index) => <p key={index}>{topping.toppingName}</p>
+                        )}
+                    </div>
 
-                    
                 </div>
-                <div className="text-xs">
+                <div className="text-sm">
                     <div>
                         Size: {sizeLabels[size]}
                     </div>

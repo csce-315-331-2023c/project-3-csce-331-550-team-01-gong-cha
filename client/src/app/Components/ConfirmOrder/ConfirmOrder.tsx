@@ -48,7 +48,7 @@ export default function ConfirmOrder({drinks, onClose}: ConfirmOrderProps){
     const currentDate = year + "-" + month + "-" + date;
     const currentTime = today.getHours() + ":" + today.getMinutes();
     function handleTip(percent: number){
-        setTip(totalOrderPrice * percent);
+        setTip(percent);
     }
     function handleTakeOut(value: boolean){
         setTakeOut(value);
@@ -105,7 +105,7 @@ export default function ConfirmOrder({drinks, onClose}: ConfirmOrderProps){
                     total_cost: localTotalOrderCost,
                     price: localTotalOrderPrice,
                     profit: localTotalOrderPrice - localTotalOrderCost,
-                    tipped: tip,
+                    tipped: tip * localTotalOrderPrice,
                     takeout: isTakeout,
                     date: currentDate,
                     time: currentTime,
@@ -141,49 +141,60 @@ export default function ConfirmOrder({drinks, onClose}: ConfirmOrderProps){
             console.error('There was a problem with the fetch operation:', error);
         });
     }
+
+    const getTipStyle = (tipAmount: number) => {
+        return tip == tipAmount ? "bg-rose-700 text-white font-semibold hover:bg-slate-100 hover:text-rose-800" : "bg-slate-100 hover:bg-rose-700 hover:text-white";
+      }
+    
+    const getTakeoutStyle = (takeout: boolean) => {
+        return takeout == isTakeout ? "bg-rose-700 text-white font-semibold hover:bg-slate-100 hover:text-rose-800" : "bg-slate-100 hover:bg-rose-700 hover:text-white";
+    }
     
     const [currentModal, setCurrentModal] = useState(0);
 
     const modals = [(
         <>
-            <div className="Overlay_Styles"></div>
-            <div className="Modal_Styles bg-slate-400 justify-evenly">
-            {drinks.map((drink, key) => (
-                <OrderDrink
-                key = {key}
-                drinkName= {drink.name}
-                ice = {drink.ice}
-                sugar = {drink.sugar}
-                size={drink.sz}
-                price={drink.totalPrice}
-                toppings={drink.toppings}
-                toppingAmounts={drink.toppingAmounts}
-                />
-                
-            ))}
-            <div className="flex-col justify-evenly  ">
-                <div>Tip</div>
-                <div>
-                <button onClick={() => handleTip(0)} className="border-white border-2 rounded-md w-1/6 bg-rose-700 hover:bg-white">0%</button>
-                <button onClick={() => handleTip(0.1)} className="border-white border-2 rounded-md w-1/6 bg-rose-700 hover:bg-white">10%</button>
-                <button onClick={() => handleTip(0.15)} className="border-white border-2 rounded-md w-1/6 bg-rose-700 hover:bg-white">15%</button>
-                <button onClick={() => handleTip(0.2)} className="border-white border-2 rounded-md w-1/6 bg-rose-700 hover:bg-white">20%</button>
-                </div>
-            </div>
-            <div className="flex-col justify-evenly  ">
-                <div>Takeout</div>
-                <div>
-                <button onClick={() => handleTakeOut(true)} className="border-white border-2 rounded-md w-1/6 bg-rose-700 hover:bg-white">Yes</button>
-                <button onClick={() => handleTakeOut(false)} className="border-white border-2 rounded-md w-1/6 bg-rose-700 hover:bg-white">No</button>
-                </div>
-            </div>
-            <div className="flex justify-evenly">
-                <button onClick={onClose}className="border-white border-2 rounded-md w-1/4 bg-rose-700 hover:bg-white">Exit</button>
-                <button onClick={() => {placeOrder(); setCurrentModal(1)}} className="border-white border-2 rounded-md w-1/4 bg-rose-700 hover:bg-white">Place Order</button>
-            </div>
-            </div>
-            
-        </>
+  <div className="Overlay_Styles"></div>
+  <div className="Modal_Styles bg-slate-200 justify-evenly text-rose-800 font-semibold text-4xl space-y-1flex flex-col h-full">
+    <div className="flex-grow-container overflow-auto h-full">
+      {drinks.map((drink, key) => (
+        <OrderDrink
+          key={key}
+          drinkName={drink.name}
+          ice={drink.ice}
+          sugar={drink.sugar}
+          size={drink.sz}
+          price={drink.totalPrice}
+          toppings={drink.toppings}
+          toppingAmounts={drink.toppingAmounts}
+        />
+      ))}
+    </div>
+    <div className="flex-grow flex flex-col justify-between">
+      <div className="flex-col justify-evenly h-1/6">
+        <div>Tip</div>
+        <div>
+          <button onClick={() => handleTip(0)} className={`${getTipStyle(0)} options rounded-3xl w-1/6 `}>0%</button>
+          <button onClick={() => handleTip(0.1)} className={`${getTipStyle(0.1)} options rounded-3xl w-1/6 `}>10%</button>
+          <button onClick={() => handleTip(0.15)} className={`${getTipStyle(0.15)} options rounded-3xl w-1/6 `}>15%</button>
+          <button onClick={() => handleTip(0.2)} className={`${getTipStyle(0.2)} options rounded-3xl w-1/6 `}>20%</button>
+        </div>
+      </div>
+      <div className="flex-col justify-evenly h-1/6">
+        <div>Takeout</div>
+        <div>
+          <button onClick={() => handleTakeOut(true)} className={`${getTakeoutStyle(true)} options rounded-3xl w-1/6`}>Yes</button>
+          <button onClick={() => handleTakeOut(false)} className={`${getTakeoutStyle(false)} options rounded-3xl w-1/6 `}>No</button>
+        </div>
+      </div>
+      <div className="flex justify-evenly h-1/6">
+        <button onClick={onClose} className="options rounded-3xl w-1/4 bg-slate-100 hover:bg-rose-700">Exit</button>
+        <button onClick={() => {placeOrder(); setCurrentModal(1)}} className="options rounded-3xl w-1/4 bg-slate-100 hover:bg-rose-700">Place Order</button>
+      </div>
+    </div>
+  </div>
+</>
+
     ),
 
         (
@@ -194,7 +205,7 @@ export default function ConfirmOrder({drinks, onClose}: ConfirmOrderProps){
                     <p>Thank you for your Money!</p>
                     Your Order Number is #{orderNumber}
                     <div>
-                    <button onClick={() => {onClose; goBack();}} className="border-white border-2 rounded-md w-1/4 bg-rose-700 hover:bg-white">Exit</button>
+                    <button onClick={() => {onClose; goBack();}} className="border-white border-2 rounded-3xl w-1/4 bg-slate-100 hover:bg-rose-700">Exit</button>
                     </div>
                     
                     </div>
