@@ -19,26 +19,6 @@ export default function Order() {
     
     const [drinks, setDrinks] = useState([]);
     const [loaded, setLoaded] = useState(false);
-<<<<<<< HEAD
-    
-  const getDrinks = useCallback(() => {
-    if (!loaded) {
-      fetch('http://18.191.166.59:5000/drinks-from-category/2')
-        .then((response) => {
-          if (!response.ok) {
-            alert("did not pass");
-            throw new Error('Network response was not ok');
-          }
-          return response.json();
-        })
-        .then((data) => {
-          setDrinks(data.drinks.map((drink: Drink) => drink));
-        })
-        .catch((error) => {
-          console.error('There was a problem with the fetch operation:', error);
-        });
-      setLoaded(true);
-=======
 
     //const drinkNames
 
@@ -61,14 +41,13 @@ export default function Order() {
             });
             setLoaded(true);
       }
->>>>>>> 468844c (Added full menu component)
     }
-  }, [loaded, setDrinks, setLoaded]);
 
     useEffect(() => {
         getDrinks();
         }
       , [getDrinks]);
+
     return (
         <main className="backgroundS bg-slate-200 bg-cover w-screen flex flex-col h-full">
                 <div className="flex items-center justify-start w-full h-full">

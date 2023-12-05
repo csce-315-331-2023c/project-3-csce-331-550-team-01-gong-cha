@@ -103,29 +103,30 @@ export default function FullMenu({open, children, onClose}: ModalProps){
                     <div className='flex w-full justify-center bg-rose-700 rounded-xl'>
                         <div className='flex roww justify-evenly text-lg font-bold text-slate-200'>
                             <div className='namee'>Name</div>
-                            <div className=''>$Lg</div>
-                            <div className=''>$Nm</div>
+                            <div className=''>$N</div>
+                            <div className=''>$L</div>
                         </div>
                         <div className='flex roww justify-evenly text-lg font-bold text-slate-200'>
                             <div className='namee'>Name</div>
-                            <div className=''>$Lg</div>
-                            <div className=''>$Nm</div>
+                            <div className=''>$N</div>
+                            <div className=''>$L</div>
                         </div>
                         <div className='flex roww justify-evenly text-lg font-bold text-slate-200'>
                             <div className='namee'>Name</div>
-                            <div className=''>$Lg</div>
-                            <div className=''>$Nm</div>
+                            <div className=''>$N</div>
+                            <div className=''>$L</div>
                         </div>
                         <div className='flex roww justify-evenly text-lg font-bold text-slate-200'>
                             <div className='namee'>Name</div>
-                            <div className=''>$Lg</div>
-                            <div className=''>$Nm</div>
+                            <div className=''>$N </div>
+                            <div className=''>$L </div>
                         </div>
                         <div className='flex roww justify-evenly text-lg font-bold text-slate-200'>
                             <div className='namee'>Name</div>
-                            <div className=''>$Lg</div>
-                            <div className=''>$Nm</div>
+                            <div className=''>$N</div>
+                            <div className=''>$L</div>
                         </div>
+
 
                     </div>
                     <div className='menuu flex w-full justify-center'>
