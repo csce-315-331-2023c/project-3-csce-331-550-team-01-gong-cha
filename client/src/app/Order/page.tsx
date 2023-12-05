@@ -18,6 +18,16 @@ import Router from "next/router";
 
 import './styles.css'
 
+import Modal from '../Components/Modal/Modal'
+interface SelectedData {
+    name: string;
+    ID: number;
+    normPrice: number;
+    largePrice: number;
+    normCost: number;
+    largeCost: number;
+}
+
 export default function Order() {
     const [transButton, setTransButton] = useState('');
 
@@ -52,6 +62,7 @@ export default function Order() {
             }
         }
     }
+
     useEffect(() => {
         getData(suggested)  
         if(getCookie('googtrans') === '/auto/en'){
@@ -62,6 +73,14 @@ export default function Order() {
         }
 
     });
+    
+    const [recommended, setRecommended] = useState(false);
+    const [selectedData, setSelectedData] = useState<SelectedData>();
+
+    const handleSelectedData = (data: SelectedData) => {
+        setSelectedData(data);
+        setRecommended(true);
+    };
 
     function goToCategory(category: string){
         window.location.href = "Order/Catagories/" + category;
@@ -71,6 +90,10 @@ export default function Order() {
         window.location.href = "../";
     }
 
+
+    function setStateUpdate(state: boolean){
+        setRecommended(false);
+        
     function changeLang(){
         if(decodeURI(getCookie('googtrans')) === '/auto/en'){
             setCookie('googtrans',decodeURI('/auto/zh-CN'));
@@ -90,6 +113,21 @@ export default function Order() {
     return (
         <main className="bg-slate-200 bg-cover h-screen w-screen flex">
             <div className='ml-6 catagoryContainer w-4/5 flex-col h-full'>
+
+            {recommended && (
+                    <Modal
+                    open={true} 
+                    onClose={() => setRecommended(false)}
+                    drinkName={selectedData?.name || ''}
+                    drinkID={selectedData?.ID || 0}
+                    nmDrinkPrice={selectedData?.normPrice || 0}
+                    lgDrinkPrice={selectedData?.largePrice || 0}
+                    nmCost={selectedData?.normCost || 0}
+                    lgCost={selectedData?.largeCost || 0}
+                    setStateUpdate={setStateUpdate}
+                >Customize Ingredients</Modal>
+                )}
+
                 <div className='flex justify-start align-center items-center'>
                     <div className='homButton'>
                         <button className='backContainter flex items-center w-full' onClick={goBack}>
@@ -109,9 +147,11 @@ export default function Order() {
                 <div>
                     <GoogleTranslate/>
                 </div>
+
                 <div className='flex h-full w-full'>
-                    <Suggestion open={suggestionOpen} onClose={() => setSuggestionOpen(false)} temp={tempVal} raning={raining}>hello</Suggestion>
+                    <Suggestion onDataSelect={handleSelectedData} open={suggestionOpen} onClose={() => setSuggestionOpen(false)} temp={tempVal} raning={raining}>hello</Suggestion>
                     <div className="flex flex-col items-center justify-start w-full h-full m-4">
+                        {/* Milk Tea, Creative Mix, Milk Foam, SLush, Tea Latte, Brewed Tea, Coffee, Seasonal */}
                         <div className='h-1/5 w-full m-4'>
                             <MenuItem drinkName={"Milk Tea"} drinkImage={milkImage} altTxt={"Test Drink"} thisOnClick={() => goToCategory("MilkTea")}/>
                         </div>

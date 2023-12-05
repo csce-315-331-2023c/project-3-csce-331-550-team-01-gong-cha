@@ -6,6 +6,13 @@ import Topping from '../TabelItems/Topping/Topping'
 import './styles.css'
 
 
+
+interface Topping {
+  id: number;
+  toppingName: string;
+}
+
+
 interface orderDrink {
   name: string;
   ice: number;
@@ -14,6 +21,8 @@ interface orderDrink {
   totalPrice: number; // cost for customer
   costPrice: number; // cost for us to make
   id: number;
+  toppings: Topping[];
+  toppingAmounts: number[];
 }
 
 interface ModalProps {
@@ -26,10 +35,11 @@ interface ModalProps {
   lgCost: number;
   nmCost: number;
   drinkID: number;
+  setStateUpdate: (state: boolean) => void;
   
 }
 
-export default function Modal({ open, children, onClose, drinkName, lgDrinkPrice, nmDrinkPrice, drinkID}: ModalProps) {
+export default function Modal({ open, children, onClose, drinkName, lgDrinkPrice, nmDrinkPrice, drinkID, setStateUpdate}: ModalProps) {
   const [currentModal, setCurrentModal] = useState(0);
   const [toppingsPrice, setToppingsPrice] = useState(0);
   
@@ -41,7 +51,10 @@ export default function Modal({ open, children, onClose, drinkName, lgDrinkPrice
     sugarLevel: 0,
     totalPrice: nmDrinkPrice,
     totalCost: 0,
-    id: drinkID
+    id: drinkID,
+    theToppings: [],
+    toppingAmounts: [],
+
   });
 
 
@@ -52,6 +65,9 @@ export default function Modal({ open, children, onClose, drinkName, lgDrinkPrice
     price: number;
   }
 
+  const [toppings, setToppings] = useState<Topping[]>([]);
+  const [ingredientQuantities, setIngredientQuantities] = useState<number[]>([]);
+
   const handleStateUpdate = () => {
     const newDrink: orderDrink = {
       name: selectedOptions.name,
@@ -60,10 +76,15 @@ export default function Modal({ open, children, onClose, drinkName, lgDrinkPrice
       sz: selectedOptions.size,
       totalPrice: selectedOptions.totalPrice + toppingsPrice,
       costPrice: selectedOptions.totalCost,
-      id: selectedOptions.id
+      id: selectedOptions.id,
+      toppings: toppings,
+      toppingAmounts: ingredientQuantities,
     }
     const existingOrders = JSON.parse(localStorage.getItem('orders') || '[]');
       localStorage.setItem('orders', JSON.stringify([...existingOrders, newDrink]));
+      // alert(newDrink.toppingPks);
+      // alert(newDrink.toppingAmounts);
+    setStateUpdate(true);
   
   }
   const resetModalState = () => {
@@ -75,9 +96,12 @@ export default function Modal({ open, children, onClose, drinkName, lgDrinkPrice
       sugarLevel: 0,
       totalPrice: nmDrinkPrice,
       totalCost: 0,
-      id: drinkID
+      id: drinkID,
+      theToppings: [],
+      toppingAmounts: []
     });
     setCurrentModal(0);
+    clearToppings()
   };
 
   const handleClose = () => {
@@ -85,6 +109,8 @@ export default function Modal({ open, children, onClose, drinkName, lgDrinkPrice
     onClose();
   };
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
+
+  
   useEffect(() => {
       if (open && currentModal == 1) {
         fetch('http://18.191.166.59:5000/ingredients') 
@@ -110,16 +136,45 @@ export default function Modal({ open, children, onClose, drinkName, lgDrinkPrice
           });
       }
     }, [open, currentModal]);
-  
-  const addTopping = (price: number) => {
-    setToppingsPrice(toppingsPrice + price)
-  }
 
-  const removeTopping = (price: number) => {
+  const clearToppings = () => {
+
+    setToppings([]);
+    setIngredientQuantities([]);
+  }
+  
+  const addTopping = (price: number, currentTopping: Topping) => {
+    setToppingsPrice(toppingsPrice + price);
+
+    // Find the index of a topping with the same id as currentTopping
+    const index = toppings.findIndex(topping => topping.id === currentTopping.id);
+
+    if (index >= 0) {
+        
+        const newQuantities = [...ingredientQuantities];
+        newQuantities[index] += 1;
+        setIngredientQuantities(newQuantities);
+    } else {
+
+        setToppings([...toppings, currentTopping]);
+        setIngredientQuantities([...ingredientQuantities, 1]);
+    }
+}
+
+  const removeTopping = (price: number, currentTopping: Topping) => {
     if (toppingsPrice >= price){
       setToppingsPrice(toppingsPrice - price)
     }
-    
+
+    const index = toppings.indexOf(currentTopping);
+      if (index >= 0 && ingredientQuantities[index] > 0) {
+        const newQuantities = [...ingredientQuantities];
+        newQuantities[index] -= 1;
+        setIngredientQuantities(newQuantities);
+      }
+      else if (index >= 0 && ingredientQuantities[index] == 0){
+        delete ingredientQuantities[index];
+      }
   }
 
   const handleNext = () => {
@@ -202,7 +257,7 @@ const getSizeButtonStyle = (size: number) => {
       </div>
 
       <div className="flex justify-evenly">
-      <button onClick={() => {setCurrentModal(0); onClose(); handleIce(1); handleSize(0, nmDrinkPrice); handleSugar(0)}} className="border-white border-2 rounded-md w-1/4 bg-rose-700 hover:bg-white">Exit</button>
+      <button onClick={() => {handleClose()}} className="border-white border-2 rounded-md w-1/4 bg-rose-700 hover:bg-white">Exit</button>
       <button  onClick={handleNext} className="border-white border-2 rounded-md w-1/4 bg-rose-700 hover:bg-white">Next</button>
       </div>
       
@@ -230,8 +285,10 @@ const getSizeButtonStyle = (size: number) => {
             toppingName={ingredient.name}
             price={ingredient.price}
             toppingID={ingredient.id}
-            addTopping={addTopping}
-            removeTopping={removeTopping}
+            addTopping={() => addTopping(ingredient.price, {id: ingredient.id, toppingName: ingredient.name})}
+            removeTopping={() => removeTopping(ingredient.price,  {id: ingredient.id, toppingName: ingredient.name})}
+            toppings={toppings}
+            toppingAmounts={ingredientQuantities}
         />
       ))}
         

@@ -67,6 +67,11 @@ const secondHalfCategories = categoryDrinks.slice(halfLength);
 const firstHalfPictures = pictures.slice(0, halfLength);
 const secondHalfPictures = pictures.slice(halfLength);
 
+interface Topping {
+  id: number;
+  toppingName: string;
+}
+
 interface orderDrink {
   name: string;
   ice: number;
@@ -74,17 +79,21 @@ interface orderDrink {
   sz: number;
   totalPrice: number; // cost for customer
   costPrice: number; // cost for us to make
-  id: number
+  id: number,
+  toppings: Topping[],
+  toppingAmounts: number[],
 }
 
 const [drinksState, setDrinksState] = useState<orderDrink[]>([]);
+const [stateUpdate, setStateUpdate] = useState(false);
 
 
 useEffect(() => {
   const storedOrders = JSON.parse(localStorage.getItem('orders') || '[]');
   //alert(storedOrders)
   setDrinksState(storedOrders);
-})
+  setStateUpdate(false);
+}, [stateUpdate])
     return(
       
       <div className="relative mt-10">
@@ -107,14 +116,15 @@ useEffect(() => {
             
           <MenuItem 
            drinkName={category.name}
-            drinkImage={DrinkImage[`_${category.id}`]} 
+            drinkImage={DrinkImage[`_${category.id}` as keyof typeof DrinkImage]} 
             altTxt={"Test Drink"}
            thisOnClick={() => openModal(category.name)}/>
            <Modal open={openModals[category.name]} onClose={() => closeModal(category.name)} 
             drinkName={category.name}
             lgDrinkPrice={category.lg_consumer_price} nmDrinkPrice={category.norm_consumer_price}
             lgCost={category.large_cost} nmCost={category.normal_cost}
-            drinkID={category.id}>
+            drinkID={category.id}
+            setStateUpdate={setStateUpdate}>
              Customize Ingredients</Modal>
           </div>
            
@@ -125,14 +135,16 @@ useEffect(() => {
           <div className="h-1/4 w-full mt-10" key={category.name} >
             <MenuItem
            drinkName={category.name}
-          drinkImage={DrinkImage[`_${category.id}`]} 
+          drinkImage={DrinkImage[`_${category.id}` as keyof typeof DrinkImage]} 
             altTxt={"Test Drink"} 
             thisOnClick={() => openModal(category.name)}/>
             <Modal open={openModals[category.name]} onClose={() => closeModal(category.name)} 
             drinkName={category.name}
             lgDrinkPrice={category.lg_consumer_price} nmDrinkPrice={category.norm_consumer_price}
             lgCost={category.large_cost} nmCost={category.normal_cost}
-            drinkID={category.id}>
+            drinkID={category.id}
+            setStateUpdate={setStateUpdate}>
+            
              Customize Ingredients</Modal>
            </div>
          ))}
@@ -146,10 +158,17 @@ useEffect(() => {
           sugar = {drink.sugar}
           size={drink.sz}
           price={drink.totalPrice}
+          toppings={drink.toppings}
+          toppingAmounts={drink.toppingAmounts}
           />
           
       ))}
-      <button className="bottom-0"onClick={() => {setIsOrderPlaced(true); /*localStorage.clear()*/}}>Place Order</button>
+      <div className="flex flex-col items-center">
+    <button className="mb-2 bottom-0" onClick={() => {setIsOrderPlaced(true);setStateUpdate(true)}}>Place Order</button>
+    <button onClick={() => {localStorage.clear(); setStateUpdate(true)}}>Clear Order</button>
+    </div>
+
+      
       </div>
       </div>
       </div>

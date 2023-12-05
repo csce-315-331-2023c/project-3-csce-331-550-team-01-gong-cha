@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import DrinkIngredient from '../TabelItems/DrinkIngredient/DrinkIngredient'
 import './styles.css'
 
@@ -65,32 +65,34 @@ export default function AddIngredients({open, onClose, drinkName, lgDrinkPrice, 
     })
   }
 
-  useEffect(() => {
-    addToppings();
-  }, [newMenuDrink]);
-
-
-  function addToppings(){
+  const addToppings = useCallback((): void => {
     var idx = 0;
     for(idx; idx < DrinkIngredients.length; idx++){
-        if(DrinkIngredients[idx]){
-            fetch('http://18.191.166.59:5000/create-menu-drink-ingredient', {
-                method: 'POST',
-                headers: {
-                'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({menuDrinkId: newMenuDrink, ingredientId: DrinkIngredients[idx]}),
-            })
-            .then((response) => {
-                if (!response.ok) {
-                throw new Error('Network response was not ok');
-                }
-                return response.json();
-              })
-        }
+      if(DrinkIngredients[idx]){
+        fetch('http://18.191.166.59:5000/create-menu-drink-ingredient', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ menuDrinkId: newMenuDrink, ingredientId: DrinkIngredients[idx] }),
+        })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.json();
+        })
+      }
     }
     onClose();
-  }
+  }, [onClose, DrinkIngredients, newMenuDrink]);
+
+  useEffect(() => {
+    addToppings();
+  }, [newMenuDrink, addToppings]);
+
+
+
 
   useEffect(() => {
       if (open) {
