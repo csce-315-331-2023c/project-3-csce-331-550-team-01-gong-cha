@@ -12,8 +12,12 @@ import milkImage from '../../../public/drinkImages/30.png'
 import creImage from '../../../public/drinkImages/18.png'
 import foamImage from '../../../public/drinkImages/31.png'
 import slushImage from '../../../public/drinkImages/44.png'
+import GoogleTranslate from '../GoogleTranslate/GoogleTranslate.js'
+import { getCookie, hasCookie, setCookie } from 'cookies-next';
+import Router from "next/router";
 
 import './styles.css'
+
 import Modal from '../Components/Modal/Modal'
 interface SelectedData {
     name: string;
@@ -25,6 +29,8 @@ interface SelectedData {
 }
 
 export default function Order() {
+    const [transButton, setTransButton] = useState('');
+
     const { coords, isGeolocationAvailable, isGeolocationEnabled } = 
         useGeolocated({positionOptions: {enableHighAccuracy: false,},userDecisionTimeout: 5000,});
 
@@ -56,7 +62,18 @@ export default function Order() {
             }
         }
     }
-    useEffect(() => getData(suggested));
+
+    useEffect(() => {
+        getData(suggested)  
+        if(getCookie('googtrans') === '/auto/en'){
+            setTransButton('普通话');
+        }
+        else{
+            setTransButton('English');
+        }
+
+    });
+    
     const [recommended, setRecommended] = useState(false);
     const [selectedData, setSelectedData] = useState<SelectedData>();
 
@@ -73,13 +90,30 @@ export default function Order() {
         window.location.href = "../";
     }
 
+
     function setStateUpdate(state: boolean){
         setRecommended(false);
+        
+    function changeLang(){
+        if(decodeURI(getCookie('googtrans')) === '/auto/en'){
+            setCookie('googtrans',decodeURI('/auto/zh-CN'));
+            location.reload();
+        }
+        else{
+            setCookie('googtrans',decodeURI('/auto/en'));
+            location.reload();
+        }
+    }
+
+    function getCookie(key: string) {
+        var b = document.cookie.match("(^|;)\\s*" + key + "\\s*=\\s*([^;]+)");
+        return b ? b.pop() : "";
     }
 
     return (
         <main className="bg-slate-200 bg-cover h-screen w-screen flex">
             <div className='ml-6 catagoryContainer w-4/5 flex-col h-full'>
+
             {recommended && (
                     <Modal
                     open={true} 
@@ -93,10 +127,27 @@ export default function Order() {
                     setStateUpdate={setStateUpdate}
                 >Customize Ingredients</Modal>
                 )}
-                <button className='backContainter flex items-center' onClick={goBack}>
-                    <svg className='fill-rose-700 ml-4' xmlns="http://www.w3.org/2000/svg" height="5em" viewBox="0 0 448 512"><path d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288 416 288c17.7 0 32-14.3 32-32s-14.3-32-32-32l-306.7 0L214.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg>
-                    <div className='ml-8 text-5xl text-rose-700 font-semibold'>Home Page</div>
-                </button>
+
+                <div className='flex justify-start align-center items-center'>
+                    <div className='homButton'>
+                        <button className='backContainter flex items-center w-full' onClick={goBack}>
+                            <svg className='fill-rose-700 ml-4' xmlns="http://www.w3.org/2000/svg" height="5em" viewBox="0 0 448 512"><path d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288 416 288c17.7 0 32-14.3 32-32s-14.3-32-32-32l-306.7 0L214.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg>
+                            <div className='ml-8 text-5xl text-rose-700 font-semibold'>Home Page</div>
+                        </button>
+                    </div>
+                    <div className='topCon flex justify-evenly'>
+                        <div className='bg-rose-700 w-2/5 h-16 text-slate-200 flex items-center justify-center text-4xl font-semibold notranslate rounded-xl'>  
+                            <button>Full Menu</button>
+                        </div>
+                        <div className='bg-rose-700 w-2/5 h-16 text-slate-200 flex items-center justify-center text-4xl font-semibold notranslate rounded-xl'>  
+                            <button onClick={changeLang}>{transButton}</button>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <GoogleTranslate/>
+                </div>
+
                 <div className='flex h-full w-full'>
                     <Suggestion onDataSelect={handleSelectedData} open={suggestionOpen} onClose={() => setSuggestionOpen(false)} temp={tempVal} raning={raining}>hello</Suggestion>
                     <div className="flex flex-col items-center justify-start w-full h-full m-4">

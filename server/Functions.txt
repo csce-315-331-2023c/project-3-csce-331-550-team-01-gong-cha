@@ -1,4 +1,4 @@
-This is a list of the functions that we have in index.ts. Date of last update: 11/27/23
+This is a list of the functions that we have in index.ts. Date of last update: 12/3/23
 
 /employees: This gets all the employees in the database:
 
@@ -39,7 +39,7 @@ This is a list of the functions that we have in index.ts. Date of last update: 1
     "tipped": 5,
     "takeout": true,
     "date": "2023-11-01",
-    "time": "12:30 PM",
+    "time": "12:30", 
     "name": "Example Order"
     }
 
@@ -71,11 +71,6 @@ This is a list of the functions that we have in index.ts. Date of last update: 1
 
 /get-all-drink-names: This function returns an array of each drink and it's primary key.
 
-/get-employee-usernames-and-passwords: This function gets all employee usernames and passwords. Not exactly very secure. 
-    We'll probably get rid of this before the final project. 
-
-/confirm-username-password-match/:username/:password - This function checks if a username and password match.
-    The request would go: /confirm-username-password-match/<username>/<password>
 
 /get-ingredient-name-and-price: This function gets all the ingredients and their prices
 
@@ -101,7 +96,6 @@ This is a list of the functions that we have in index.ts. Date of last update: 1
 /order-drink-pairs/:startDate - This function returns an array of arrays of orders and their order drinks
     Here is an example of the request: /order-drink-pairs/2023-09-30
 
-/ingredients-for-menu-drinks/:menuDrinkIDs - This function returns the ingredients of a menu drink given that menu drinks primary key
 
 
 /sold-together/:startDate/:endDate - This function takes a start date and end date and returns drinks that are commonly sold together
@@ -153,7 +147,34 @@ This is a list of the functions that we have in index.ts. Date of last update: 1
 /change-offered/:id - This function changes whether or not a menu drink is offered given it's primary key
     If the drink was offered, now it isn't. If the drink wasn't offered, now it is.
 
-/create-menu-drink-ingredient: This function takes in a menu drink pk and an ingredient pk and makes a 
-    menu drink ingredient.
+/create-menu-drink-ingredient: This function takes in a menu drink pk and an array of ingredient pks and makes  
+    menu drink ingredients.
+    {
+    "menuDrinkId": 1,
+    "ingredientIds": [1, 2, 3]
+    }
 
 /change-is-ingredient/:id - This function changes the Is_Ingredient field of an ingredient given its primary key
+
+/create-order-order-drink: This function makes an order order drink. It takes in two parameters: an order primary key,
+    and an array of order drink primary keys. It then assigns all those order drinks to that order. 
+    Here is a request body example:
+    {
+    "orderID": 123, // Replace with the actual order ID
+    "orderDrinkIDs": [456, 789, 1011] // Replace with the actual order drink IDs
+    }
+
+/get-offered-menu-drinks: This function returns the number of menu drinks that are currently offered.
+
+/sales-report/:startDate/:endDate - This function generates a sales report given the dates
+
+/get-ingredients-for-menu-drink/:menuDrinkID - This function gets all ingredients that are used in a menu drink
+
+/delete-menu-drink-ingredients/:menuDrinkID - This function takes in a menu drink primary key and an array of ingredient primary keys   
+    And deletes any menu drink ingredients that match with those pairs. Here is an example
+    http://localhost:4000/delete-menu-drink-ingredients/1
+        {
+            "ingredientIDs": [31, 30]
+        }
+
+/delete-ingredient/:IngredientID - This function takes an ingredient primary key and deletes it from the database
