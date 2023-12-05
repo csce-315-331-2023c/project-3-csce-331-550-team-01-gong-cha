@@ -15,6 +15,9 @@ interface IngredientProps {
 
 export default function RestockReportIngredient({pk, FIName, CurrentStock, IdealStock, FAmountUsed, FConsumerPrice, isIngredient, reload}: IngredientProps){
 
+    const [style, setStyle] = useState(isIngredient ? 'bg-green-600' : 'bg-red-600');
+    const [letters, setLetters] = useState(isIngredient ? 'Yes' : 'No');
+
     function updateIngredient(pkk: number, Iname: string, cStock: string, idealStock: string, aUsed: string, price: string){
 
         var newName = "";
@@ -51,8 +54,25 @@ export default function RestockReportIngredient({pk, FIName, CurrentStock, Ideal
           })
     }
 
-    function setTopping(){
+    function deleteTopping(iPk: number){
+        fetch(`http://18.191.166.59:5000/delete-ingredient/:${iPk}`, {
+            method: 'PUT',
+        })
+        .then(() => {
+            reload();
+        });
+    }
 
+    function setTopping(iPk: number){
+        alert('why');
+        fetch(`http://18.191.166.59:5000/change-is-ingredient/:${iPk}`, {
+            method: 'PUT',
+        })
+        .then((response) => {
+            alert('wah');
+            reload();
+        });
+        
     }
 
     const [Iname, setIName] = useState('');
@@ -61,12 +81,6 @@ export default function RestockReportIngredient({pk, FIName, CurrentStock, Ideal
     const [IamountUsed, setAmountUsed] = useState('');
     const [Iprice, setPrice] = useState('');
 
-    const Conditional = ({condition, children,}: 
-        {condition: boolean, children: React.ReactNode}) => {
-            if(condition) return <>{children}</>;
-            return <></>;
-    };
-
     return(
         <div className='flex justify-center bg-slate-200 w-ful h-12 mt-1'>
             <div className='total bg-slate-100 w-full flex justify-start border-rose-700 border-2 rounded-lg'>
@@ -74,17 +88,13 @@ export default function RestockReportIngredient({pk, FIName, CurrentStock, Ideal
                 <input className='currentStock flex justify-center items-center text-center bg-inherit outline-none text-rose-700' placeholder={CurrentStock} type='IcurrentStock' id='IcurrentStock' value={IcurrentStock} onChange={(e) => setCurrentStock(e.target.value)}/>
                 <input className='idealStock flex justify-center items-center text-center bg-inherit outline-none text-rose-700' placeholder={IdealStock} type='idealStock' id='idealStock' value={idealStock} onChange={(e) => setIdealStock(e.target.value)}/>
                 <input className='consumerPrice flex justify-center items-center text-center bg-inherit outline-none text-rose-700' placeholder={FConsumerPrice} type='Iprice' id='Iprice' value={Iprice} onChange={(e) => setPrice(e.target.value)}/>
-                <Conditional condition={isIngredient}>
-                    <div className='ingredient flex items-center w-1/6'>
-                        <button className="w-full bg-green-600 items-center mr-2 rounded-lg h-5/6" onClick={setTopping}>Yes</button>
-                    </div>
-                </Conditional>
-                <Conditional condition={!isIngredient}>
-                    <div className='ingredient flex items-center w-1/6'>
-                        <button className="w-full bg-red-600 items-center mr-2 rounded-lg h-5/6" onClick={setTopping}>No</button>
-                    </div>
-                </Conditional>
-                <div className='button flex justify-center align-center items-center mr-1'>
+                <div className='meer flex justify-center align-center items-center mr-1'>
+                    <button className="w-full bg-rose-700 h-5/6 items-center rounded-md text-slate-200" onClick={() => deleteTopping(pk)}>Delete</button>
+                </div>
+                <div className='ingredient flex items-center w-1/6'>
+                    <button className={`w-full ${style} items-center mr-2 rounded-lg h-5/6`} onClick={() => setTopping(pk)}>{letters}</button>
+                </div>
+                <div className='mew flex justify-center align-center items-center mr-1'>
                     <button className="bg-rose-700 w-full h-5/6 items-center rounded-md text-slate-200" onClick={() => updateIngredient(pk, Iname, IcurrentStock, idealStock, IamountUsed, Iprice)}>Update</button>
                 </div>
             </div>

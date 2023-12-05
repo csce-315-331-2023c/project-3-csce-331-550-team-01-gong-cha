@@ -26,7 +26,7 @@ export default function ReportsModal({open, children, onClose}: ModalProps) {
             window.location.href = '/Manager';
         }
         else{
-            signIn("google", {callbackUrl: '/Manager'});
+            signIn("google", {callbackUrl: '/Manager'}, {login_hint: '2'});
         }
     }
 

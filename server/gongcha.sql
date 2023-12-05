@@ -41,8 +41,10 @@ CREATE TABLE Employee(
     Manager_ID INTEGER,
     Name VARCHAR(50),
     isManager BOOLEAN,
-    Username VARCHAR(50),
-    Password VARCHAR(50),
+    Email VARCHAR(50),
+    IsAdmin BOOLEAN DEFAULT FALSE,
+    IsEmployed BOOLEAN DEFAULT FALSE,
+    IsManager BOOLEAN DEFAULT FALSE,
     FOREIGN KEY (Manager_ID) REFERENCES Employee(ID)
 );
 
@@ -70,7 +72,6 @@ CREATE TABLE Ingredient_Order_Drink(
 
 CREATE TABLE Orders(
     ID SERIAL PRIMARY KEY,
-    Server_ID INTEGER,
     Name VARCHAR(50),
     Cost DOUBLE PRECISION,
     Price DOUBLE PRECISION,
