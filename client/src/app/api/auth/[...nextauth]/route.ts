@@ -4,15 +4,6 @@ import GoogleProvider from "next-auth/providers/google";
 import { getCookie, hasCookie, setCookie } from 'cookies-next';
 
 
-async function getEmail(profile) : bool{
-
-    let data = await fetch(`http://18.191.166.59:5000/get-email/${profile.email}`);
-
-    setCookie('userID', data.exist);
-
-    return data.exist;
-}
-
 const handler = NextAuth({
 
     providers: [
@@ -23,7 +14,7 @@ const handler = NextAuth({
     ],
     callbacks: {
         async signIn({ account, profile }) {
-            if (account.provider === "google") {
+            if (account?.provider === "google") {
 
                 // var temp = getEmail(profile)
                 // session.user.user = 
