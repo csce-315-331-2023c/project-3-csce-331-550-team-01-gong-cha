@@ -218,15 +218,15 @@ export default function Modal({ open, children, onClose, drinkName, lgDrinkPrice
   }
 
 const getIceButtonStyle = (iceLevel: number) => {
-  return selectedOptions.iceLevel === iceLevel ? "bg-rose-700 text-white font-semibold hover:bg-slate-100 hover:text-rose-800" : "bg-slate-100 hover:bg-rose-700 hover:text-white";
+  return selectedOptions.iceLevel === iceLevel ? "bg-rose-700 text-white font-semibold" : "bg-slate-100 hover:bg-rose-700 hover:text-white";
 }
 
 const getSugarButtonStyle = (sugarLevel: number) => {
-  return selectedOptions.sugarLevel === sugarLevel ? "bg-rose-700 text-white font-semibold hover:bg-slate-100 hover:text-rose-800" : "bg-slate-100 hover:bg-rose-700 hover:text-white";
+  return selectedOptions.sugarLevel === sugarLevel ? "bg-rose-700 text-white font-semibold" : "bg-slate-100 hover:bg-rose-700 hover:text-white";
 }
 
 const getSizeButtonStyle = (size: number) => {
-  return selectedOptions.size === size ? "bg-rose-700 text-white font-semibold hover:bg-slate-100 hover:text-rose-800" : "bg-slate-100 hover:bg-rose-700 hover:text-white";
+  return selectedOptions.size === size ? "bg-rose-700 text-white font-semibold" : "bg-slate-100 hover:bg-rose-700 hover:text-white";
 }
   const modals = [
     (
