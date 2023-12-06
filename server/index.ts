@@ -1851,6 +1851,7 @@ app.delete('/delete-ingredient/:ingredientID', async (req, res) => {
     res.status(500).json({ error: (error as Error).message });
   }
 });
+
 //delete menu drink
 app.delete('/delete-menu-drink/:menuDrinkID', async (req, res) => {
   const menuDrinkID = Number(req.params.menuDrinkID);
