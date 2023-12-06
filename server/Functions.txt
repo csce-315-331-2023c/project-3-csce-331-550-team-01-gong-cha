@@ -192,3 +192,7 @@ This is a list of the functions that we have in index.ts. Date of last update: 1
   "isAdmin": true,
   "email": "tkhall03@tamu.edu"
 }
+
+/get-orders-of-day/:day - This takes in a day and gives you all of the orders for that day. DD-MM-YYYY format for the date.
+
+/delete-order/:orderID - This takes in an order primary key and deletes all the orders and order order drinks.

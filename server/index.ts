@@ -1792,6 +1792,74 @@ app.put('/update-employee/:id', async (req, res) => {
   }
 });
 
+//get orders from a day
+app.get('/get-orders-of-day/:day', async (req, res) => {
+  const requestedDate = req.params.day;
+
+  if (!requestedDate) {
+    res.status(400).json({ error: 'Missing or invalid "day" parameter' });
+    return;
+  }
+
+  try {
+    const query = `
+      SELECT *
+      FROM Orders
+      WHERE Date = $1`;
+
+    const client = await pool.connect();
+    const result = await client.query(query, [requestedDate]);
+    client.release();
+
+    res.status(200).json(result.rows);
+  } catch (error) {
+    console.error('Error getting orders for the day:', error);
+    res.status(500).json({ error: 'An error occurred while fetching orders for the day' });
+  }
+});
+
+//delete order
+app.delete('/delete-order/:orderID', async (req, res) => {
+  const orderID = Number(req.params.orderID);
+
+  if (!orderID || isNaN(orderID)) {
+    res.status(400).json({ error: 'Invalid order ID' });
+    return;
+  }
+
+  try {
+    const client = await pool.connect();
+
+    // Begin a transaction to ensure atomicity
+    await client.query('BEGIN');
+
+    try {
+      // Delete related records in Order_Order_Drink
+      const deleteOrderOrderDrinksSQL = 'DELETE FROM Order_Order_Drink WHERE Order_ID = $1';
+      await client.query(deleteOrderOrderDrinksSQL, [orderID]);
+
+      // Delete the order
+      const deleteOrderSQL = 'DELETE FROM Orders WHERE ID = $1';
+      await client.query(deleteOrderSQL, [orderID]);
+
+      // Commit the transaction
+      await client.query('COMMIT');
+
+      res.json({ message: 'Order and associated records deleted successfully' });
+    } catch (error) {
+      // Rollback the transaction in case of an error
+      await client.query('ROLLBACK');
+      throw error;
+    } finally {
+      // Release the client after the transaction is complete
+      client.release();
+    }
+  } catch (error) {
+    console.error('Error deleting order and associated records:', error);
+    res.status(500).json({ error: 'An error occurred while deleting order and associated records' });
+  }
+});
+
 app.listen(port, () => {
   console.log(`Example listening at  http://localhost:${port}`);
   });
