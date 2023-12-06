@@ -2259,6 +2259,10 @@ app.put('/change-manager/:employeeID', async (req, res) => {
   }
 });
 
+/*
+* Gets all the ingredient primary keys for every single menu drink
+* @return all the ingredient primary keys for every single menu drink
+*/
 app.get('/get-menu-drinks-with-ingredients', async (req, res) => {
   try {
     const client = await pool.connect();
@@ -2284,6 +2288,125 @@ app.get('/get-menu-drinks-with-ingredients', async (req, res) => {
   } catch (error) {
     console.error('Error fetching menu drinks with ingredients:', error);
     res.status(500).json({ error: 'An error occurred while fetching menu drinks with ingredients' });
+  }
+});
+
+/*
+* Gets all the order drinks for an order
+* @param the order primary key you want order drinks for
+* @return all the order drink primary keys for the order
+*/
+app.get('/get-order-drinks-for-order/:orderID', async (req, res) => {
+  const orderID = Number(req.params.orderID);
+
+  if (!orderID || isNaN(orderID)) {
+    res.status(400).json({ error: 'Invalid order ID' });
+    return;
+  }
+
+  try {
+    const client = await pool.connect();
+
+    const getOrderDrinksForOrderSQL = `
+      SELECT OOD.Order_Drink_ID
+      FROM Order_Order_Drink OOD
+      WHERE OOD.Order_ID = $1`;
+
+    const result = await client.query(getOrderDrinksForOrderSQL, [orderID]);
+
+    client.release();
+
+    const orderDrinkIDs = result.rows.map(row => row.order_drink_id);
+
+    res.json({ orderDrinkIDs });
+  } catch (error) {
+    console.error('Error fetching order drinks for order:', error);
+    res.status(500).json({ error: 'An error occurred while fetching order drinks for order' });
+  }
+});
+
+/*
+* Gets all the info for an order drink given its primary key
+* @param the order drink primary key for the order drink
+* @return all the fileds for that order drink
+*/
+app.get('/get-order-drink/:orderDrinkID', async (req, res) => {
+  const orderDrinkID = Number(req.params.orderDrinkID);
+
+  if (!orderDrinkID || isNaN(orderDrinkID)) {
+    res.status(400).json({ error: 'Invalid order drink ID' });
+    return;
+  }
+
+  try {
+    const client = await pool.connect();
+
+    const getOrderDrinkSQL = `
+      SELECT *
+      FROM Order_Drink
+      WHERE ID = $1`;
+
+    const result = await client.query(getOrderDrinkSQL, [orderDrinkID]);
+
+    client.release();
+
+    if (result.rows.length === 0) {
+      res.status(404).json({ error: 'Order drink not found' });
+      return;
+    }
+
+    const orderDrink = result.rows[0];
+
+    res.json({ orderDrink });
+  } catch (error) {
+    console.error('Error fetching order drink:', error);
+    res.status(500).json({ error: 'An error occurred while fetching order drink' });
+  }
+});
+
+/*
+* Deletes an order drink
+* @param the order drink primary key to be deleted
+* @return success status
+*/
+app.delete('/delete-order-drink/:orderDrinkID', async (req, res) => {
+  const orderDrinkID = Number(req.params.orderDrinkID);
+
+  if (!orderDrinkID || isNaN(orderDrinkID)) {
+    res.status(400).json({ error: 'Invalid order drink ID' });
+    return;
+  }
+
+  try {
+    const client = await pool.connect();
+
+    // Delete from Order_Order_Drink
+    const deleteOrderOrderDrinkSQL = `
+      DELETE FROM Order_Order_Drink
+      WHERE Order_Drink_ID = $1`;
+
+    await client.query(deleteOrderOrderDrinkSQL, [orderDrinkID]);
+
+    // Delete from Ingredient_Order_Drink
+    const deleteIngredientOrderDrinkSQL = `
+      DELETE FROM Ingredient_Order_Drink
+      WHERE Order_Drink_ID = $1`;
+
+    await client.query(deleteIngredientOrderDrinkSQL, [orderDrinkID]);
+
+    // Delete from Order_Drink (with CASCADE effect)
+    const deleteOrderDrinkSQL = `
+      DELETE FROM Order_Drink
+      WHERE ID = $1`;
+
+    await client.query(deleteOrderDrinkSQL, [orderDrinkID]);
+
+    client.release();
+
+    res.json({ message: 'Order drink deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting order drink:', error);
+    res.status(500).json({ error: 'An error occurred while deleting order drink' });
   }
 });
 

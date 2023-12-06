@@ -210,3 +210,12 @@ This is a list of the functions that we have in index.ts. Date of last update: 1
 
 
 /delete-employee/:employeeID - Takes in an employee primary key and deletes it from the database
+
+/get-menu-drinks-with-ingredients - Returns an array of tuples where the first elment is a 
+    menu drink primary key and the second element is an array of ingredient primary keys that correspond to it
+
+/get-order-drinks-for-order/:orderID - Gets all order drinks for an order given that orders primary key
+
+/get-order-drink/:orderDrinkID - Gets all the info about an order drink given its primary key
+
+/delete-order-drink/:orderDrinkID -Deletes an order drink and also the corresponding order drink ingredients and order order drinks
