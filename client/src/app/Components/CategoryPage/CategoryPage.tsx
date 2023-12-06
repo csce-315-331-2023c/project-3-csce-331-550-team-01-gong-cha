@@ -109,8 +109,9 @@ useEffect(() => {
                 <div className='ml-8 text-4xl'>Catagories</div>
                 <div className='ml-80 text-6xl'>{categoryName}</div>
         </button>
-      <div className='catagoryContainer position-fixed overflow-auto w-screenflex-row flex h-full space-between text-xl'>
-        
+      <div className='catagoryContainer position-fixed w-screenflex-row flex h-full space-between text-xl'>
+      
+      <div className="overflow-auto flex">
       <div className="flex flex-col items-center justify-start w-1/2 h-full m-4">
          {firstHalfCategories.map((category)=> (
           <div className = "h-1/4 w-full mt-10" key={category.name}>
@@ -151,11 +152,14 @@ useEffect(() => {
            
          ))}
       </div>
+      </div>
       
-      <div className = "orderContainer bg-slate-100 rounded-3xl border-rose-900 border-4 w-1/3 h-full text-center text-rose-900 font-bold">
-        <div className="text-4xl p-1">Order</div>
+      
+      <div className = "orderContainer bg-slate-100 rounded-3xl border-rose-700 border-4 w-1/3 h-full text-center text-rose-700 font-bold">
+        <div className="text-4xl p-1 justify-center">Order</div>
       {drinksState.map((drink, key) => (
-        <OrderDrink
+        <div className="w-full flex justify-center">
+          <OrderDrink
           key = {key}
           drinkName= {drink.name}
           ice = {drink.ice}
@@ -165,9 +169,11 @@ useEffect(() => {
           toppings={drink.toppings}
           toppingAmounts={drink.toppingAmounts}
           />
+        </div>
+        
           
       ))}
-      <div className="flex flex-col items-center p-2">
+      <div className="flex flex-col items-center p-2 ml-1.5">
         <button className="mb-2 bottom-0" onClick={() => {setIsOrderPlaced(true);setStateUpdate(true)}}>Place Order</button>
         <button onClick={() => {localStorage.clear(); setStateUpdate(true)}}>Clear Order</button>
       </div>
