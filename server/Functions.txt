@@ -33,15 +33,16 @@ This is a list of the functions that we have in index.ts. Date of last update: 1
 
 /create-order: This function creates an order. It takes in some parameters. Here's an example of the request body:
     {
-    "total_cost": 50.99,
-    "price": 60.99,
-    "profit": 10,
-    "tipped": 5,
-    "takeout": true,
-    "date": "2023-11-01",
-    "time": "12:30", 
-    "name": "Example Order"
-    }
+  "name": "Example Order",
+  "cost": 50.0,
+  "status": 1,
+  "price": 75.0,
+  "profit": 25.0,
+  "tip": 10.0,
+  "takeout": true,
+  "date": "2023-12-01",
+  "time": "12:30"
+}
 
 /create-ingredient-order-drink: This function creates an ingredient order drink. It takes in some parameters. Here's an example of the request body:
     {
@@ -196,3 +197,16 @@ This is a list of the functions that we have in index.ts. Date of last update: 1
 /get-orders-of-day/:day - This takes in a day and gives you all of the orders for that day. DD-MM-YYYY format for the date.
 
 /delete-order/:orderID - This takes in an order primary key and deletes all the orders and order order drinks.
+
+/create-employee - Takes in employee parameters and makes a new employee
+{
+  "Manager_ID": 10,
+  "Name": "Spiderman",
+  "isManager": false,
+  "Email": "john.doe@example.com",
+  "IsAdmin": false,
+  "IsEmployed": true
+}
+
+
+/delete-employee/:employeeID - Takes in an employee primary key and deletes it from the database
