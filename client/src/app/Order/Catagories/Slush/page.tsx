@@ -39,13 +39,9 @@ export default function Order() {
       , []);
     return (
         <main className="backgroundS bg-slate-200 bg-cover w-screen flex flex-col h-full">
-            <div className='catagoryContainer w-screen w-screenflex-row flex h-full'>
-                <div className="flex items-center justify-start w-full h-full">
+                <div className="flex items-center justify-start">
                 <CategoryPage categoryDrinks={drinks} categoryName='Slush'></CategoryPage> 
                 </div>
-
-                
-            </div>
         </main>
     );
 }
