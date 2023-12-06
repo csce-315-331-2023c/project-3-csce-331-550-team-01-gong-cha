@@ -2234,6 +2234,34 @@ app.put('/change-manager/:employeeID', async (req, res) => {
   }
 });
 
+app.get('/get-menu-drinks-with-ingredients', async (req, res) => {
+  try {
+    const client = await pool.connect();
+
+    const getMenuDrinksWithIngredientsSQL = `
+      SELECT
+        MD.ID AS MenuDrinkID,
+        ARRAY_AGG(MDI.Ingredient_ID) AS Ingredients
+      FROM
+        Menu_Drink MD
+      LEFT JOIN
+        Menu_Drink_Ingredient MDI ON MD.ID = MDI.Menu_Drink_ID
+      GROUP BY
+        MD.ID`;
+
+    const result = await client.query(getMenuDrinksWithIngredientsSQL);
+
+    client.release();
+
+    const menuDrinksWithIngredients = result.rows.map(row => [row.menudrinkid, row.ingredients]);
+
+    res.json({ menuDrinksWithIngredients });
+  } catch (error) {
+    console.error('Error fetching menu drinks with ingredients:', error);
+    res.status(500).json({ error: 'An error occurred while fetching menu drinks with ingredients' });
+  }
+});
+
 app.listen(port, () => {
   console.log(`Example listening at  http://localhost:${port}`);
   });
