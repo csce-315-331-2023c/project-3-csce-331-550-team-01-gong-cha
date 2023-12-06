@@ -200,12 +200,12 @@ export default function ConfirmOrder({drinks, onClose}: ConfirmOrderProps){
         (
             <>
                 <div className="Overlay_Styles"></div>
-                <div className="Modal_Styles bg-slate-400 justify-evenly">
-                    <div className="justify-evenly h-full flex-col">
-                    <p>Thank you for your Money!</p>
+                <div className="Modal_Styles bg-rose-700 border-rose-900 border-8 justify-evenly ">
+                    <div className="justify-evenly h-full flex-col text-5xl space-y-60 text-white font-semibolds">
+                    <p className="mb-10">Thank You for Choosing Gong Cha!</p>
                     Your Order Number is #{orderNumber}
                     <div>
-                    <button onClick={() => {onClose; goBack();}} className="border-white border-2 rounded-3xl w-1/4 bg-slate-100 hover:bg-rose-700">Exit</button>
+                    <button onClick={() => {onClose; goBack();}} className="border-white border-2 rounded-3xl w-1/4 text-white bg-rose-700 hover:bg-slate-100 hover:text-rose-700">Exit</button>
                     </div>
                     
                     </div>
