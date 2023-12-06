@@ -196,3 +196,16 @@ This is a list of the functions that we have in index.ts. Date of last update: 1
 /get-orders-of-day/:day - This takes in a day and gives you all of the orders for that day. DD-MM-YYYY format for the date.
 
 /delete-order/:orderID - This takes in an order primary key and deletes all the orders and order order drinks.
+
+/create-employee - Takes in employee parameters and makes a new employee
+{
+  "Manager_ID": 10,
+  "Name": "Spiderman",
+  "isManager": false,
+  "Email": "john.doe@example.com",
+  "IsAdmin": false,
+  "IsEmployed": true
+}
+
+
+/delete-employee/:employeeID - Takes in an employee primary key and deletes it from the database

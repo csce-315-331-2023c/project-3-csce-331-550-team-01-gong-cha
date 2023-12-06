@@ -2053,6 +2053,184 @@ app.delete('/delete-order/:orderID', async (req, res) => {
   }
 });
 
+/*
+* Create employee
+* @params json containing employee elements
+* @return primary key of new employee
+*/
+app.post('/create-employee', async (req, res) => {
+  console.log('Received request body:', req.body);
+
+  const { Manager_ID, Name, isManager, Email, IsAdmin, IsEmployed } = req.body;
+
+  // Basic validation for required fields
+  if (
+    Manager_ID === undefined ||
+    Name === undefined ||
+    isManager === undefined ||
+    Email === undefined ||
+    IsAdmin === undefined ||
+    IsEmployed === undefined
+  ) {
+    res.status(400).json({ error: 'Invalid parameters' });
+    return;
+  }
+
+  try {
+    const client = await pool.connect();
+
+    // Insert the new employee into the Employee table
+    const insertEmployeeSQL = `
+      INSERT INTO Employee (Manager_ID, Name, isManager, Email, IsAdmin, IsEmployed)
+      VALUES ($1, $2, $3, $4, $5, $6)
+      RETURNING ID;
+    `;
+
+    const values = [Manager_ID, Name, isManager, Email, IsAdmin, IsEmployed];
+    const result = await client.query(insertEmployeeSQL, values);
+
+    client.release();
+
+    res.status(201).json({ message: 'Employee created successfully', employeeID: result.rows[0].id });
+  } catch (error) {
+    console.error('Error creating employee:', error);
+    res.status(500).json({ error: 'An error occurred while creating the employee' });
+  }
+});
+
+/*
+* Delete employee
+* @params primary key of employee to be deleted
+* @return primary key of new employee
+*/
+app.delete('/delete-employee/:employeeID', async (req, res) => {
+  const employeeID = Number(req.params.employeeID);
+
+  if (!employeeID || isNaN(employeeID)) {
+    res.status(400).json({ error: 'Invalid employee ID' });
+    return;
+  }
+
+  try {
+    const client = await pool.connect();
+
+    // Begin a transaction to ensure atomicity
+    await client.query('BEGIN');
+
+    try {
+      // Delete the employee
+      const deleteEmployeeSQL = 'DELETE FROM Employee WHERE ID = $1 RETURNING Manager_ID';
+      const result = await client.query(deleteEmployeeSQL, [employeeID]);
+
+      // If the employee had Manager_ID, update other employees referencing the deleted employee as their manager
+      const managerID = result.rows[0]?.manager_id;
+      if (managerID !== null && managerID !== undefined) {
+        const updateManagersSQL = 'UPDATE Employee SET Manager_ID = $1 WHERE Manager_ID = $2';
+        await client.query(updateManagersSQL, [null, employeeID]);
+      }
+
+      // Commit the transaction
+      await client.query('COMMIT');
+
+      res.json({ message: 'Employee deleted successfully' });
+    } catch (error) {
+      // Rollback the transaction in case of an error
+      await client.query('ROLLBACK');
+      throw error;
+    } finally {
+      // Release the client after the transaction is complete
+      client.release();
+    }
+  } catch (error) {
+    console.error('Error deleting employee:', error);
+    res.status(500).json({ error: 'An error occurred while deleting employee' });
+  }
+});
+
+/*
+* Change IsAdmin
+* @params primary key of employee to have AdminStatus Changed
+* @return success message with admin status
+*/
+app.put('/change-admin/:employeeID', async (req, res) => {
+  const employeeID = Number(req.params.employeeID);
+
+  if (!employeeID || isNaN(employeeID)) {
+    res.status(400).json({ error: 'Invalid employee ID' });
+    return;
+  }
+
+  try {
+    const client = await pool.connect();
+
+    // Begin a transaction to ensure atomicity
+    await client.query('BEGIN');
+
+    try {
+      // Toggle the IsAdmin status
+      const toggleAdminSQL = 'UPDATE Employee SET IsAdmin = NOT IsAdmin WHERE ID = $1 RETURNING IsAdmin';
+      const result = await client.query(toggleAdminSQL, [employeeID]);
+
+      // Commit the transaction
+      await client.query('COMMIT');
+
+      res.json({ message: 'IsAdmin status changed successfully', IsAdmin: result.rows[0].isadmin });
+    } catch (error) {
+      // Rollback the transaction in case of an error
+      await client.query('ROLLBACK');
+      throw error;
+    } finally {
+      // Release the client after the transaction is complete
+      client.release();
+    }
+  } catch (error) {
+    console.error('Error changing IsAdmin status:', error);
+    res.status(500).json({ error: 'An error occurred while changing IsAdmin status' });
+  }
+});
+
+/*
+* Change IsManager
+* @params primary key of employee to have Manager status Changed
+* @return success message with manager status
+*/
+app.put('/change-manager/:employeeID', async (req, res) => {
+  const employeeID = Number(req.params.employeeID);
+
+  if (!employeeID || isNaN(employeeID)) {
+    res.status(400).json({ error: 'Invalid employee ID' });
+    return;
+  }
+
+  try {
+    const client = await pool.connect();
+
+    // Begin a transaction to ensure atomicity
+    await client.query('BEGIN');
+
+    try {
+      // Toggle the isManager status
+      const toggleManagerSQL = 'UPDATE Employee SET isManager = NOT isManager WHERE ID = $1 RETURNING isManager';
+      const result = await client.query(toggleManagerSQL, [employeeID]);
+
+      // Commit the transaction
+      await client.query('COMMIT');
+
+      res.json({ message: 'isManager status changed successfully', isManager: result.rows[0].ismanager });
+    } catch (error) {
+      // Rollback the transaction in case of an error
+      await client.query('ROLLBACK');
+      throw error;
+    } finally {
+      // Release the client after the transaction is complete
+      client.release();
+    }
+  } catch (error) {
+    console.error('Error changing isManager status:', error);
+    res.status(500).json({ error: 'An error occurred while changing isManager status' });
+  }
+});
+
 app.listen(port, () => {
   console.log(`Example listening at  http://localhost:${port}`);
   });
