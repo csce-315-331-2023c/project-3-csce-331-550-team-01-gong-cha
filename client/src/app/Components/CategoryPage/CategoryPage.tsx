@@ -27,10 +27,11 @@ type Drink = {
 
 interface CategoryPageProps {
   categoryDrinks: Drink[];
+  categoryName: string;
   
 }
   
-export default function CategoryPage({categoryDrinks}: CategoryPageProps){
+export default function CategoryPage({categoryDrinks, categoryName}: CategoryPageProps){
 
   function goBack(){
     window.location.href = "../";
@@ -67,6 +68,11 @@ const secondHalfCategories = categoryDrinks.slice(halfLength);
 const firstHalfPictures = pictures.slice(0, halfLength);
 const secondHalfPictures = pictures.slice(halfLength);
 
+interface Topping {
+  id: number;
+  toppingName: string;
+}
+
 interface orderDrink {
   name: string;
   ice: number;
@@ -74,17 +80,21 @@ interface orderDrink {
   sz: number;
   totalPrice: number; // cost for customer
   costPrice: number; // cost for us to make
-  id: number
+  id: number,
+  toppings: Topping[],
+  toppingAmounts: number[],
 }
 
 const [drinksState, setDrinksState] = useState<orderDrink[]>([]);
+const [stateUpdate, setStateUpdate] = useState(false);
 
 
 useEffect(() => {
   const storedOrders = JSON.parse(localStorage.getItem('orders') || '[]');
   //alert(storedOrders)
   setDrinksState(storedOrders);
-})
+  setStateUpdate(false);
+}, [stateUpdate])
     return(
       
       <div className="relative mt-10">
@@ -97,9 +107,9 @@ useEffect(() => {
       <button className='backContainter flex items-center' onClick={goBack}>
                 <svg className='ml-4' xmlns="http://www.w3.org/2000/svg" height="5em" viewBox="0 0 448 512"><path d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288 416 288c17.7 0 32-14.3 32-32s-14.3-32-32-32l-306.7 0L214.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg>
                 <div className='ml-8 text-4xl'>Catagories</div>
-                <div className='ml-80 text-6xl'>Milk Tea</div>
+                <div className='ml-80 text-6xl'>{categoryName}</div>
         </button>
-      <div className='catagoryContainer w-screenflex-row flex h-full space-between text-xl'>
+      <div className='catagoryContainer position-fixed overflow-auto w-screenflex-row flex h-full space-between text-xl'>
         
       <div className="flex flex-col items-center justify-start w-1/2 h-full m-4">
          {firstHalfCategories.map((category)=> (
@@ -107,37 +117,43 @@ useEffect(() => {
             
           <MenuItem 
            drinkName={category.name}
-            drinkImage={DrinkImage[`_${category.id}`]} 
+            drinkImage={DrinkImage[`_${category.id}` as keyof typeof DrinkImage]} 
             altTxt={"Test Drink"}
            thisOnClick={() => openModal(category.name)}/>
            <Modal open={openModals[category.name]} onClose={() => closeModal(category.name)} 
             drinkName={category.name}
             lgDrinkPrice={category.lg_consumer_price} nmDrinkPrice={category.norm_consumer_price}
             lgCost={category.large_cost} nmCost={category.normal_cost}
-            drinkID={category.id}>
+            drinkID={category.id}
+            setStateUpdate={setStateUpdate}>
              Customize Ingredients</Modal>
           </div>
            
          ))}
       </div>
       <div className="flex flex-col items-center justify-start w-1/2 h-full m-4">
-         {secondHalfCategories.map((category) => (
-          <div className="h-1/4 w-full mt-10" key={category.name} >
-            <MenuItem
+         {secondHalfCategories.map((category)=> (
+          <div className = "h-1/4 w-full mt-10" key={category.name}>
+            
+          <MenuItem 
            drinkName={category.name}
-          drinkImage={DrinkImage[`_${category.id}`]} 
-            altTxt={"Test Drink"} 
-            thisOnClick={() => openModal(category.name)}/>
-            <Modal open={openModals[category.name]} onClose={() => closeModal(category.name)} 
+            drinkImage={DrinkImage[`_${category.id}` as keyof typeof DrinkImage]} 
+            altTxt={"Test Drink"}
+           thisOnClick={() => openModal(category.name)}/>
+           <Modal open={openModals[category.name]} onClose={() => closeModal(category.name)} 
             drinkName={category.name}
             lgDrinkPrice={category.lg_consumer_price} nmDrinkPrice={category.norm_consumer_price}
             lgCost={category.large_cost} nmCost={category.normal_cost}
-            drinkID={category.id}>
+            drinkID={category.id}
+            setStateUpdate={setStateUpdate}>
              Customize Ingredients</Modal>
-           </div>
+          </div>
+           
          ))}
       </div>
-      <div className = "orderContainer bg-white border-black rounded-lg w-1/3 h-full text-center">
+      
+      <div className = "orderContainer bg-slate-100 rounded-3xl border-rose-900 border-4 w-1/3 h-full text-center text-rose-900 font-bold">
+        <div className="text-4xl p-1">Order</div>
       {drinksState.map((drink, key) => (
         <OrderDrink
           key = {key}
@@ -146,10 +162,17 @@ useEffect(() => {
           sugar = {drink.sugar}
           size={drink.sz}
           price={drink.totalPrice}
+          toppings={drink.toppings}
+          toppingAmounts={drink.toppingAmounts}
           />
           
       ))}
-      <button className="bottom-0"onClick={() => {setIsOrderPlaced(true); /*localStorage.clear()*/}}>Place Order</button>
+      <div className="flex flex-col items-center p-2">
+        <button className="mb-2 bottom-0" onClick={() => {setIsOrderPlaced(true);setStateUpdate(true)}}>Place Order</button>
+        <button onClick={() => {localStorage.clear(); setStateUpdate(true)}}>Clear Order</button>
+      </div>
+
+      
       </div>
       </div>
       </div>

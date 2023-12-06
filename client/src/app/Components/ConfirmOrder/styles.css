@@ -6,11 +6,13 @@
     padding: 50px;
     z-index: 1000;
     height: 70%;
-    width: 80%;
+    width: 75%;
     display: flex;
     flex-direction: column;
     text-align: center;
-    font-size: 1.25rem;
+    font-size: 1.1rem;
+    justify-content: space-evenly;
+    border-radius: 4cqmax;
 }
 
 
@@ -22,4 +24,14 @@
     bottom: 0;
     background-color: rgba(0, 0, 0, 0.7);
     z-index: 1000;
+}
+
+
+.options {
+    border-width: 8px;
+    border-color: rgb(136 19 55);
+}
+
+.flex-grow-container {
+    flex-grow: 3;
 }

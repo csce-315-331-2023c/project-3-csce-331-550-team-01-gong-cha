@@ -1,5 +1,7 @@
 "use client"
 
+import { useState,useEffect } from "react";
+
 interface OrderDrinkProps {
 
     key: number;
@@ -8,9 +10,16 @@ interface OrderDrinkProps {
     ice: number;
     size: number;
     price: number;
+    toppings: Topping[];
+    toppingAmounts: number[];
 }
 
-export default function OrderDrink({key, drinkName, sugar, ice, size, price}: OrderDrinkProps){
+interface Topping {
+    id: number;
+    toppingName: string;
+  }
+
+export default function OrderDrink({key, drinkName, sugar, ice, size, price, toppings, toppingAmounts}: OrderDrinkProps){
 
     const sizeLabels: { [key: number]: string } = {
         0: "Normal",
@@ -31,13 +40,18 @@ export default function OrderDrink({key, drinkName, sugar, ice, size, price}: Or
         2: "More Ice"
     }
 
+    console.log(toppings);
     return (
-        <div className="flex-col w-full bg-cyan-200 rounded-sm mt-3">
+        <div className="flex-col w-full bg-rose-800 p-3 text-sm rounded-3xl mt-3 text-slate-100 font-semibold">
             <div className="flex justify-evenly">
                 <div className="text-sm">
                     {drinkName}
+                    <div className="">Toppings {toppings.map((topping, index) => <p key={index}>{topping.toppingName}</p>
+                        )}
+                    </div>
+
                 </div>
-                <div className="text-xs">
+                <div className="text-sm">
                     <div>
                         Size: {sizeLabels[size]}
                     </div>
@@ -49,6 +63,7 @@ export default function OrderDrink({key, drinkName, sugar, ice, size, price}: Or
                     </div>
                     <div>
                         Price: {price}
+                        
                     </div>
                 </div>
             </div>

@@ -50,8 +50,10 @@ app.set('view engine', 'ejs');
 
 
 
-
-//gets all the employees
+/*
+* gets all the employees
+* @ returns A status and a JSON body containing the result. On success the body contains all employee names, on failure output contains the error code
+*/
 app.get('/employees', (req, res) => {
     pool
       .query('SELECT * FROM Employee') // Use the correct table name
@@ -68,7 +70,10 @@ app.get('/employees', (req, res) => {
       });
   });
 
-//gets all menu drinks
+/*
+* gets all menu drinks
+* @returns A status and a JSON body containing the result. On success the body contains a dictionary containing menu drink primary keys and the corresponding names, on failure it contains the error message
+*/
 app.get('/menu-drink', (req, res) => {
   pool
     .query('SELECT * FROM menu_drink') // Use the correct table name
@@ -85,7 +90,10 @@ app.get('/menu-drink', (req, res) => {
     });
 });
 
-//gets all the ingredients
+/*
+* gets all the ingredients
+* @returns A status and a JSON body containing the result. On success the body contains a dictionary with the ingredient primary keys and corresponding names, on failure it contains the error code.
+*/
 app.get('/ingredients', (req, res) => {
   pool
     .query('SELECT * FROM Ingredient') // Use the correct table name
@@ -102,7 +110,9 @@ app.get('/ingredients', (req, res) => {
     });
 });
 
-//function that drops the tables from the database
+/*
+* function that drops the tables from the database
+*/
 async function dropTables(): Promise<number> {
   const SQL = `
     DROP TABLE employee CASCADE;
@@ -139,6 +149,16 @@ app.get('/drop-tables', async (req, res) => {
   }
 });
 
+/*
+* Asynchronous function to create an order drink
+* @params ToppingCost The cost of the toppings used on the order drink
+* @params size The size of the drink. Valid inputs include 0 for regular and 1 for large
+* @params mdID The primary key of the menu drink used as the base for the order drink
+* @params iceLevel The level of ice to put in the drink. Valid inputs include 1, 2, or 3 for different levels of ice
+* @params sugarLevel The level of sugar in the drink. Valid inputs include 0-4, inclusive
+* @params total_price_override The final price of the order drink
+* @returns An array containing the total_price, the primary key of the new drink, and the cost it takes the store to make the drink. on failure, array contains [0, -1, 0]
+*/
 async function createOrderDrink(
   toppingCost: number,
   size: number,
@@ -198,6 +218,10 @@ async function createOrderDrink(
   return [total_price, generatedKey, make_cost];
 }
 
+/*
+* @params body A JSON body containing the total price, size, menu drink id, ice level, and sugar level of the new order drink
+* @returns A status and a JSON body. On success the body contains the total price, newly generated key, and make cost of the drink, on failure it contains the error code.
+*/
 app.post('/create-order-drink', async (req, res) => {
   console.log('Received request body:', req.body);
 
@@ -235,7 +259,9 @@ app.post('/create-order-drink', async (req, res) => {
   }
 });
 
-//create Tables
+/*
+* Creates empty tables after a database reset
+*/
 async function createTables(): Promise<number> {
   const SQL = `
     CREATE TABLE Ingredient (
@@ -334,6 +360,10 @@ async function createTables(): Promise<number> {
     return 0; // Return 0 to indicate failure, you can change this based on your needs.
   }
 }
+
+/*
+* Calls the createTables async function from the URL
+*/
 app.get('/createTables', async (req, res) => {
   try {
     const result = await createTables();
@@ -348,7 +378,11 @@ app.get('/createTables', async (req, res) => {
   }
 });
 
-//create ingredient
+/*
+* create ingredient
+* @params body A JSON body containing the name of the ingredient, the current amount in the store, the ideal amount for the store to have, the price to add to the drink, and whether it is a topping or an ingredient
+* @returns A status and a JSON body. On success the body contains the primary key of the new ingredient, on failure it contains the error code
+*/
 app.post('/create-ingredient', async (req, res) => {
   const { name, currentAmount, idealAmount, consumerPrice, isIngredient } = req.body;
 
@@ -383,7 +417,12 @@ app.post('/create-ingredient', async (req, res) => {
     res.status(500).json({ error: (error as Error).message });
   }
 });
-//Create order
+
+/*
+* Create order
+* @params body A JSON body that contains total_cost, price, profit, tipped, takout, date, time, and name
+* @returns A JSON containing the primary key of the new order
+*/
 app.post('/create-order', async (req, res) => {
   console.log('Received request body:', req.body);
 
@@ -448,7 +487,12 @@ app.post('/create-order', async (req, res) => {
   }
 });
 
-//create Ingredient Order drink
+/*
+* create Ingredient Order drink
+* @params toppingPKs An array of the primary keys of any toppings put on the order drink
+* @params toppingAmounts An array of the amounts of each topping
+* @params orderDrinkPK The primary key of the order drink
+*/
 async function createIngredientOrderDrinks(
   toppingPKs: number[],
   toppingAmounts: number[],
@@ -472,6 +516,9 @@ async function createIngredientOrderDrinks(
   }
 }
 
+/*
+* @params body A JSON body containing toppingPKs, toppingAmounts, and orderDrinkPK
+*/
 app.post('/create-ingredient-order-drink', async (req, res) => {
   const { toppingPKs, toppingAmounts, orderDrinkPK } = req.body;
 
@@ -489,8 +536,11 @@ app.post('/create-ingredient-order-drink', async (req, res) => {
   }
 });
 
-//managerViewIngredient
-//http://localhost:5000/manager-view-ingredient?ingredientId=1
+/*
+* managerViewIngredient
+* @params ingredientID The primary key of the ingredient to be viewed
+* @returns A JSON body containing the ingredientname, current amount, and ideal amount
+*/
 app.get('/manager-view-ingredient/:ingredientID', async (req, res) => {
   const ingredientId = parseInt(req.params.ingredientID);
 
@@ -527,7 +577,10 @@ app.get('/manager-view-ingredient/:ingredientID', async (req, res) => {
   }
 });
 
-//update Ingredients
+/*
+* update Ingredients
+* @params body A JSON body containing the ingredient id to be updated and the updated inventory amount
+*/
 app.post('/manager-update-ingredient', async (req, res) => {
   const { ingredientID, updateAmount } = req.body;
 
@@ -563,7 +616,10 @@ app.post('/manager-update-ingredient', async (req, res) => {
   }
 });
 
-//change drink price
+/*
+* change drink price
+* @params body A JSON containing the primary key of the drink to be changed, the size to be changed, and the new price of that sized drink
+*/
 app.post('/change-price', async (req, res) => {
   const { drink_id, size, price } = req.body;
 
@@ -596,8 +652,13 @@ app.post('/change-price', async (req, res) => {
     res.status(500).json({ error: (error as Error).message });
   }
 });
-//Get drink
-//http://localhost:5000/get-drink?drinkId=1
+
+
+/*
+* Get drink
+* @params drinkID The drink to be retrieved
+* @returns A JSON body containing the drink name, the price for a small, and the price for a large
+*/
 app.get('/get-drink/:drinkID', async (req, res) => {
   const drinkId = parseInt(req.params.drinkID);
 
@@ -633,8 +694,11 @@ app.get('/get-drink/:drinkID', async (req, res) => {
     res.status(500).json({ error: (error as Error).message });
   }
 });
-//get popular drink
-//http://localhost:5000/get-popular-drink?startDate=2023-01-01&endDate=2023-12-31
+
+/*
+* get popular drink
+* @returns A JSON body containing the name of the most popular drink and the number of times it has been ordered
+*/
 app.get('/get-popular-drink', async (req, res) => {
   try {
     const SQL = `
@@ -670,7 +734,10 @@ app.get('/get-popular-drink', async (req, res) => {
   }
 });
 
-//getAllDrinkNames, array of arrays, first array is primary key, second array is drink name
+/*
+* getAllDrinkNames
+* @returns A 2d array containing all drink names and corresponding primary keys
+*/
 app.get('/get-all-drink-names', async (req, res) => {
   try {
     const SQL = 'SELECT Name, id FROM Menu_Drink';
@@ -701,7 +768,10 @@ app.get('/get-all-drink-names', async (req, res) => {
 
 
 
-//getIngredientNameAndPrice
+/*
+* getIngredientNameAndPrice
+* @returns A JSON body that contiains all ingredient names and corresponding prices
+*/
 app.get('/get-ingredient-name-and-price', async (req, res) => {
   try {
     const SQL = `SELECT Ingredient_Name, Consumer_Price FROM Ingredient`;
@@ -722,7 +792,10 @@ app.get('/get-ingredient-name-and-price', async (req, res) => {
 });
 
 
-//restock ingredients
+/*
+* restock ingredients
+* @returns A String containing all ingredients that need to be restocked, their current amount, and the ideal amount
+*/
 app.post('/restock-ingredients', async (req, res) => {
   try {
     const fetchIngredientsSQL = `
@@ -765,7 +838,11 @@ app.post('/restock-ingredients', async (req, res) => {
   }
 });
 
-//get ideal ingredient amount
+/*
+* get ideal ingredient amount
+* @params ingredientID The id of the ingredient needed
+* @returns A JSON body containing the ideal amount for the requested ingredient
+*/
 app.get('/get-ideal-ingredient-amount/:ingredientId', async (req, res) => {
   const ingredientId = parseInt(req.params.ingredientId);
 
@@ -796,8 +873,12 @@ app.get('/get-ideal-ingredient-amount/:ingredientId', async (req, res) => {
     res.status(500).json({ error: 'An error occurred while fetching ideal ingredient amount' });
   }
 });
-//get ideal amounts for all ingredients
-//http://localhost:5000/get-ideal-ingredients-amount?tuple=1,2,3
+
+/*
+* get ideal amounts for all ingredients
+* @params tuple A tuple that contains multiple ingredients to query
+* @returns A JSON body containing the ideal amount and ingredient name for each ingredient in tuple
+*/
 app.get('/get-ideal-ingredients-amount', async (req, res) => {
   const tuple = req.query.tuple as string;
 
@@ -829,6 +910,10 @@ app.get('/get-ideal-ingredients-amount', async (req, res) => {
   }
 });
 
+/*
+* View what ingredients need to be restocked
+* @returns A 2D array, the outer array contains arrays containing the name, current amount, and ideal amount for each ingredient
+*/
 app.get('/report-restock', async (req, res) => {
 
   pool
@@ -861,7 +946,11 @@ app.get('/report-restock', async (req, res) => {
 });
 
 
-//get ingredient name given primary key
+/*
+* get ingredient name given primary key
+* @params ingredientID
+* @returns A JSON body containing the name of the target ingredient
+*/
 app.get('/get-ingredient-name/:ingredientId', async (req, res) => {
   const ingredientId = parseInt(req.params.ingredientId);
 
@@ -893,7 +982,11 @@ app.get('/get-ingredient-name/:ingredientId', async (req, res) => {
   }
 });
 
-//getMenuDrinks for Order Drinks
+/*
+* getMenuDrinks for Order Drinks
+* @params idTuple A tuple containing the primary keys of the target order drinks
+* @returns A JSON body containing the corresponding menu drink used as a base for each order drink
+*/
 app.get('/get-menu-drinks-for-order-drinks/:idTuple', async (req, res) => {
   const idTuple = req.params.idTuple as string;
 
@@ -922,7 +1015,10 @@ app.get('/get-menu-drinks-for-order-drinks/:idTuple', async (req, res) => {
   }
 });
 
-//get number of menu drinks
+/*
+* get number of menu drinks
+* @returns A JSON body containing the total number of menu drinks in the system
+*/
 app.get('/menu-drink-amount', async (req, res) => {
   try {
     const querySQL = 'SELECT COUNT(ID) FROM menu_drink';
@@ -944,7 +1040,10 @@ app.get('/menu-drink-amount', async (req, res) => {
   }
 });
 
-//get number of ingredients
+/* 
+* get number of ingredients
+* @returns A JSON body containing the total number of ingredients in the system
+*/
 app.get('/ingredient-amount', async (req, res) => {
   try {
     const querySQL = 'SELECT COUNT(ID) FROM ingredient';
@@ -965,7 +1064,11 @@ app.get('/ingredient-amount', async (req, res) => {
   }
 });
 
-//order drink pairs
+/*
+* order drink pairs
+* @params startDate The start date, in yyyy-mm-dd format, for the report
+* @returns A JSON body containing every order drink since the start date until the current date, and its corresponding order number
+*/
 app.get('/order-drink-pairs/:startDate', async (req, res) => {
   const startDate = req.params.startDate;
 
@@ -995,10 +1098,50 @@ app.get('/order-drink-pairs/:startDate', async (req, res) => {
 });
 
 
+app.get('/ingredients-for-menu-drinks/:menuDrinkIDs', async (req, res) => {
+  const menuDrinkIDs: string = req.params.menuDrinkIDs as string;
 
+  if (!menuDrinkIDs) {
+    res.status(400).json({ error: 'Missing or invalid "menuDrinkIDs" query parameter' });
+    return;
+  }
 
+  // Split the menuDrinkIDs string into an array of integers
+  const menuDrinkIDsArray: number[] = menuDrinkIDs.split(',').map((id) => parseInt(id, 10));
 
+  try {
+    const ingsForMenuDrinks: Array<number[]> = new Array(menuDrinkIDsArray.length).fill(null).map(() => []);
 
+    const querySQL = `
+      SELECT i.ID AS Ingredient_ID, i.Ingredient_Name, mdi.Menu_Drink_ID
+      FROM Menu_Drink_Ingredient mdi
+      JOIN Ingredient i ON mdi.Ingredient_ID = i.ID
+      WHERE mdi.Menu_Drink_ID IN (${menuDrinkIDs})
+    `;
+
+    const client = await pool.connect();
+    const result = await client.query(querySQL);
+    client.release();
+
+    result.rows.forEach((row: any) => {
+      const menuDrinkID: number = row.menu_drink_id;
+      const ingredientID: number = row.ingredient_id;
+      ingsForMenuDrinks[menuDrinkIDsArray.indexOf(menuDrinkID)].push(ingredientID);
+    });
+
+    res.status(200).json(ingsForMenuDrinks);
+  } catch (error) {
+    console.error('Error getting ingredients for menu drinks:', error);
+    res.status(500).json({ error: 'An error occurred while fetching ingredients for menu drinks' });
+  }
+});
+
+/*
+* reports on what drinks were sold together in a certain date range
+* @params startDate The start date of the report, in yyyy-mm-dd format
+* @params endDate The end date of the report, in yyyy-mm-dd format
+* @returns A JSON body that contains each pair of drinks sold together in the date range, as well as the numebr of times they were sold together
+*/
 app.get('/sold-together/:startDate/:endDate', async (req, res) => {
   try {
       const startDate = req.params.startDate;
@@ -1047,6 +1190,12 @@ app.get('/sold-together/:startDate/:endDate', async (req, res) => {
   }
 });
 
+/*
+* reports on what drinks were sold together in a certain date range
+* @params startDate The start date of the report, in yyyy-mm-dd format
+* @params endDate The end date of the report, in yyyy-mm-dd format
+* @returns A JSON body that contains the name, price, and numeber of each specific drink sold in the given time range
+*/
 app.get('/sales-report/:startDate/:endDate', async (req, res) => {
   try {
       const startDate = req.params.startDate;
@@ -1086,9 +1235,15 @@ app.get('/sales-report/:startDate/:endDate', async (req, res) => {
   }
 });
 
+/*
+* @params startDate The start date of the report, in yyyy-mm-dd format
+* @returns A JSON containing the primary key and name of each ingredient that has not sold more than 10% of its ideal amount since the start date
+*/
 app.get('/excess-report/:startDate', async (req, res) => {
   try {
     const startDate = req.params.startDate;
+
+    const client = await pool.connect();
 
     //Get a list of all PK's for menu drinks and ingredients
     const menuDrinkResponse = await axios.get<{id:number}[]>(`${serverUrl}/menu-drink`);
@@ -1106,7 +1261,7 @@ app.get('/excess-report/:startDate', async (req, res) => {
     for (let i = 0; i < ingredientIDs.length; i++) {
       ingredients[ingredientIDs[i]] = 0;
     }
-    let report = '';
+    let report : number[] = [];
 
     // Retrieve order pairs for the given start date
     const orderPairsResponse = await axios.get<{orderdrinkid:number}[]>(`${serverUrl}/order-drink-pairs/${startDate}`);
@@ -1145,22 +1300,32 @@ app.get('/excess-report/:startDate', async (req, res) => {
       const idealAmount = idealAmountResponse.data.idealAmount;
 
       if (ingredients[ing] / idealAmount < 0.1) {
-        // Use Axios to get the ingredient name
-        const ingredientNameResponse = await axios.get(`${serverUrl}/get-ingredient-name/${ing}`);
-        const ingredientName = ingredientNameResponse.data.ingredientName;
-
-        report += `${ingredientName}\n`;
+        report.push(ing);
       }
     }
+    let querySQL = `SELECT id, ingredient_name FROM ingredient WHERE id IN (${report.join()})`
 
-    res.send(report);
+    const result = await client.query(querySQL);
+    client.release();
+
+    const excessReport = result.rows.map((row) => ({
+        Ingredient_ID: row.id,
+        Ingredient_Name: row.ingredient_name,
+    }));
+
+    res.status(200).json(excessReport);
+    
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
 
-// Update Ingredient
+/*
+* Update Ingredient
+* @params id A primary key for an ingredient
+* @params body A JSON body containing the name, current amount, ideal amount, consumer price, and is ingredient, used to update the given id
+*/
 app.put('/update-ingredient/:id', async (req, res) => {
   const ingredientId = req.params.id;
   const { name, currentAmount, idealAmount, consumerPrice, isIngredient } = req.body;
@@ -1198,7 +1363,11 @@ app.put('/update-ingredient/:id', async (req, res) => {
   }
 });
 
-// Update Menu Drink
+/*
+* Update Menu Drink
+* @params id
+* @params body A JSON body containing the name, normal cost, large cost, normal consumer price, large consumer price, category, and is offered, used to update the given id
+*/
 app.put('/update-menu-drink/:id', async (req, res) => {
   const menuDrinkId = req.params.id;
   const { name, normalCost, largeCost, normConsumerPrice, lgConsumerPrice, category, isOffered } = req.body;
@@ -1238,7 +1407,10 @@ app.put('/update-menu-drink/:id', async (req, res) => {
 });
 
 
-//Get all drink categories 
+/* 
+* Get all drink categories 
+* @returns A JSON body containing the name of all drink categories
+*/
 app.get('/categories', async (req, res) => {
   try {
     const SQL = `SELECT Drink_Category FROM Category`;
@@ -1588,8 +1760,6 @@ app.get('/get-email/:email', async (req, res) => {
 });
 
 
-
-
 app.get('/get-ingredients-for-menu-drink/:menuDrinkID', async (req, res) => {
   const menuDrinkID = req.params.menuDrinkID;
 
@@ -1612,6 +1782,7 @@ app.get('/get-ingredients-for-menu-drink/:menuDrinkID', async (req, res) => {
     res.status(500).json({ error: (error as Error).message });
   }
 });
+
 
 //delete menu drink ingredient
 /*

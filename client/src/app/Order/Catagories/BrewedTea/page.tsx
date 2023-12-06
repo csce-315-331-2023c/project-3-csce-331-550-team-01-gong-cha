@@ -18,13 +18,10 @@ export default function Order() {
         lg_consumer_price: number;
       };
     
-    const [drinks, setDrinks] = useState([]);
-
-    const [loaded, setLoaded] = useState(false);
-
-    function getDrinks(loaded: boolean){
-      if(!loaded){
-        fetch('http://18.191.166.59:5000/drinks-from-category/4') // Replace with the actual API endpoint URL
+      const [drinks, setDrinks] = useState([]);
+    useEffect(() => {
+        
+          fetch('http://18.191.166.59:5000/drinks-from-category/4') // Replace with the actual API endpoint URL
             .then((response) => {
               if (!response.ok) {
                 alert("did not pass");
@@ -39,20 +36,13 @@ export default function Order() {
             .catch((error) => {
               console.error('There was a problem with the fetch operation:', error);
             });
-            setLoaded(true);
-      }
-    }
-
-    useEffect(() => {getDrinks(loaded)});
+        }
+      , []);
     return (
-        <main className="backgroundS bg-slate-200 bg-cover w-screen w-screenflex-row flex flex-col h-full">
-            <div className='catagoryContainer w-screen w-screenflex-row flex h-full'>
-                <div className="flex items-center justify-start w-full h-full">
-                <CategoryPage categoryDrinks={drinks}></CategoryPage> 
+      <main className="backgroundS bg-slate-200 bg-cover w-screen flex flex-col h-full">
+                <div className="flex items-center justify-start h-full">
+                <CategoryPage categoryDrinks={drinks} categoryName='Brewed Tea'></CategoryPage> 
                 </div>
-
-                
-            </div>
         </main>
     );
 }
