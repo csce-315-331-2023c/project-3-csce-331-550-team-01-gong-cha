@@ -135,6 +135,10 @@ async function dropTables(): Promise<number> {
     return 0; // Return 0 to indicate failure, you can change this based on your needs.
   }
 }
+
+/*
+* Drops all tables from the database
+*/
 app.get('/drop-tables', async (req, res) => {
   try {
     const result = await dropTables();
@@ -333,6 +337,7 @@ async function createTables(): Promise<number> {
       ID SERIAL PRIMARY KEY,
       Name VARCHAR(50),
       Cost DOUBLE PRECISION,
+      Status INTEGER DEFAULT 0,
       Price DOUBLE PRECISION,
       Profit DOUBLE PRECISION,
       Tip DOUBLE PRECISION,
@@ -420,28 +425,29 @@ app.post('/create-ingredient', async (req, res) => {
 
 /*
 * Create order
-* @params body A JSON body that contains total_cost, price, profit, tipped, takout, date, time, and name
+* @params body A JSON body that contains cost, price, profit, tipped, takout, date, time, status, and name
 * @returns A JSON containing the primary key of the new order
 */
 app.post('/create-order', async (req, res) => {
   console.log('Received request body:', req.body);
 
   const {
-    total_cost,
+    name,
+    cost,
+    status,
     price,
     profit,
-    tipped,
+    tip,
     takeout,
     date,
     time,
-    name,
   } = req.body;
 
   if (
-    isNaN(total_cost) ||
+    isNaN(cost) ||
     isNaN(price) ||
     isNaN(profit) ||
-    isNaN(tipped) ||
+    isNaN(tip) ||
     typeof takeout !== 'boolean' ||
     !date ||
     !time ||
@@ -455,16 +461,17 @@ app.post('/create-order', async (req, res) => {
     const client = await pool.connect();
 
     const insertOrderSQL = `
-      INSERT INTO Orders (Name, Cost, Price, Profit, Tip, Takeout, Date, Time)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      INSERT INTO Orders (Name, Cost, Status, Price, Profit, Tip, Takeout, Date, Time)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
       RETURNING ID`; // Add RETURNING ID to get the primary key
 
     const values = [
       name,
-      total_cost,
+      cost,
+      status || 0, // Default to 0 if status is not provided
       price,
       profit,
-      tipped,
+      tip,
       takeout,
       date,
       time,
@@ -764,10 +771,6 @@ app.get('/get-all-drink-names', async (req, res) => {
   }
 });
 
-
-
-
-
 /*
 * getIngredientNameAndPrice
 * @returns A JSON body that contiains all ingredient names and corresponding prices
@@ -791,40 +794,46 @@ app.get('/get-ingredient-name-and-price', async (req, res) => {
   }
 });
 
-
 /*
 * restock ingredients
 * @returns A String containing all ingredients that need to be restocked, their current amount, and the ideal amount
 */
 app.post('/restock-ingredients', async (req, res) => {
   try {
-    const querySQL = `
+    const fetchIngredientsSQL = `
       SELECT * 
       FROM ingredient 
       WHERE current_amount < (ideal_amount * 0.4);
     `;
 
     const client = await pool.connect();
-    const { rows } = await client.query(querySQL);
-    client.release();
+    const { rows } = await client.query(fetchIngredientsSQL);
 
     if (rows.length > 0) {
-      const result: string[] = [];
+      const updateIngredientsSQL = `
+        UPDATE ingredient
+        SET current_amount = ideal_amount
+        WHERE current_amount < (ideal_amount * 0.4);
+      `;
 
+      await client.query(updateIngredientsSQL);
+
+      const result: string[] = [];
       result.push("| Name of Ingredient                        | Current Amount  | Ideal Amount       |");
 
       for (const row of rows) {
         const name: string = row.ingredient_name;
-        const currentAmount: number = row.current_amount;
         const idealAmount: number = row.ideal_amount;
 
-        result.push(`| ${name.padEnd(40)} | ${currentAmount.toString().padEnd(15)} | ${idealAmount.toString().padEnd(20)} |`);
+        result.push(`| ${name.padEnd(40)} | ${idealAmount.toString().padEnd(15)} | ${idealAmount.toString().padEnd(20)} |`);
       }
 
       res.status(200).json({ message: 'Ingredients restocked successfully', result });
     } else {
       res.status(404).json({ error: 'No ingredients require restocking' });
     }
+
+    client.release();
   } catch (error) {
     console.error('Error restocking ingredients:', error);
     res.status(500).json({ error: 'An error occurred while restocking ingredients' });
@@ -1090,7 +1099,10 @@ app.get('/order-drink-pairs/:startDate', async (req, res) => {
   }
 });
 
-
+/*
+* @params menuDrinkIDs A tuple of menu drink primary keys for which to return the ingredients for
+* @returns A JSON body containing arrays of ingredients corresponding to each menu drink in the input
+*/
 app.get('/ingredients-for-menu-drinks/:menuDrinkIDs', async (req, res) => {
   const menuDrinkIDs: string = req.params.menuDrinkIDs as string;
 
@@ -1395,6 +1407,49 @@ app.put('/update-menu-drink/:id', async (req, res) => {
     }
   } catch (error) {
     console.error('Error updating menu drink:', error);
+    res.status(500).json({ error: (error as Error).message });
+  }
+});
+
+/*
+* Update employee
+* @params id A primary key for an employee
+* @params body A JSON body containing the manager id, name, is manager, email, is admin, and is employed, used to update the given id
+*/
+app.put('/update-employee/:id', async (req, res) => {
+  const employeeId = req.params.id;
+  const { manager_id, name, isManager, email, isAdmin, isEmployed } = req.body;
+
+  if (
+    name === undefined ||
+    manager_id === undefined ||
+    isManager === undefined ||
+    isEmployed === undefined ||
+    isAdmin === undefined ||
+    email === undefined
+  ) {
+    res.status(400).json({ error: 'Invalid parameters' });
+    return;
+  }
+
+  try {
+    const updateSQL = `
+      UPDATE employee
+      SET manager_id = $1, name = $2, ismanager = $3,
+      email = $4, isadmin = $5, isemployed = $6
+      WHERE ID = $7`;
+
+    const client = await pool.connect();
+    const result = await client.query(updateSQL, [manager_id, name, isManager, email, isAdmin, isEmployed, employeeId]);
+    client.release();
+
+    if (result.rowCount > 0) {
+      res.json({ message: 'Employee updated successfully' });
+    } else {
+      res.status(404).json({ error: 'Employee not found' });
+    }
+  } catch (error) {
+    console.error('Error updating employee:', error);
     res.status(500).json({ error: (error as Error).message });
   }
 });
@@ -1731,6 +1786,11 @@ app.get('/get-offered-menu-drinks', async (req, res) => {
   }
 });
 
+/*
+* Gets a user by email
+* @params email The email of a user in the database
+* @returns the name of the user with the given email
+*/
 app.get('/get-email/:email', async (req, res) => {
   console.log('Received request body:', req.body);
 
@@ -1753,6 +1813,11 @@ app.get('/get-email/:email', async (req, res) => {
 });
 
 //delete menu drink ingredient
+/*
+* Deletes menu drink ingredient pairs of a menu drink
+* @param the menu Drink primary key for the menu drink ingredients you want deleted
+* @return   json containing the number of menu drinks offered (int)
+*/
 app.delete('/delete-menu-drink-ingredients/:menuDrinkID', async (req, res) => {
   const menuDrinkID = req.params.menuDrinkID;
   const ingredientIDs = req.body.ingredientIDs;
@@ -1784,6 +1849,11 @@ app.delete('/delete-menu-drink-ingredients/:menuDrinkID', async (req, res) => {
 });
 
 //delete ingredient
+/*
+* Deletes an ingredient
+* @param the ingredient primary key you want to delete
+* @return   json containing the number of menu drinks offered (int)
+*/
 app.delete('/delete-ingredient/:ingredientID', async (req, res) => {
   const ingredientID = req.params.ingredientID;
 
@@ -1807,6 +1877,536 @@ app.delete('/delete-ingredient/:ingredientID', async (req, res) => {
   } catch (error) {
     console.error('Error deleting ingredient:', error);
     res.status(500).json({ error: (error as Error).message });
+  }
+});
+
+
+/*
+* Deletes a menu drink
+* @params menu drink primary key
+* @return body A message stating whether or not the deletion was successful
+*/
+
+app.delete('/delete-menu-drink/:menuDrinkID', async (req, res) => {
+  const menuDrinkID = Number(req.params.menuDrinkID);
+
+  if (!menuDrinkID || isNaN(menuDrinkID)) {
+    res.status(400).json({ error: 'Invalid menu drink ID' });
+    return;
+  }
+
+  try {
+    const client = await pool.connect();
+
+    // Check if the menu drink exists
+    const checkMenuDrinkSQL = 'SELECT * FROM Menu_Drink WHERE ID = $1';
+    const checkMenuDrinkResult = await client.query(checkMenuDrinkSQL, [menuDrinkID]);
+
+    if (checkMenuDrinkResult.rows.length === 0) {
+      client.release();
+      res.status(404).json({ error: 'Menu drink not found' });
+      return;
+    }
+
+    // Delete the menu drink
+    const deleteMenuDrinkSQL = 'DELETE FROM Menu_Drink WHERE ID = $1';
+    await client.query(deleteMenuDrinkSQL, [menuDrinkID]);
+
+    client.release();
+
+    res.json({ message: 'Menu drink deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting menu drink:', error);
+    res.status(500).json({ error: 'An error occurred while deleting menu drink' });
+  }
+});
+
+//get an employees info
+/*
+* Get employee info
+* @params A primary key for an employee
+* @return body A JSON body containing the manager id, name, is manager, email, is admin, and is employed, used to update the given id
+*/
+app.get('/get-employee-info/:employeeID', async (req, res) => {
+  const employeeID = Number(req.params.employeeID);
+
+  if (isNaN(employeeID)) {
+    res.status(400).json({ error: 'Invalid employee ID' });
+    return;
+  }
+
+  try {
+    const client = await pool.connect();
+
+    const querySQL = `
+      SELECT *
+      FROM Employee
+      WHERE ID = $1;
+    `;
+
+    const result = await client.query(querySQL, [employeeID]);
+    client.release();
+
+    if (result.rows.length > 0) {
+      const employeeInfo = result.rows[0];
+      res.status(200).json({ message: 'Employee information retrieved successfully', employeeInfo });
+    } else {
+      res.status(404).json({ error: 'Employee not found' });
+    }
+  } catch (error) {
+    console.error('Error retrieving employee information:', error);
+    res.status(500).json({ error: 'An error occurred while retrieving employee information' });
+  }
+});
+
+//update employee
+/*
+* Update employee
+* @params id A primary key for an employee
+* @params body A JSON body containing the manager id, name, is manager, email, is admin, and is employed, used to update the given id
+* @return a success message 
+*/
+app.put('/update-employee/:id', async (req, res) => {
+  const employeeId = req.params.id;
+  const { manager_id, name, isManager, email, isAdmin, isEmployed } = req.body;
+
+  if (
+    name === undefined ||
+    manager_id === undefined ||
+    isManager === undefined ||
+    isEmployed === undefined ||
+    isAdmin === undefined ||
+    email === undefined
+  ) {
+    res.status(400).json({ error: 'Invalid parameters' });
+    return;
+  }
+
+  try {
+    const updateSQL = `
+      UPDATE employee
+      SET manager_id = $1, name = $2, ismanager = $3,
+      email = $4, isadmin = $5, isemployed = $6
+      WHERE ID = $7`;
+
+    const client = await pool.connect();
+    const result = await client.query(updateSQL, [manager_id, name, isManager, email, isAdmin, isEmployed, employeeId]);
+    client.release();
+
+    if (result.rowCount > 0) {
+      res.json({ message: 'Employee updated successfully' });
+    } else {
+      res.status(404).json({ error: 'Employee not found' });
+    }
+  } catch (error) {
+    console.error('Error updating employee:', error);
+    res.status(500).json({ error: (error as Error).message });
+  }
+});
+
+
+/*
+* Get orders given a day
+* @params A date to find the orders on that day
+* @return json containing orders for that day
+*/
+app.get('/get-orders-of-day/:day', async (req, res) => {
+  const requestedDate = req.params.day;
+
+  if (!requestedDate) {
+    res.status(400).json({ error: 'Missing or invalid "day" parameter' });
+    return;
+  }
+
+  try {
+    const query = `
+      SELECT *
+      FROM Orders
+      WHERE Date = $1`;
+
+    const client = await pool.connect();
+    const result = await client.query(query, [requestedDate]);
+    client.release();
+
+    res.status(200).json(result.rows);
+  } catch (error) {
+    console.error('Error getting orders for the day:', error);
+    res.status(500).json({ error: 'An error occurred while fetching orders for the day' });
+  }
+});
+
+/*
+* Deletes an order
+* @params primary key of order you want deleted
+* @return body A success message for the deletion
+*/
+app.delete('/delete-order/:orderID', async (req, res) => {
+  const orderID = Number(req.params.orderID);
+
+  if (!orderID || isNaN(orderID)) {
+    res.status(400).json({ error: 'Invalid order ID' });
+    return;
+  }
+
+  try {
+    const client = await pool.connect();
+
+    // Begin a transaction to ensure atomicity
+    await client.query('BEGIN');
+
+    try {
+      // Delete related records in Order_Order_Drink
+      const deleteOrderOrderDrinksSQL = 'DELETE FROM Order_Order_Drink WHERE Order_ID = $1';
+      await client.query(deleteOrderOrderDrinksSQL, [orderID]);
+
+      // Delete the order
+      const deleteOrderSQL = 'DELETE FROM Orders WHERE ID = $1';
+      await client.query(deleteOrderSQL, [orderID]);
+
+      // Commit the transaction
+      await client.query('COMMIT');
+
+      res.json({ message: 'Order and associated records deleted successfully' });
+    } catch (error) {
+      // Rollback the transaction in case of an error
+      await client.query('ROLLBACK');
+      throw error;
+    } finally {
+      // Release the client after the transaction is complete
+      client.release();
+    }
+  } catch (error) {
+    console.error('Error deleting order and associated records:', error);
+    res.status(500).json({ error: 'An error occurred while deleting order and associated records' });
+  }
+});
+
+/*
+* Create employee
+* @params json containing employee elements
+* @return primary key of new employee
+*/
+app.post('/create-employee', async (req, res) => {
+  console.log('Received request body:', req.body);
+
+  const { Manager_ID, Name, isManager, Email, IsAdmin, IsEmployed } = req.body;
+
+  // Basic validation for required fields
+  if (
+    Manager_ID === undefined ||
+    Name === undefined ||
+    isManager === undefined ||
+    Email === undefined ||
+    IsAdmin === undefined ||
+    IsEmployed === undefined
+  ) {
+    res.status(400).json({ error: 'Invalid parameters' });
+    return;
+  }
+
+  try {
+    const client = await pool.connect();
+
+    // Insert the new employee into the Employee table
+    const insertEmployeeSQL = `
+      INSERT INTO Employee (Manager_ID, Name, isManager, Email, IsAdmin, IsEmployed)
+      VALUES ($1, $2, $3, $4, $5, $6)
+      RETURNING ID;
+    `;
+
+    const values = [Manager_ID, Name, isManager, Email, IsAdmin, IsEmployed];
+    const result = await client.query(insertEmployeeSQL, values);
+
+    client.release();
+
+    res.status(201).json({ message: 'Employee created successfully', employeeID: result.rows[0].id });
+  } catch (error) {
+    console.error('Error creating employee:', error);
+    res.status(500).json({ error: 'An error occurred while creating the employee' });
+  }
+});
+
+/*
+* Delete employee
+* @params primary key of employee to be deleted
+* @return primary key of new employee
+*/
+app.delete('/delete-employee/:employeeID', async (req, res) => {
+  const employeeID = Number(req.params.employeeID);
+
+  if (!employeeID || isNaN(employeeID)) {
+    res.status(400).json({ error: 'Invalid employee ID' });
+    return;
+  }
+
+  try {
+    const client = await pool.connect();
+
+    // Begin a transaction to ensure atomicity
+    await client.query('BEGIN');
+
+    try {
+      // Delete the employee
+      const deleteEmployeeSQL = 'DELETE FROM Employee WHERE ID = $1 RETURNING Manager_ID';
+      const result = await client.query(deleteEmployeeSQL, [employeeID]);
+
+      // If the employee had Manager_ID, update other employees referencing the deleted employee as their manager
+      const managerID = result.rows[0]?.manager_id;
+      if (managerID !== null && managerID !== undefined) {
+        const updateManagersSQL = 'UPDATE Employee SET Manager_ID = $1 WHERE Manager_ID = $2';
+        await client.query(updateManagersSQL, [null, employeeID]);
+      }
+
+      // Commit the transaction
+      await client.query('COMMIT');
+
+      res.json({ message: 'Employee deleted successfully' });
+    } catch (error) {
+      // Rollback the transaction in case of an error
+      await client.query('ROLLBACK');
+      throw error;
+    } finally {
+      // Release the client after the transaction is complete
+      client.release();
+    }
+  } catch (error) {
+    console.error('Error deleting employee:', error);
+    res.status(500).json({ error: 'An error occurred while deleting employee' });
+  }
+});
+
+/*
+* Change IsAdmin
+* @params primary key of employee to have AdminStatus Changed
+* @return success message with admin status
+*/
+app.put('/change-admin/:employeeID', async (req, res) => {
+  const employeeID = Number(req.params.employeeID);
+
+  if (!employeeID || isNaN(employeeID)) {
+    res.status(400).json({ error: 'Invalid employee ID' });
+    return;
+  }
+
+  try {
+    const client = await pool.connect();
+
+    // Begin a transaction to ensure atomicity
+    await client.query('BEGIN');
+
+    try {
+      // Toggle the IsAdmin status
+      const toggleAdminSQL = 'UPDATE Employee SET IsAdmin = NOT IsAdmin WHERE ID = $1 RETURNING IsAdmin';
+      const result = await client.query(toggleAdminSQL, [employeeID]);
+
+      // Commit the transaction
+      await client.query('COMMIT');
+
+      res.json({ message: 'IsAdmin status changed successfully', IsAdmin: result.rows[0].isadmin });
+    } catch (error) {
+      // Rollback the transaction in case of an error
+      await client.query('ROLLBACK');
+      throw error;
+    } finally {
+      // Release the client after the transaction is complete
+      client.release();
+    }
+  } catch (error) {
+    console.error('Error changing IsAdmin status:', error);
+    res.status(500).json({ error: 'An error occurred while changing IsAdmin status' });
+  }
+});
+
+/*
+* Change IsManager
+* @params primary key of employee to have Manager status Changed
+* @return success message with manager status
+*/
+app.put('/change-manager/:employeeID', async (req, res) => {
+  const employeeID = Number(req.params.employeeID);
+
+  if (!employeeID || isNaN(employeeID)) {
+    res.status(400).json({ error: 'Invalid employee ID' });
+    return;
+  }
+
+  try {
+    const client = await pool.connect();
+
+    // Begin a transaction to ensure atomicity
+    await client.query('BEGIN');
+
+    try {
+      // Toggle the isManager status
+      const toggleManagerSQL = 'UPDATE Employee SET isManager = NOT isManager WHERE ID = $1 RETURNING isManager';
+      const result = await client.query(toggleManagerSQL, [employeeID]);
+
+      // Commit the transaction
+      await client.query('COMMIT');
+
+      res.json({ message: 'isManager status changed successfully', isManager: result.rows[0].ismanager });
+    } catch (error) {
+      // Rollback the transaction in case of an error
+      await client.query('ROLLBACK');
+      throw error;
+    } finally {
+      // Release the client after the transaction is complete
+      client.release();
+    }
+  } catch (error) {
+    console.error('Error changing isManager status:', error);
+    res.status(500).json({ error: 'An error occurred while changing isManager status' });
+  }
+});
+
+/*
+* Gets all the ingredient primary keys for every single menu drink
+* @return all the ingredient primary keys for every single menu drink
+*/
+app.get('/get-menu-drinks-with-ingredients', async (req, res) => {
+  try {
+    const client = await pool.connect();
+
+    const getMenuDrinksWithIngredientsSQL = `
+      SELECT
+        MD.ID AS MenuDrinkID,
+        ARRAY_AGG(MDI.Ingredient_ID) AS Ingredients
+      FROM
+        Menu_Drink MD
+      LEFT JOIN
+        Menu_Drink_Ingredient MDI ON MD.ID = MDI.Menu_Drink_ID
+      GROUP BY
+        MD.ID`;
+
+    const result = await client.query(getMenuDrinksWithIngredientsSQL);
+
+    client.release();
+
+    const menuDrinksWithIngredients = result.rows.map(row => [row.menudrinkid, row.ingredients]);
+
+    res.json({ menuDrinksWithIngredients });
+  } catch (error) {
+    console.error('Error fetching menu drinks with ingredients:', error);
+    res.status(500).json({ error: 'An error occurred while fetching menu drinks with ingredients' });
+  }
+});
+
+/*
+* Gets all the order drinks for an order
+* @param the order primary key you want order drinks for
+* @return all the order drink primary keys for the order
+*/
+app.get('/get-order-drinks-for-order/:orderID', async (req, res) => {
+  const orderID = Number(req.params.orderID);
+
+  if (!orderID || isNaN(orderID)) {
+    res.status(400).json({ error: 'Invalid order ID' });
+    return;
+  }
+
+  try {
+    const client = await pool.connect();
+
+    const getOrderDrinksForOrderSQL = `
+      SELECT OOD.Order_Drink_ID
+      FROM Order_Order_Drink OOD
+      WHERE OOD.Order_ID = $1`;
+
+    const result = await client.query(getOrderDrinksForOrderSQL, [orderID]);
+
+    client.release();
+
+    const orderDrinkIDs = result.rows.map(row => row.order_drink_id);
+
+    res.json({ orderDrinkIDs });
+  } catch (error) {
+    console.error('Error fetching order drinks for order:', error);
+    res.status(500).json({ error: 'An error occurred while fetching order drinks for order' });
+  }
+});
+
+/*
+* Gets all the info for an order drink given its primary key
+* @param the order drink primary key for the order drink
+* @return all the fileds for that order drink
+*/
+app.get('/get-order-drink/:orderDrinkID', async (req, res) => {
+  const orderDrinkID = Number(req.params.orderDrinkID);
+
+  if (!orderDrinkID || isNaN(orderDrinkID)) {
+    res.status(400).json({ error: 'Invalid order drink ID' });
+    return;
+  }
+
+  try {
+    const client = await pool.connect();
+
+    const getOrderDrinkSQL = `
+      SELECT *
+      FROM Order_Drink
+      WHERE ID = $1`;
+
+    const result = await client.query(getOrderDrinkSQL, [orderDrinkID]);
+
+    client.release();
+
+    if (result.rows.length === 0) {
+      res.status(404).json({ error: 'Order drink not found' });
+      return;
+    }
+
+    const orderDrink = result.rows[0];
+
+    res.json({ orderDrink });
+  } catch (error) {
+    console.error('Error fetching order drink:', error);
+    res.status(500).json({ error: 'An error occurred while fetching order drink' });
+  }
+});
+
+/*
+* Deletes an order drink
+* @param the order drink primary key to be deleted
+* @return success status
+*/
+app.delete('/delete-order-drink/:orderDrinkID', async (req, res) => {
+  const orderDrinkID = Number(req.params.orderDrinkID);
+
+  if (!orderDrinkID || isNaN(orderDrinkID)) {
+    res.status(400).json({ error: 'Invalid order drink ID' });
+    return;
+  }
+
+  try {
+    const client = await pool.connect();
+
+    // Delete from Order_Order_Drink
+    const deleteOrderOrderDrinkSQL = `
+      DELETE FROM Order_Order_Drink
+      WHERE Order_Drink_ID = $1`;
+
+    await client.query(deleteOrderOrderDrinkSQL, [orderDrinkID]);
+
+    // Delete from Ingredient_Order_Drink
+    const deleteIngredientOrderDrinkSQL = `
+      DELETE FROM Ingredient_Order_Drink
+      WHERE Order_Drink_ID = $1`;
+
+    await client.query(deleteIngredientOrderDrinkSQL, [orderDrinkID]);
+
+    // Delete from Order_Drink (with CASCADE effect)
+    const deleteOrderDrinkSQL = `
+      DELETE FROM Order_Drink
+      WHERE ID = $1`;
+
+    await client.query(deleteOrderDrinkSQL, [orderDrinkID]);
+
+    client.release();
+
+    res.json({ message: 'Order drink deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting order drink:', error);
+    res.status(500).json({ error: 'An error occurred while deleting order drink' });
   }
 });
 
