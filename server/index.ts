@@ -2339,6 +2339,52 @@ app.get('/get-order-drink/:orderDrinkID', async (req, res) => {
   }
 });
 
+/*
+* Deletes an order drink
+* @param the order drink primary key to be deleted
+* @return success status
+*/
+app.delete('/delete-order-drink/:orderDrinkID', async (req, res) => {
+  const orderDrinkID = Number(req.params.orderDrinkID);
+
+  if (!orderDrinkID || isNaN(orderDrinkID)) {
+    res.status(400).json({ error: 'Invalid order drink ID' });
+    return;
+  }
+
+  try {
+    const client = await pool.connect();
+
+    // Delete from Order_Order_Drink
+    const deleteOrderOrderDrinkSQL = `
+      DELETE FROM Order_Order_Drink
+      WHERE Order_Drink_ID = $1`;
+
+    await client.query(deleteOrderOrderDrinkSQL, [orderDrinkID]);
+
+    // Delete from Ingredient_Order_Drink
+    const deleteIngredientOrderDrinkSQL = `
+      DELETE FROM Ingredient_Order_Drink
+      WHERE Order_Drink_ID = $1`;
+
+    await client.query(deleteIngredientOrderDrinkSQL, [orderDrinkID]);
+
+    // Delete from Order_Drink (with CASCADE effect)
+    const deleteOrderDrinkSQL = `
+      DELETE FROM Order_Drink
+      WHERE ID = $1`;
+
+    await client.query(deleteOrderDrinkSQL, [orderDrinkID]);
+
+    client.release();
+
+    res.json({ message: 'Order drink deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting order drink:', error);
+    res.status(500).json({ error: 'An error occurred while deleting order drink' });
+  }
+});
+
 app.listen(port, () => {
   console.log(`Example listening at  http://localhost:${port}`);
   });

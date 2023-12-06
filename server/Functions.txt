@@ -217,3 +217,5 @@ This is a list of the functions that we have in index.ts. Date of last update: 1
 /get-order-drinks-for-order/:orderID - Gets all order drinks for an order given that orders primary key
 
 /get-order-drink/:orderDrinkID - Gets all the info about an order drink given its primary key
+
+/delete-order-drink/:orderDrinkID -Deletes an order drink and also the corresponding order drink ingredients and order order drinks
