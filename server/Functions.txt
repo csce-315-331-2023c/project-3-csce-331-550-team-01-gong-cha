@@ -103,7 +103,7 @@ This is a list of the functions that we have in index.ts. Date of last update: 1
 
 /excess-report/:startDate - This function returns ingredients that we have sold less than 10% from its start date
 
-/update-ingredient: This updates an ingredient. It takes some parameters:
+/update-ingredient/:id This updates an ingredient. It takes some parameters:
     {
     "name": "Updated Ingredient",
     "currentAmount": 50.0,
@@ -178,3 +178,21 @@ This is a list of the functions that we have in index.ts. Date of last update: 1
         }
 
 /delete-ingredient/:IngredientID - This function takes an ingredient primary key and deletes it from the database
+
+/delete-menu-drink/:menuDrinkID - takes a primary key of a menu drink and deletes it
+
+//get-employee-info/:employeeID - takes an employee primary key and returns all the info
+
+/update-employee/:id - takes an employee primary key and a json full of parameters and updates it
+{
+  "name": "Thomas",
+  "manager_id": 1,
+  "isManager": true,
+  "isEmployed": true,
+  "isAdmin": true,
+  "email": "tkhall03@tamu.edu"
+}
+
+/get-orders-of-day/:day - This takes in a day and gives you all of the orders for that day. DD-MM-YYYY format for the date.
+
+/delete-order/:orderID - This takes in an order primary key and deletes all the orders and order order drinks.

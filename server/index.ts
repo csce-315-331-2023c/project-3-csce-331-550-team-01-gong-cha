@@ -798,33 +798,40 @@ app.get('/get-ingredient-name-and-price', async (req, res) => {
 */
 app.post('/restock-ingredients', async (req, res) => {
   try {
-    const querySQL = `
+    const fetchIngredientsSQL = `
       SELECT * 
       FROM ingredient 
       WHERE current_amount < (ideal_amount * 0.4);
     `;
 
     const client = await pool.connect();
-    const { rows } = await client.query(querySQL);
-    client.release();
+    const { rows } = await client.query(fetchIngredientsSQL);
 
     if (rows.length > 0) {
-      const result: string[] = [];
+      const updateIngredientsSQL = `
+        UPDATE ingredient
+        SET current_amount = ideal_amount
+        WHERE current_amount < (ideal_amount * 0.4);
+      `;
 
+      await client.query(updateIngredientsSQL);
+
+      const result: string[] = [];
       result.push("| Name of Ingredient                        | Current Amount  | Ideal Amount       |");
 
       for (const row of rows) {
         const name: string = row.ingredient_name;
-        const currentAmount: number = row.current_amount;
         const idealAmount: number = row.ideal_amount;
 
-        result.push(`| ${name.padEnd(40)} | ${currentAmount.toString().padEnd(15)} | ${idealAmount.toString().padEnd(20)} |`);
+        result.push(`| ${name.padEnd(40)} | ${idealAmount.toString().padEnd(15)} | ${idealAmount.toString().padEnd(20)} |`);
       }
 
       res.status(200).json({ message: 'Ingredients restocked successfully', result });
     } else {
       res.status(404).json({ error: 'No ingredients require restocking' });
     }
+
+    client.release();
   } catch (error) {
     console.error('Error restocking ingredients:', error);
     res.status(500).json({ error: 'An error occurred while restocking ingredients' });
@@ -1752,7 +1759,37 @@ app.get('/get-email/:email', async (req, res) => {
   }
 });
 
+
+app.get('/get-ingredients-for-menu-drink/:menuDrinkID', async (req, res) => {
+  const menuDrinkID = req.params.menuDrinkID;
+
+  try {
+    const client = await pool.connect();
+
+    const getIngredientsSQL = `
+      SELECT Ingredient_ID
+      FROM Menu_Drink_Ingredient
+      WHERE Menu_Drink_ID = $1`;
+
+    const result = await client.query(getIngredientsSQL, [menuDrinkID]);
+    const ingredientIDs = result.rows.map((row) => row.ingredient_id);
+
+    client.release();
+
+    res.json({ ingredientIDs });
+  } catch (error) {
+    console.error('Error getting ingredients for menu drink:', error);
+    res.status(500).json({ error: (error as Error).message });
+  }
+});
+
+
 //delete menu drink ingredient
+/*
+* Deletes menu drink ingredient pairs of a menu drink
+* @param the menu Drink primary key for the menu drink ingredients you want deleted
+* @return   json containing the number of menu drinks offered (int)
+*/
 app.delete('/delete-menu-drink-ingredients/:menuDrinkID', async (req, res) => {
   const menuDrinkID = req.params.menuDrinkID;
   const ingredientIDs = req.body.ingredientIDs;
@@ -1784,6 +1821,11 @@ app.delete('/delete-menu-drink-ingredients/:menuDrinkID', async (req, res) => {
 });
 
 //delete ingredient
+/*
+* Deletes an ingredient
+* @param the ingredient primary key you want to delete
+* @return   json containing the number of menu drinks offered (int)
+*/
 app.delete('/delete-ingredient/:ingredientID', async (req, res) => {
   const ingredientID = req.params.ingredientID;
 
@@ -1807,6 +1849,185 @@ app.delete('/delete-ingredient/:ingredientID', async (req, res) => {
   } catch (error) {
     console.error('Error deleting ingredient:', error);
     res.status(500).json({ error: (error as Error).message });
+  }
+});
+//delete menu drink
+app.delete('/delete-menu-drink/:menuDrinkID', async (req, res) => {
+  const menuDrinkID = Number(req.params.menuDrinkID);
+
+  if (!menuDrinkID || isNaN(menuDrinkID)) {
+    res.status(400).json({ error: 'Invalid menu drink ID' });
+    return;
+  }
+
+  try {
+    const client = await pool.connect();
+
+    // Check if the menu drink exists
+    const checkMenuDrinkSQL = 'SELECT * FROM Menu_Drink WHERE ID = $1';
+    const checkMenuDrinkResult = await client.query(checkMenuDrinkSQL, [menuDrinkID]);
+
+    if (checkMenuDrinkResult.rows.length === 0) {
+      client.release();
+      res.status(404).json({ error: 'Menu drink not found' });
+      return;
+    }
+
+    // Delete the menu drink
+    const deleteMenuDrinkSQL = 'DELETE FROM Menu_Drink WHERE ID = $1';
+    await client.query(deleteMenuDrinkSQL, [menuDrinkID]);
+
+    client.release();
+
+    res.json({ message: 'Menu drink deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting menu drink:', error);
+    res.status(500).json({ error: 'An error occurred while deleting menu drink' });
+  }
+});
+
+//get an employees info
+app.get('/get-employee-info/:employeeID', async (req, res) => {
+  const employeeID = Number(req.params.employeeID);
+
+  if (isNaN(employeeID)) {
+    res.status(400).json({ error: 'Invalid employee ID' });
+    return;
+  }
+
+  try {
+    const client = await pool.connect();
+
+    const querySQL = `
+      SELECT *
+      FROM Employee
+      WHERE ID = $1;
+    `;
+
+    const result = await client.query(querySQL, [employeeID]);
+    client.release();
+
+    if (result.rows.length > 0) {
+      const employeeInfo = result.rows[0];
+      res.status(200).json({ message: 'Employee information retrieved successfully', employeeInfo });
+    } else {
+      res.status(404).json({ error: 'Employee not found' });
+    }
+  } catch (error) {
+    console.error('Error retrieving employee information:', error);
+    res.status(500).json({ error: 'An error occurred while retrieving employee information' });
+  }
+});
+
+//update employee
+/*
+* Update employee
+* @params id A primary key for an employee
+* @params body A JSON body containing the manager id, name, is manager, email, is admin, and is employed, used to update the given id
+*/
+app.put('/update-employee/:id', async (req, res) => {
+  const employeeId = req.params.id;
+  const { manager_id, name, isManager, email, isAdmin, isEmployed } = req.body;
+
+  if (
+    name === undefined ||
+    manager_id === undefined ||
+    isManager === undefined ||
+    isEmployed === undefined ||
+    isAdmin === undefined ||
+    email === undefined
+  ) {
+    res.status(400).json({ error: 'Invalid parameters' });
+    return;
+  }
+
+  try {
+    const updateSQL = `
+      UPDATE employee
+      SET manager_id = $1, name = $2, ismanager = $3,
+      email = $4, isadmin = $5, isemployed = $6
+      WHERE ID = $7`;
+
+    const client = await pool.connect();
+    const result = await client.query(updateSQL, [manager_id, name, isManager, email, isAdmin, isEmployed, employeeId]);
+    client.release();
+
+    if (result.rowCount > 0) {
+      res.json({ message: 'Employee updated successfully' });
+    } else {
+      res.status(404).json({ error: 'Employee not found' });
+    }
+  } catch (error) {
+    console.error('Error updating employee:', error);
+    res.status(500).json({ error: (error as Error).message });
+  }
+});
+
+//get orders from a day
+app.get('/get-orders-of-day/:day', async (req, res) => {
+  const requestedDate = req.params.day;
+
+  if (!requestedDate) {
+    res.status(400).json({ error: 'Missing or invalid "day" parameter' });
+    return;
+  }
+
+  try {
+    const query = `
+      SELECT *
+      FROM Orders
+      WHERE Date = $1`;
+
+    const client = await pool.connect();
+    const result = await client.query(query, [requestedDate]);
+    client.release();
+
+    res.status(200).json(result.rows);
+  } catch (error) {
+    console.error('Error getting orders for the day:', error);
+    res.status(500).json({ error: 'An error occurred while fetching orders for the day' });
+  }
+});
+
+//delete order
+app.delete('/delete-order/:orderID', async (req, res) => {
+  const orderID = Number(req.params.orderID);
+
+  if (!orderID || isNaN(orderID)) {
+    res.status(400).json({ error: 'Invalid order ID' });
+    return;
+  }
+
+  try {
+    const client = await pool.connect();
+
+    // Begin a transaction to ensure atomicity
+    await client.query('BEGIN');
+
+    try {
+      // Delete related records in Order_Order_Drink
+      const deleteOrderOrderDrinksSQL = 'DELETE FROM Order_Order_Drink WHERE Order_ID = $1';
+      await client.query(deleteOrderOrderDrinksSQL, [orderID]);
+
+      // Delete the order
+      const deleteOrderSQL = 'DELETE FROM Orders WHERE ID = $1';
+      await client.query(deleteOrderSQL, [orderID]);
+
+      // Commit the transaction
+      await client.query('COMMIT');
+
+      res.json({ message: 'Order and associated records deleted successfully' });
+    } catch (error) {
+      // Rollback the transaction in case of an error
+      await client.query('ROLLBACK');
+      throw error;
+    } finally {
+      // Release the client after the transaction is complete
+      client.release();
+    }
+  } catch (error) {
+    console.error('Error deleting order and associated records:', error);
+    res.status(500).json({ error: 'An error occurred while deleting order and associated records' });
   }
 });
 

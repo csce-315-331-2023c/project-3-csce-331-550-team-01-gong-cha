@@ -43,7 +43,7 @@ CREATE TABLE Employee(
     isManager BOOLEAN,
     Email VARCHAR(50),
     IsAdmin BOOLEAN DEFAULT FALSE,
-    IsEmployed BOOLEAN DEFAULT FALSE,
+    IsEmployed BOOLEAN DEFAULT TRUE,
     IsManager BOOLEAN DEFAULT FALSE,
     FOREIGN KEY (Manager_ID) REFERENCES Employee(ID)
 );
