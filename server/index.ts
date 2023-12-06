@@ -135,6 +135,10 @@ async function dropTables(): Promise<number> {
     return 0; // Return 0 to indicate failure, you can change this based on your needs.
   }
 }
+
+/*
+* Drops all tables from the database
+*/
 app.get('/drop-tables', async (req, res) => {
   try {
     const result = await dropTables();
@@ -764,10 +768,6 @@ app.get('/get-all-drink-names', async (req, res) => {
   }
 });
 
-
-
-
-
 /*
 * getIngredientNameAndPrice
 * @returns A JSON body that contiains all ingredient names and corresponding prices
@@ -790,7 +790,6 @@ app.get('/get-ingredient-name-and-price', async (req, res) => {
     res.status(500).json({ error: (error as Error).message });
   }
 });
-
 
 /*
 * restock ingredients
@@ -1097,7 +1096,10 @@ app.get('/order-drink-pairs/:startDate', async (req, res) => {
   }
 });
 
-
+/*
+* @params menuDrinkIDs A tuple of menu drink primary keys for which to return the ingredients for
+* @returns A JSON body containing arrays of ingredients corresponding to each menu drink in the input
+*/
 app.get('/ingredients-for-menu-drinks/:menuDrinkIDs', async (req, res) => {
   const menuDrinkIDs: string = req.params.menuDrinkIDs as string;
 
@@ -1402,6 +1404,49 @@ app.put('/update-menu-drink/:id', async (req, res) => {
     }
   } catch (error) {
     console.error('Error updating menu drink:', error);
+    res.status(500).json({ error: (error as Error).message });
+  }
+});
+
+/*
+* Update employee
+* @params id A primary key for an employee
+* @params body A JSON body containing the manager id, name, is manager, email, is admin, and is employed, used to update the given id
+*/
+app.put('/update-employee/:id', async (req, res) => {
+  const employeeId = req.params.id;
+  const { manager_id, name, isManager, email, isAdmin, isEmployed } = req.body;
+
+  if (
+    name === undefined ||
+    manager_id === undefined ||
+    isManager === undefined ||
+    isEmployed === undefined ||
+    isAdmin === undefined ||
+    email === undefined
+  ) {
+    res.status(400).json({ error: 'Invalid parameters' });
+    return;
+  }
+
+  try {
+    const updateSQL = `
+      UPDATE employee
+      SET manager_id = $1, name = $2, ismanager = $3,
+      email = $4, isadmin = $5, isemployed = $6
+      WHERE ID = $7`;
+
+    const client = await pool.connect();
+    const result = await client.query(updateSQL, [manager_id, name, isManager, email, isAdmin, isEmployed, employeeId]);
+    client.release();
+
+    if (result.rowCount > 0) {
+      res.json({ message: 'Employee updated successfully' });
+    } else {
+      res.status(404).json({ error: 'Employee not found' });
+    }
+  } catch (error) {
+    console.error('Error updating employee:', error);
     res.status(500).json({ error: (error as Error).message });
   }
 });
@@ -1738,6 +1783,11 @@ app.get('/get-offered-menu-drinks', async (req, res) => {
   }
 });
 
+/*
+* Gets a user by email
+* @params email The email of a user in the database
+* @returns the name of the user with the given email
+*/
 app.get('/get-email/:email', async (req, res) => {
   console.log('Received request body:', req.body);
 
@@ -1758,31 +1808,6 @@ app.get('/get-email/:email', async (req, res) => {
     res.status(500).json({ error: (error as Error).message });
   }
 });
-
-
-app.get('/get-ingredients-for-menu-drink/:menuDrinkID', async (req, res) => {
-  const menuDrinkID = req.params.menuDrinkID;
-
-  try {
-    const client = await pool.connect();
-
-    const getIngredientsSQL = `
-      SELECT Ingredient_ID
-      FROM Menu_Drink_Ingredient
-      WHERE Menu_Drink_ID = $1`;
-
-    const result = await client.query(getIngredientsSQL, [menuDrinkID]);
-    const ingredientIDs = result.rows.map((row) => row.ingredient_id);
-
-    client.release();
-
-    res.json({ ingredientIDs });
-  } catch (error) {
-    console.error('Error getting ingredients for menu drink:', error);
-    res.status(500).json({ error: (error as Error).message });
-  }
-});
-
 
 //delete menu drink ingredient
 /*
@@ -2007,7 +2032,6 @@ app.get('/get-orders-of-day/:day', async (req, res) => {
   }
 });
 
-//delete order
 /*
 * Deletes an order
 * @params primary key of order you want deleted
