@@ -7,12 +7,13 @@ interface Employee{
     manager_id: number;
     name: string;
     ismanager: boolean;
-    email: Text;
+    email: string;
     isadmin: boolean;
     isemployed: boolean;
+    reload: () => void;
 };
 
-export default function RestockReportIngredient({id, manager_id, name, ismanager, email, isadmin, isemployed}: Employee){
+export default function EmployeeItem({id, manager_id, name, ismanager, email, isadmin, isemployed, reload}: Employee){
 
     const [managerID, setManagerID] = useState<string>('');
     const [nameVar, setNameVar] = useState<string>('');
@@ -21,9 +22,19 @@ export default function RestockReportIngredient({id, manager_id, name, ismanager
     const [managerButton, setManagerButton] = useState<string>('');
     const [adminButton, setAdminButton] = useState<string>('');
 
-    function updateEmployee(managerPK, newName, newEmail){
+    function updateEmployee(managerPK: string, newName: string, newEmail: string){
+   
+    }
+
+    function deleteEmployee(){
 
     }
+    function setEmployee(){
+        
+    }
+
+
+    const [style, setStyle] = useState<string>('');
 
     return(
         <div className='flex justify-center bg-slate-200 w-ful h-12 mt-1'>
@@ -31,15 +42,15 @@ export default function RestockReportIngredient({id, manager_id, name, ismanager
                 <div className='text-rose-700 font-semibold text-2xl'>{id}</div>
                 <input className='name flex justify-center items-cente text-center rounded-lg bg-inherit outline-none text-rose-700' placeholder={manager_id.toString()} type='Iname' id='IName' value={managerID} onChange={(e) => setManagerID(e.target.value)}/>
                 <input className='currentStock flex justify-center items-center text-center bg-inherit outline-none text-rose-700' placeholder={name} type='IcurrentStock' id='IcurrentStock' value={nameVar} onChange={(e) => setNameVar(e.target.value)}/>
-                <input className='idealStock flex justify-center items-center text-center bg-inherit outline-none text-rose-700' placeholder={IdealStock} type='idealStock' id='idealStock' value={idealStock} onChange={(e) => setIdealStock(e.target.value)}/>
+                <input className='idealStock flex justify-center items-center text-center bg-inherit outline-none text-rose-700' placeholder={email} type='idealStock' id='idealStock' value={email} onChange={(e) => setEmailVar(e.target.value)}/>
                 <div className='meer flex justify-center align-center items-center mr-1'>
-                    <button className="w-full bg-rose-700 h-5/6 items-center rounded-md text-slate-200" onClick={() => deleteTopping(pk)}>Delete</button>
+                    <button className="w-full bg-rose-700 h-5/6 items-center rounded-md text-slate-200" onClick={() => deleteEmployee()}>Delete</button>
                 </div>
                 <div className='ingredient flex items-center w-1/6'>
-                    <button className={`w-full ${style} items-center mr-2 rounded-lg h-5/6`} onClick={() => setTopping(pk)}>{letters}</button>
+                    <button className={`w-full ${style} items-center mr-2 rounded-lg h-5/6`} onClick={() => setEmployee()}>{}</button>
                 </div>
                 <div className='mew flex justify-center align-center items-center mr-1'>
-                    <button className="bg-rose-700 w-full h-5/6 items-center rounded-md text-slate-200" onClick={() => updateIngredient(pk, Iname, IcurrentStock, idealStock, IamountUsed)}>Update</button>
+                    <button className="bg-rose-700 w-full h-5/6 items-center rounded-md text-slate-200" onClick={() => updateEmployee(managerID, nameVar, emailVar)}>Update</button>
                 </div>
             </div>
         </div>

@@ -1,13 +1,13 @@
 "use client"
 
 import React, { useState, useEffect, useCallback } from 'react'
-import './styles.css'
 import Image from 'next/image'
 import coffeeImage from '../../../../public/drinkImages/53.png'
 import milkImage from '../../../../public/drinkImages/30.png'
 import creImage from '../../../../public/drinkImages/18.png'
 import slushImage from '../../../../public/drinkImages/44.png'
-import Modal from '../Modal/Modal'
+
+import "./SugStyles.css";
 
 
 interface SelectedData {
@@ -18,6 +18,7 @@ interface SelectedData {
     normCost: number;
     largeCost: number;
 }
+
 interface ModalProps {
     open: boolean;
     children: React.ReactNode
@@ -54,10 +55,6 @@ export default function Suggestion({onDataSelect, open, children, onClose, temp,
                 setLargePrice(5.75);
                 setNormCost(4);
                 setLargeCost(4.6);
-                // normPrice = 5;
-                // largePrice = 5.75;
-                // normCost = 4;
-                // largeCost = 4.6;
             }
             else{
                 if(temp > 90){
@@ -116,8 +113,8 @@ export default function Suggestion({onDataSelect, open, children, onClose, temp,
     }
     return (
         <div>
-            <div className='Overlay_Styles'>
-                <div className='Modal_Styles bg-slate-200 rounded-3xl flex items-center justify-start border-8 border-rose-700'>
+            <div className='Overlay_StylesSug'>
+                <div className='Modal_StylesSug bg-slate-200 rounded-3xl flex items-center justify-start border-8 border-rose-700'>
                     
                     <div className='text-4xl font-semibold text-rose-700'>{tempString}</div>
                     <Image

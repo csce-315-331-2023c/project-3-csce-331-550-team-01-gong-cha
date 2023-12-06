@@ -2,8 +2,6 @@
 
 import "./styles.css"
 
-import React, { useState, useEffect, useCallback } from 'react'
-
 interface FullMenuProps {
     MenuDrinkName: string;
     LargePrice: number;
@@ -12,8 +10,6 @@ interface FullMenuProps {
 }
 
 export default function FullMenuItem({MenuDrinkName, NormalPrice, LargePrice, category_id }: FullMenuProps){
-
-    const [style, setStyle] = useState<string>((parseInt(category_id) < 10) ? 'bg-rose-700 text-slate-200 text-sm' : 'text-rose-700 bg-slate-200 text-md');
 
     return(
         <div className="flex w-full justify-center">
