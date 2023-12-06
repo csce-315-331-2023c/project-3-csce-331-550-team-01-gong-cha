@@ -15,6 +15,11 @@ export default function EmployeeModal({open, children, onClose}: ModalProps){
 
     const [employeeName, setEmployeeName] = useState<string>('');
     const [employeeEmail, setEmployeeEmail] = useState<string>('');
+    const [employeeManager, setEmployeeManager] = useState<string>('');
+    const [employeeIsM, setEmployeeIsM] = useState<boolean>(false);
+    const [employeeIsA, setEmployeeIsA] = useState<boolean>(false);
+    const [styleA, setStyleA] = useState<string>('bg-rose-700');
+    const [styleM, setStyleM] = useState<string>('bg-rose-700');
 
     interface Employee{
         id: number;
@@ -52,6 +57,10 @@ export default function EmployeeModal({open, children, onClose}: ModalProps){
 
     }
 
+    function createEmployee(){
+        
+    }
+
     useEffect(() =>{
         getEmployees();
     }, [])
@@ -82,11 +91,15 @@ export default function EmployeeModal({open, children, onClose}: ModalProps){
                                 ))}
                             </div>
                         </div>
-                        <div className='flex justify-evenly w-2/5 h-3/5'>
-                        <input className='w-2/5 h-2/5 mx-2 text-center border-rose-700 border-2 bg-slate-100 rounded-lg outline-none text-rose-700' placeholder='Name' type='drinkName' id='drinkName' value={drinkName} onChange={(e) => setDrinkName(e.target.value)} />
-                            <button className='w-2/5 h-3/5 bg-rose-700' onClick={onClose}>exit</button>
-                            <button>test</button>
+                        <div className='flex justify-evenly w-full h-1/6 mt-4'>
+                            <input className='nameE w-2/6 h-3/6 mx-2 text-center border-rose-700 border-2 bg-slate-100 rounded-lg outline-none text-rose-700' placeholder='Name' type='drinkName' id='drinkName' value={employeeName} onChange={(e) => setEmployeeName(e.target.value)} />
+                            <input className='emE w-2/5 h-3/6 mx-2 text-center border-rose-700 border-2 bg-slate-100 rounded-lg outline-none text-rose-700' placeholder='Name' type='drinkName' id='drinkName' value={employeeEmail} onChange={(e) => setEmployeeEmail(e.target.value)} />
+                            <input className='butB w-1/6 h-3/6 mx-2 text-center border-rose-700 border-2 bg-slate-100 rounded-lg outline-none text-rose-700' placeholder='Name' type='drinkName' id='drinkName' value={employeeManager} onChange={(e) => setEmployeeManager(e.target.value)} />
+                            <button className={`${styleM} butB h-3/6 text-slate-200 text-xl font-semibold rounded-xl`} onClick={() => {setEmployeeIsM(!employeeIsM), setStyleM(employeeIsM ? 'bg-rose-700' : 'bg-green-600')}}>Manager</button>
+                            <button className={`${styleA} butB h-3/6 text-slate-200 text-xl font-semibold rounded-xl`} onClick={() => {setEmployeeIsA(!employeeIsA), setStyleA(employeeIsA ? 'bg-rose-700' : 'bg-green-600')}}>Admin</button>
+                            <button className='nameE h-3/6 bg-rose-700 text-slate-200 text-xl font-semibold rounded-xl' onClick={() => {createEmployee() , getEmployees()}}>Add Employee</button>
                         </div>  
+                            <button className='exitt w-2/6 bg-rose-700 -mt-8 mb-4 rounded-xl text-slate-200 text-4xl font-semibold' onClick={onClose}>Exit</button>
                     </div>
             </div>
 

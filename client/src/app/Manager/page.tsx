@@ -167,11 +167,6 @@ export default function Dashboard() {
     getMenuInital(loaded)
   }, [session]);
 
-  const [seed, setSeed] = useState(1);
-  const reset = () => {
-    setSeed(Math.random());
-  }
-
   return (
     <main className="flex-col w-screen h-screen bg-slate-200">
       {acess ?
@@ -219,7 +214,7 @@ export default function Dashboard() {
               </div>
             </div>
           </div>
-          <div key={seed} className='ingredientTableOuter flex justify-center mt-4'>
+          <div className='ingredientTableOuter flex justify-center mt-4'>
             <div className="ingredientTabel flex-col justify-center items-center border-rose-700 border-4 h-full w-full overflow-auto rounded-xl">
               {IngredientItems.map((ingredientItem, index) => (
                 <Ingredient
@@ -230,7 +225,7 @@ export default function Dashboard() {
                     IdealStock={ingredientItem.IdealStock}
                     FConsumerPrice={ingredientItem.ConsumerPrice}
                     isIngre={ingredientItem.isIngredient}
-                    reload={() => {getIngredients(), reset()}}
+                    reload={() => {getIngredients()}}
                 />
               ))}
             </div>
@@ -288,7 +283,7 @@ export default function Dashboard() {
               <input className='w-1/5 h-2/5 mr-2 text-center border-rose-700 border-2 bg-slate-100 rounded-lg outline-none text-rose-700' placeholder='Large Price' type='largePrice' id='largePrice' value={largePrice} onChange={(e) => setLargePrice(e.target.value)} />
               <button className='w-1/5 h-2/5 bg-rose-700 text-slate-200 rounded-lg mr-2' onClick={() => {setAddIngredintOpen(true)}}>Create Drink</button>
             </div> 
-            <AddIngredients open={addIngredintOpen} onClose={() => {setAddIngredintOpen(false), clearFeilds()}} drinkName={drinkName} lgDrinkPrice={parseFloat(largePrice)} nmDrinkPrice={parseFloat(normalPrice)}></AddIngredients>
+            <AddIngredients open={addIngredintOpen} onClose={() => {setAddIngredintOpen(false), getMenuDrinks()}} clearFeilds={() => clearFeilds()} drinkName={drinkName} lgDrinkPrice={parseFloat(largePrice)} nmDrinkPrice={parseFloat(normalPrice)}></AddIngredients>
           </div>
       </div>
       </div>
