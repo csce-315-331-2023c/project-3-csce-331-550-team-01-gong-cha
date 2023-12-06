@@ -12,6 +12,13 @@ import OrderDrink from '../OrderDrink/OrderDrink';
 import ConfirmOrder from '../ConfirmOrder/ConfirmOrder'
 import "./styles.css"
 import GoogleTranslate from '../../GoogleTranslate/GoogleTranslate';
+import seasonalImage from '../../../../public/DrinkImages/seas.png'
+import coffeeImage from '../../../../public/drinkImages/53.png'
+import bewedImage from '../../../public/drinkImages/49.png'
+import milkImage from '../../../public/drinkImages/30.png'
+import creImage from '../../../public/drinkImages/18.png'
+import foamImage from '../../../public/drinkImages/31.png'
+import slushImage from '../../../public/drinkImages/44.png'
 
 // import FullMenu from '../Components/FullMenu/FullMenu'
 import { getCookie, hasCookie, setCookie } from 'cookies-next';
@@ -184,7 +191,7 @@ useEffect(() => {
 }, [stateUpdate])
     return(
       
-      <div>
+      <div className='w-full'>
         {isOrderPlaced && (
         <ConfirmOrder 
             drinks={drinksState}
@@ -265,7 +272,7 @@ useEffect(() => {
           <div className="h-1/4 w-full mt-10" key={name}>
             <MenuItem 
               drinkName={name}
-              drinkImage={defualtDrinkImg} // Use a default image or some other logic for image
+              drinkImage={coffeeImage} // Use a default image or some other logic for image
               altTxt={"Test Drink"}
               thisOnClick={() => goToCategory(name.replace(/\s+/g, ''))}
             />
@@ -305,7 +312,7 @@ useEffect(() => {
           <div className="h-1/4 w-full mt-10" key={name}>
             <MenuItem 
               drinkName={name}
-              drinkImage={defualtDrinkImg} // Use a default image or some other logic for image
+              drinkImage={seasonalImage} // Use a default image or some other logic for image
               altTxt={"Test Drink"}
               thisOnClick={() => goToCategory(name.replace(/\s+/g, ''))}
             />

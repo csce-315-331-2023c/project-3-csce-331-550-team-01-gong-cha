@@ -140,7 +140,7 @@ export default function Order() {
     return (
         <main className="bg-slate-200 bg-cover h-screen w-screen flex">
             <div className='ml-6 catagoryContainer w-full flex-col h-full'>
-                <div className="flex items-center justify-start border-black border-8 w-full">
+                <div className="flex items-center justify-start w-full">
                 {recommended && (
                     <Modal
                     open={true} 
