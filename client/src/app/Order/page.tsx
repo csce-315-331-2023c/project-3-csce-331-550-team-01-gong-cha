@@ -13,10 +13,21 @@ import creImage from '../../../public/drinkImages/18.png'
 import foamImage from '../../../public/drinkImages/31.png'
 import slushImage from '../../../public/drinkImages/44.png'
 import GoogleTranslate from '../GoogleTranslate/GoogleTranslate.js'
+import Modal from '../Components/Modal/Modal'
+import FullMenu from '../Components/FullMenu/FullMenu'
 import { getCookie, hasCookie, setCookie } from 'cookies-next';
 import Router from "next/router";
 
 import './styles.css'
+
+interface SelectedData {
+    name: string;
+    ID: number;
+    normPrice: number;
+    largePrice: number;
+    normCost: number;
+    largeCost: number;
+}
 
 export default function Order() {
     const [transButton, setTransButton] = useState('');
@@ -25,6 +36,7 @@ export default function Order() {
         useGeolocated({positionOptions: {enableHighAccuracy: false,},userDecisionTimeout: 5000,});
 
     const [suggestionOpen, setSuggestionOpen] = useState(false);
+    const [menuOpen, setMenuOpen] = useState(false);
     const [tempVal, setTempVal] = useState(80);
     const [raining, setRaining] = useState(false);
     const [suggested, setSuggested] = useState(false);
@@ -54,15 +66,25 @@ export default function Order() {
     }
     useEffect(() => {
         getData(suggested)  
+        if(!hasCookie('googtrans')){
+            setTransButton('普通话');
+            setCookie('googtrans',decodeURI('/auto/en'));
+        }
         if(getCookie('googtrans') === '/auto/en'){
             setTransButton('普通话');
         }
         else{
             setTransButton('English');
         }
-
     });
 
+    const [recommended, setRecommended] = useState(false);
+    const [selectedData, setSelectedData] = useState<SelectedData>();
+
+    const handleSelectedData = (data: SelectedData) => {
+        setSelectedData(data);
+        setRecommended(true);
+    };
     function goToCategory(category: string){
         window.location.href = "Order/Catagories/" + category;
     }
@@ -70,10 +92,14 @@ export default function Order() {
     function goBack(){
         window.location.href = "../";
     }
+    function setStateUpdate(state: boolean){
+        setRecommended(false);}
 
     function changeLang(){
-        if(decodeURI(getCookie('googtrans')) === '/auto/en'){
-            setCookie('googtrans',decodeURI('/auto/zh-CN'));
+        const googtransCookie = getCookie('googtrans');
+
+        if (googtransCookie && decodeURI(googtransCookie) === '/auto/en') {
+            setCookie('googtrans', '/auto/zh-CN');
             location.reload();
         }
         else{
@@ -90,6 +116,20 @@ export default function Order() {
     return (
         <main className="bg-slate-200 bg-cover h-screen w-screen flex">
             <div className='ml-6 catagoryContainer w-4/5 flex-col h-full'>
+
+            {recommended && (
+                    <Modal
+                    open={true} 
+                    onClose={() => setRecommended(false)}
+                    drinkName={selectedData?.name || ''}
+                    drinkID={selectedData?.ID || 0}
+                    nmDrinkPrice={selectedData?.normPrice || 0}
+                    lgDrinkPrice={selectedData?.largePrice || 0}
+                    nmCost={selectedData?.normCost || 0}
+                    lgCost={selectedData?.largeCost || 0}
+                    setStateUpdate={setStateUpdate}
+                >Customize Ingredients</Modal>
+                )}
                 <div className='flex justify-start align-center items-center'>
                     <div className='homButton'>
                         <button className='backContainter flex items-center w-full' onClick={goBack}>
@@ -99,7 +139,7 @@ export default function Order() {
                     </div>
                     <div className='topCon flex justify-evenly'>
                         <div className='bg-rose-700 w-2/5 h-16 text-slate-200 flex items-center justify-center text-4xl font-semibold notranslate rounded-xl'>  
-                            <button>Full Menu</button>
+                            <button onClick={() => setMenuOpen(true)}>Full Menu</button>
                         </div>
                         <div className='bg-rose-700 w-2/5 h-16 text-slate-200 flex items-center justify-center text-4xl font-semibold notranslate rounded-xl'>  
                             <button onClick={changeLang}>{transButton}</button>
@@ -111,6 +151,7 @@ export default function Order() {
                 </div>
                 <div className='flex h-full w-full'>
                     <Suggestion open={suggestionOpen} onClose={() => setSuggestionOpen(false)} temp={tempVal} raning={raining}>hello</Suggestion>
+                    <FullMenu open={menuOpen} onClose={() => setMenuOpen(false)}>Meer</FullMenu>
                     <div className="flex flex-col items-center justify-start w-full h-full m-4">
                         <div className='h-1/5 w-full m-4'>
                             <MenuItem drinkName={"Milk Tea"} drinkImage={milkImage} altTxt={"Test Drink"} thisOnClick={() => goToCategory("MilkTea")}/>

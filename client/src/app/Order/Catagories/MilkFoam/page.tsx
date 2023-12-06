@@ -38,8 +38,8 @@ export default function Order() {
         }
       , []);
     return (
-        <main className="backgroundS bg-slate-400 bg-cover w-screen w-screenflex-row flex flex-col h-full overflow-y-scroll">
-                <CategoryPage categoryDrinks={drinks}></CategoryPage> 
+        <main className="backgroundS bg-slate-200 bg-cover w-screen flex flex-col h-full">
+                <CategoryPage categoryDrinks={drinks} categoryName='Milk Foam'></CategoryPage> 
         </main>
     );
 }
