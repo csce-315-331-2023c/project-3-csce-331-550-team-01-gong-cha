@@ -1680,7 +1680,13 @@ app.delete('/delete-ingredient/:ingredientID', async (req, res) => {
     res.status(500).json({ error: (error as Error).message });
   }
 });
-//delete menu drink
+
+
+/*
+* Deletes a menu drink
+* @params menu drink primary key
+* @return body A message stating whether or not the deletion was successful
+*/
 app.delete('/delete-menu-drink/:menuDrinkID', async (req, res) => {
   const menuDrinkID = Number(req.params.menuDrinkID);
 
@@ -1716,6 +1722,11 @@ app.delete('/delete-menu-drink/:menuDrinkID', async (req, res) => {
 });
 
 //get an employees info
+/*
+* Get employee info
+* @params A primary key for an employee
+* @return body A JSON body containing the manager id, name, is manager, email, is admin, and is employed, used to update the given id
+*/
 app.get('/get-employee-info/:employeeID', async (req, res) => {
   const employeeID = Number(req.params.employeeID);
 
@@ -1753,6 +1764,7 @@ app.get('/get-employee-info/:employeeID', async (req, res) => {
 * Update employee
 * @params id A primary key for an employee
 * @params body A JSON body containing the manager id, name, is manager, email, is admin, and is employed, used to update the given id
+* @return a success message 
 */
 app.put('/update-employee/:id', async (req, res) => {
   const employeeId = req.params.id;
@@ -1792,7 +1804,12 @@ app.put('/update-employee/:id', async (req, res) => {
   }
 });
 
-//get orders from a day
+
+/*
+* Get orders given a day
+* @params A date to find the orders on that day
+* @return json containing orders for that day
+*/
 app.get('/get-orders-of-day/:day', async (req, res) => {
   const requestedDate = req.params.day;
 
@@ -1819,6 +1836,11 @@ app.get('/get-orders-of-day/:day', async (req, res) => {
 });
 
 //delete order
+/*
+* Deletes an order
+* @params primary key of order you want deleted
+* @return body A success message for the deletion
+*/
 app.delete('/delete-order/:orderID', async (req, res) => {
   const orderID = Number(req.params.orderID);
 
