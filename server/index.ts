@@ -2299,6 +2299,46 @@ app.get('/get-order-drinks-for-order/:orderID', async (req, res) => {
     res.status(500).json({ error: 'An error occurred while fetching order drinks for order' });
   }
 });
+
+/*
+* Gets all the info for an order drink given its primary key
+* @param the order drink primary key for the order drink
+* @return all the fileds for that order drink
+*/
+app.get('/get-order-drink/:orderDrinkID', async (req, res) => {
+  const orderDrinkID = Number(req.params.orderDrinkID);
+
+  if (!orderDrinkID || isNaN(orderDrinkID)) {
+    res.status(400).json({ error: 'Invalid order drink ID' });
+    return;
+  }
+
+  try {
+    const client = await pool.connect();
+
+    const getOrderDrinkSQL = `
+      SELECT *
+      FROM Order_Drink
+      WHERE ID = $1`;
+
+    const result = await client.query(getOrderDrinkSQL, [orderDrinkID]);
+
+    client.release();
+
+    if (result.rows.length === 0) {
+      res.status(404).json({ error: 'Order drink not found' });
+      return;
+    }
+
+    const orderDrink = result.rows[0];
+
+    res.json({ orderDrink });
+  } catch (error) {
+    console.error('Error fetching order drink:', error);
+    res.status(500).json({ error: 'An error occurred while fetching order drink' });
+  }
+});
+
 app.listen(port, () => {
   console.log(`Example listening at  http://localhost:${port}`);
   });
