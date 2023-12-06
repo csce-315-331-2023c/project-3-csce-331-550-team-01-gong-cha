@@ -33,15 +33,16 @@ This is a list of the functions that we have in index.ts. Date of last update: 1
 
 /create-order: This function creates an order. It takes in some parameters. Here's an example of the request body:
     {
-    "total_cost": 50.99,
-    "price": 60.99,
-    "profit": 10,
-    "tipped": 5,
-    "takeout": true,
-    "date": "2023-11-01",
-    "time": "12:30", 
-    "name": "Example Order"
-    }
+  "name": "Example Order",
+  "cost": 50.0,
+  "status": 1,
+  "price": 75.0,
+  "profit": 25.0,
+  "tip": 10.0,
+  "takeout": true,
+  "date": "2023-12-01",
+  "time": "12:30"
+}
 
 /create-ingredient-order-drink: This function creates an ingredient order drink. It takes in some parameters. Here's an example of the request body:
     {

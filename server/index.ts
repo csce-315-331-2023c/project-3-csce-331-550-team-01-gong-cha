@@ -333,6 +333,7 @@ async function createTables(): Promise<number> {
       ID SERIAL PRIMARY KEY,
       Name VARCHAR(50),
       Cost DOUBLE PRECISION,
+      Status INTEGER DEFAULT 0,
       Price DOUBLE PRECISION,
       Profit DOUBLE PRECISION,
       Tip DOUBLE PRECISION,
@@ -420,28 +421,29 @@ app.post('/create-ingredient', async (req, res) => {
 
 /*
 * Create order
-* @params body A JSON body that contains total_cost, price, profit, tipped, takout, date, time, and name
+* @params body A JSON body that contains cost, price, profit, tipped, takout, date, time, status, and name
 * @returns A JSON containing the primary key of the new order
 */
 app.post('/create-order', async (req, res) => {
   console.log('Received request body:', req.body);
 
   const {
-    total_cost,
+    name,
+    cost,
+    status,
     price,
     profit,
-    tipped,
+    tip,
     takeout,
     date,
     time,
-    name,
   } = req.body;
 
   if (
-    isNaN(total_cost) ||
+    isNaN(cost) ||
     isNaN(price) ||
     isNaN(profit) ||
-    isNaN(tipped) ||
+    isNaN(tip) ||
     typeof takeout !== 'boolean' ||
     !date ||
     !time ||
@@ -455,16 +457,17 @@ app.post('/create-order', async (req, res) => {
     const client = await pool.connect();
 
     const insertOrderSQL = `
-      INSERT INTO Orders (Name, Cost, Price, Profit, Tip, Takeout, Date, Time)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      INSERT INTO Orders (Name, Cost, Status, Price, Profit, Tip, Takeout, Date, Time)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
       RETURNING ID`; // Add RETURNING ID to get the primary key
 
     const values = [
       name,
-      total_cost,
+      cost,
+      status || 0, // Default to 0 if status is not provided
       price,
       profit,
-      tipped,
+      tip,
       takeout,
       date,
       time,
