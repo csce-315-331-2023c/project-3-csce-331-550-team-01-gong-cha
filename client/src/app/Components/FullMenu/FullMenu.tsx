@@ -10,7 +10,6 @@ interface ModalProps {
 }
 
 export default function FullMenu({open, children, onClose}: ModalProps){
-   // const useMountEffect = (fun) => useEffect(fun, [])
 
     type Drink = {
         id: number;

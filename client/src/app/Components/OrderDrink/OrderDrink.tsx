@@ -42,7 +42,7 @@ export default function OrderDrink({key, drinkName, sugar, ice, size, price, top
 
     console.log(toppings);
     return (
-        <div className="flex-col w-full bg-rose-800 p-3 text-sm rounded-3xl mt-3 text-slate-100 font-semibold">
+        <div className="flex-col w-11/12 bg-rose-800 p-3 text-sm rounded-3xl mt-3 text-slate-100 font-semibold">
             <div className="flex justify-evenly">
                 <div className="text-sm">
                     {drinkName}
