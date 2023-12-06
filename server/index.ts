@@ -2234,6 +2234,10 @@ app.put('/change-manager/:employeeID', async (req, res) => {
   }
 });
 
+/*
+* Gets all the ingredient primary keys for every single menu drink
+* @return all the ingredient primary keys for every single menu drink
+*/
 app.get('/get-menu-drinks-with-ingredients', async (req, res) => {
   try {
     const client = await pool.connect();
@@ -2262,6 +2266,39 @@ app.get('/get-menu-drinks-with-ingredients', async (req, res) => {
   }
 });
 
+/*
+* Gets all the order drinks for an order
+* @param the order primary key you want order drinks for
+* @return all the order drink primary keys for the order
+*/
+app.get('/get-order-drinks-for-order/:orderID', async (req, res) => {
+  const orderID = Number(req.params.orderID);
+
+  if (!orderID || isNaN(orderID)) {
+    res.status(400).json({ error: 'Invalid order ID' });
+    return;
+  }
+
+  try {
+    const client = await pool.connect();
+
+    const getOrderDrinksForOrderSQL = `
+      SELECT OOD.Order_Drink_ID
+      FROM Order_Order_Drink OOD
+      WHERE OOD.Order_ID = $1`;
+
+    const result = await client.query(getOrderDrinksForOrderSQL, [orderID]);
+
+    client.release();
+
+    const orderDrinkIDs = result.rows.map(row => row.order_drink_id);
+
+    res.json({ orderDrinkIDs });
+  } catch (error) {
+    console.error('Error fetching order drinks for order:', error);
+    res.status(500).json({ error: 'An error occurred while fetching order drinks for order' });
+  }
+});
 app.listen(port, () => {
   console.log(`Example listening at  http://localhost:${port}`);
   });
