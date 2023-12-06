@@ -1408,8 +1408,8 @@ app.put('/update-menu-drink/:id', async (req, res) => {
 
 /*
 * Update employee
-* @params id A primary key for an ingredient
-* @params body A JSON body containing the name, current amount, ideal amount, consumer price, and is ingredient, used to update the given id
+* @params id A primary key for an employee
+* @params body A JSON body containing the manager id, name, is manager, email, is admin, and is employed, used to update the given id
 */
 app.put('/update-employee/:id', async (req, res) => {
   const employeeId = req.params.id;
