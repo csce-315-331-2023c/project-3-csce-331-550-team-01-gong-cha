@@ -13,12 +13,12 @@ import ConfirmOrder from '../ConfirmOrder/ConfirmOrder'
 import "./styles.css"
 import GoogleTranslate from '../../GoogleTranslate/GoogleTranslate';
 import seasonalImage from '../../../../public/DrinkImages/seas.png'
-import coffeeImage from '../../../../public/drinkImages/53.png'
-import bewedImage from '../../../public/drinkImages/49.png'
-import milkImage from '../../../public/drinkImages/30.png'
-import creImage from '../../../public/drinkImages/18.png'
-import foamImage from '../../../public/drinkImages/31.png'
-import slushImage from '../../../public/drinkImages/44.png'
+import coffeImage from '../../../../public/DrinkImages/53.png';
+import beweDImage from '../../../../public/DrinkImages/49.png';
+import milkImage from '../../../../public/DrinkImages/30.png'
+import creImage from '../../../../public/DrinkImages/18.png'
+import foamImage from '../../../../public/DrinkImages/31.png'
+import slushImage from '../../../../public/DrinkImages/44.png'
 import { useSession, signIn, signOut } from 'next-auth/react'
 
 // import FullMenu from '../Components/FullMenu/FullMenu'

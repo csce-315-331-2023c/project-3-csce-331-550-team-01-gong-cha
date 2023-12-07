@@ -55,18 +55,16 @@ export default function ReportsModal({open, children, onClose, whichReport}: Mod
     const [usageItems, setUsageItems] = useState<[string, number][]>([]);
     
 
-    function saleReport(date1: string, date2: string){
+    async function saleReport(date1: string, date2: string){
         fetch(`http://18.191.166.59:5000/sales-report/${date1}/${date2}`) // Replace with the actual API endpoint URL
             .then((response) => {
                 if (!response.ok) {
-                alert("did not pass");
                 throw new Error('Network response was not ok');
                 }
                 return response.json();
             })
             .then((data) => {
                 // Process the data received from the API and store it in the state
-                
                 const salesReportData: SalesReportItem[] = data.map((item: any) => ({
                     MenuDrinkName: item.MenuDrinkName,
                     MenuDrinkPrice: item.MenuDrinkPrice,
@@ -79,45 +77,48 @@ export default function ReportsModal({open, children, onClose, whichReport}: Mod
 
     
 
-    function usageReport(date1: string, date2: string){
-        saleReport(date1, date2);
+    async function usageReport(date1: string, date2: string){
+
+        await saleReport(date1, date2);
         const menuDrinkIds: [number, number][] = salesReportItems.map((drink: SalesReportItem) => (
             [drink.MenuDrinkID, drink.AmountSold]
         ));
-        
+        // alert(JSON.stringify(menuDrinkIds) + "something");
         menuDrinkIds.forEach((drink: [number, number]) => (
             
-            fetch(`http://18.191.166.59:5000/get-ingredients-for-menu-drinks/${drink[0]}`)
+            fetch(`http://18.191.166.59:5000/ingredients-for-menu-drinks/${drink[0]}`)
             .then((response) => {
                 if (!response.ok) {
-                alert("did not pass");
+                // alert("did not pass 1");
                 throw new Error('Network response was not ok');
                 }
                 return response.json();
             })
             .then((ingredientIds) => {
                 let localAmount = drink[1];
+                
                 ingredientIds[0].forEach((id: number) => (
+                    
                     fetch(`http://18.191.166.59:5000/get-ingredient-name/${id}`)
                     .then((response) => {
                         if (!response.ok) {
-                        alert("did not pass");
                         throw new Error('Network response was not ok');
                         }
                         return response.json();
                     })
-                    .then((ingredientName) => {
-                        updateIngredientAmounts(ingredientName, localAmount);
+                    .then((ingredient) => {
+                        updateIngredientAmounts(ingredient, localAmount);
 
                     })
                 ))
             })
         ))
+        // alert("finished usage function")
     }
 
     function updateIngredientAmounts(ingredientName: string, amount: number) {
         setUsageItems(prevAmounts => {
-            const index = prevAmounts.findIndex(([name]) => name === ingredientName);
+            const index = prevAmounts.findIndex(([name]) => name == ingredientName);
             if (index >= 0) {
                 const updatedAmounts = [...prevAmounts];
                 updatedAmounts[index] = [ingredientName, updatedAmounts[index][1] + amount];
@@ -125,8 +126,10 @@ export default function ReportsModal({open, children, onClose, whichReport}: Mod
             } else {
                 return [...prevAmounts, [ingredientName, amount]];
             }
+            
         });
     }
+    
 
     function soldTogether(date1: string, date2: string){
         fetch(`http://18.191.166.59:5000/sold-together/:${date1}/:${date2}`) // Replace with the actual API endpoint URL
@@ -190,18 +193,19 @@ export default function ReportsModal({open, children, onClose, whichReport}: Mod
                             </div>
                         </div>
                         <div className="viewer flex-col justify-evenly border-rose-700 border-4 rounded-md h-full w-full overflow-auto">
-                        {/* {salesReportItems.map((salesReportItem, index) => (
+                        {/* {usageItems.map((usageItem, index) => (
                             <SalesReportItem
                                 key={index}
-                                MenuDrinkName={salesReportItem.MenuDrinkName}
-                                MenuDrinkPrice={salesReportItem.MenuDrinkPrice}
-                                AmountSold={salesReportItem.AmountSold}
+                                MenuDrinkName={usageItem[0]}
+                                MenuDrinkPrice={usageItem[1]}
+                                AmountSold={1}
                             />
                         ))} */}
+
                         {usageItems.map((usageItem, index) => (
                             <UsageItem
                                 key={index}
-                                ingredientName={usageItem[0]}
+                                ingredientName={usageItem[0].ingredientName}
                                 amountUsed={usageItem[1]}
                             />
                         ))}
