@@ -40,7 +40,7 @@ export default function Order() {
       , []);
     return (
       <main className="backgroundS bg-slate-200 bg-cover w-screen flex flex-col h-auto">
-                <div className="flex items-center justify-start h-full">
+                <div className="flex items-center justify-start">
                 <CategoryPage categoryDrinks={drinks} categoryName='Brewed Tea'></CategoryPage> 
                 </div>
         </main>

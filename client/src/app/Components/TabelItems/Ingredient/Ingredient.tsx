@@ -33,10 +33,9 @@ export default function RestockReportIngredient({pk, FIName, CurrentStock, Ideal
         else{ newIdealStock = idealStock; }
         if(price === newPrice){ newPrice = FConsumerPrice; }
         else{ newPrice = price; }
-        console.log(JSON.stringify({name: newName, currentAmount: newCurStock, idealAmount: newIdealStock, consumerPrice: newPrice, isIngredient: isIngred}));
-        alert(JSON.stringify({name: newName, currentAmount: newCurStock, idealAmount: newIdealStock, consumerPrice: newPrice, isIngredient: isIngred}));
+
         fetch(`http://18.191.166.59:5000/update-ingredient/${pkk}`, {
-            method: 'POST',
+            method: 'PUT',
             headers: {
               'Content-Type': 'application/json',
             },
@@ -95,7 +94,7 @@ export default function RestockReportIngredient({pk, FIName, CurrentStock, Ideal
                     <button className="w-full bg-rose-700 h-5/6 items-center rounded-md text-slate-200" onClick={() => deleteTopping(pk)}>Delete</button>
                 </div>
                 <div className='ingredient flex items-center w-1/6'>
-                    <button className={`w-full ${style} items-center mr-2 rounded-lg h-5/6`} onClick={() => setTopping(pk)}>{letters}</button>
+                    <button className={`w-full ${style} items-center mr-2 rounded-lg h-5/6 text-slate-200`} onClick={() => setTopping(pk)}>{letters}</button>
                 </div>
                 <div className='mew flex justify-center align-center items-center mr-1'>
                     <button className="bg-rose-700 w-full h-5/6 items-center rounded-md text-slate-200" onClick={() => updateIngredient(pk, Iname, IcurrentStock, idealStock, IamountUsed)}>Update</button>

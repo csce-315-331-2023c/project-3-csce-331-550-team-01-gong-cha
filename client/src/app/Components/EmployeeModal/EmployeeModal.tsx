@@ -1,5 +1,5 @@
 'use clinet'
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useReducer } from 'react';
 import EmployeeItem from '../TabelItems/EmployeeItem/EmployeeItem';
 import './styles.css'
 
@@ -11,10 +11,17 @@ interface ModalProps {
 
 export default function EmployeeModal({open, children, onClose}: ModalProps){
 
+    const [ignored, forceUpdate] = useReducer(x => x + 1, 0);
+
     const [employeeArray, setEmployeeArray] = useState<Employee[]>([]);
 
     const [employeeName, setEmployeeName] = useState<string>('');
     const [employeeEmail, setEmployeeEmail] = useState<string>('');
+    const [employeeManager, setEmployeeManager] = useState<string>('');
+    const [employeeIsM, setEmployeeIsM] = useState<boolean>(false);
+    const [employeeIsA, setEmployeeIsA] = useState<boolean>(false);
+    const [styleA, setStyleA] = useState<string>('bg-rose-700');
+    const [styleM, setStyleM] = useState<string>('bg-rose-700');
 
     interface Employee{
         id: number;
@@ -26,30 +33,50 @@ export default function EmployeeModal({open, children, onClose}: ModalProps){
         isemployed: boolean;
     };
 
-    function getEmployees(){
-        fetch(`http://18.191.166.59:5000/employees`) // Replace with the actual API endpoint URL
-        .then((response) => {
-            if (!response.ok) {
-            alert("did not pass");
-            throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then((data) => {
-            // Process the data received from the API and store it in the state
-            
-            const employees: Employee[] = data.map((item: any) => ({
-                id: item.id,
-                name: item.name,
-                manager_id: item.manager_id,
-                ismanager: item.ismanager,
-                email: item.email,
-                isadmin: item.isadmin,
-                isemployed: item.isemployed,
-            }));
-            setEmployeeArray(employees);
-        })
+    async function getEmployees(){
+        const response = await fetch(`http://18.191.166.59:5000/employees`) // Replace with the actual API endpoint URL
 
+        const employeeA = await response.json();
+ 
+        const employees: Employee[] = await employeeA.map((item: any) => ({
+            id: item.id,
+            name: item.name,
+            manager_id: item.manager_id,
+            ismanager: item.ismanager,
+            email: item.email,
+            isadmin: item.isadmin,
+            isemployed: item.isemployed,
+        }));
+
+        setEmployeeArray(employees);
+    } 
+
+    async function createEmployee(){
+
+        const isAdText = employeeIsA ? "TRUE" : 'FALSE';
+        const isMaText = employeeIsM ? "TRUE" : 'FALSE';
+
+        await fetch(`http://18.191.166.59:5000/create-employee`, {
+                method: 'POST',
+                headers: {
+                'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ Manager_ID: employeeManager, Name: employeeName, isManager: isMaText, Email: employeeEmail, IsAdmin: isAdText, IsEmployed: 'TRUE' }),
+            });
+    }
+
+    async function addEmployee(){
+
+        await createEmployee();
+        setEmployeeName('');
+        setEmployeeEmail('');
+        setEmployeeManager('');
+        setEmployeeIsA(false);
+        setEmployeeIsM(false);
+        setStyleM('bg-rose-700');
+        setStyleA('bg-rose-700');
+        setEmployeeArray([]);
+        await getEmployees();
     }
 
     useEffect(() =>{
@@ -77,16 +104,20 @@ export default function EmployeeModal({open, children, onClose}: ModalProps){
                                         email={item.email}
                                         isadmin={item.isadmin}
                                         isemployed={item.isemployed}
-                                        reload={() => getEmployees()}
+                                        reload={() => {setEmployeeArray([]), getEmployees()}}
                                     />
                                 ))}
                             </div>
                         </div>
-                        <div className='flex justify-evenly w-2/5 h-3/5'>
-                        <input className='w-2/5 h-2/5 mx-2 text-center border-rose-700 border-2 bg-slate-100 rounded-lg outline-none text-rose-700' placeholder='Name' type='drinkName' id='drinkName' value={drinkName} onChange={(e) => setDrinkName(e.target.value)} />
-                            <button className='w-2/5 h-3/5 bg-rose-700' onClick={onClose}>exit</button>
-                            <button>test</button>
+                        <div className='flex justify-evenly w-full h-1/6 mt-4'>
+                            <input className='nameE w-2/6 h-3/6 mx-2 text-center border-rose-700 border-2 bg-slate-100 rounded-lg outline-none text-rose-700' placeholder='Name' type='drinkName' id='drinkName' value={employeeName} onChange={(e) => setEmployeeName(e.target.value)} />
+                            <input className='emE w-2/5 h-3/6 mx-2 text-center border-rose-700 border-2 bg-slate-100 rounded-lg outline-none text-rose-700' placeholder='Email' type='drinkName' id='drinkName' value={employeeEmail} onChange={(e) => setEmployeeEmail(e.target.value)} />
+                            <input className='butB w-1/6 h-3/6 mx-2 text-center border-rose-700 border-2 bg-slate-100 rounded-lg outline-none text-rose-700' placeholder='Manager ID' type='drinkName' id='drinkName' value={employeeManager} onChange={(e) => setEmployeeManager(e.target.value)} />
+                            <button className={`${styleM} butB h-3/6 text-slate-200 text-xl font-semibold rounded-xl`} onClick={() => {setEmployeeIsM(!employeeIsM), setStyleM(employeeIsM ? 'bg-rose-700' : 'bg-green-600')}}>Manager</button>
+                            <button className={`${styleA} butB h-3/6 text-slate-200 text-xl font-semibold rounded-xl`} onClick={() => {setEmployeeIsA(!employeeIsA), setStyleA(employeeIsA ? 'bg-rose-700' : 'bg-green-600')}}>Admin</button>
+                            <button className='nameE h-3/6 bg-rose-700 text-slate-200 text-xl font-semibold rounded-xl' onClick={() => addEmployee()}>Add Employee</button>
                         </div>  
+                            <button className='exitt w-2/6 bg-rose-700 -mt-8 mb-4 rounded-xl text-slate-200 text-4xl font-semibold' onClick={onClose}>Exit</button>
                     </div>
             </div>
 

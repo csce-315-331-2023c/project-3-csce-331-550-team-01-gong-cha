@@ -1,6 +1,6 @@
 "use client"
 import './styles.css'
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useReducer } from 'react'
 
 interface Employee{
     id: number;
@@ -15,12 +15,16 @@ interface Employee{
 
 export default function EmployeeItem({id, manager_id, name, ismanager, email, isadmin, isemployed, reload}: Employee){
 
+    const [ignored, forceUpdate] = useReducer(x => x + 1, 0);
+
     const [managerID, setManagerID] = useState<string>('');
     const [nameVar, setNameVar] = useState<string>('');
     const [emailVar, setEmailVar] = useState<string>('');
 
-    const [managerButton, setManagerButton] = useState<string>('');
-    const [adminButton, setAdminButton] = useState<string>('');
+    const [styleM, setStyleM] = useState<string>(ismanager ? 'bg-green-600' : 'bg-rose-700');
+    const [styleA, setStyleA] = useState<string>(isadmin ? 'bg-green-600' : 'bg-rose-700');
+    const [textM, setTextM] = useState<string>(ismanager ? 'Yes' : 'No');
+    const [textA, setTextA] = useState<string>(isadmin ? 'Yes' : 'No');
 
     function updateEmployee(managerPK: string, newName: string, newEmail: string){
 
@@ -42,36 +46,59 @@ export default function EmployeeItem({id, manager_id, name, ismanager, email, is
             return response.json();
         })
         .then(() => {
-            setEmailVar('');
-            setManagerID('');
-            setNameVar('');
-            setStyleM(ismanager ? 'bg-green-600' : 'bg-rose-700');
-            setStyleA(isadmin ? 'bg-green-600' : 'bg-rose-700');
-            setTextM(ismanager ? 'Yes' : 'No');
-            setTextA(isadmin ? 'Yes' : 'No');
+            forceUpdate();
             reload();
+            forceUpdate();
         })
     }
 
     function deleteEmployee(){
-
+        fetch(`http://18.191.166.59:5000/delete-employee/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+              },
+        })
+        .then(() => {
+            forceUpdate();
+            reload();
+            forceUpdate();
+        });
     }
-    function setEmployee(){
-        
+
+    function updateStates(){
+        setEmailVar('');
+        setManagerID('');
+        setNameVar('');
+        setStyleM(ismanager ? 'bg-green-600' : 'bg-rose-700');
+        setStyleA(isadmin ? 'bg-green-600' : 'bg-rose-700');
+        setTextM(ismanager ? 'Yes' : 'No');
+        setTextA(isadmin ? 'Yes' : 'No');
     }
 
-    function swapM(){
-
+    async function swapM(){
+        await fetch(`http://18.191.166.59:5000/change-manager/${id}`, {
+            method: 'PUT',
+            headers: {
+            'Content-Type': 'application/json',
+            },
+        });
+        reload();
     }
 
-    function swapA(){
-
+    async function swapA(){
+        await fetch(`http://18.191.166.59:5000/change-admin/${id}`, {
+            method: 'PUT',
+            headers: {
+            'Content-Type': 'application/json',
+            },
+        });
+        reload();
     }
 
-    const [styleM, setStyleM] = useState<string>(ismanager ? 'bg-green-600' : 'bg-rose-700');
-    const [styleA, setStyleA] = useState<string>(isadmin ? 'bg-green-600' : 'bg-rose-700');
-    const [textM, setTextM] = useState<string>(ismanager ? 'Yes' : 'No');
-    const [textA, setTextA] = useState<string>(isadmin ? 'Yes' : 'No');
+    useEffect(() => {
+        updateStates();
+    }, [])
 
     return(
         <div className='flex justify-center bg-slate-200 w-ful h-12 mt-1'>

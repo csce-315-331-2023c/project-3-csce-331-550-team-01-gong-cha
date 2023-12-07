@@ -10,9 +10,10 @@ interface ModalProps {
   drinkName: string;
   lgDrinkPrice: number;
   nmDrinkPrice: number;
+  clearFeilds: () => void;
 }
 
-export default function AddIngredients({open, onClose, drinkName, lgDrinkPrice, nmDrinkPrice}: ModalProps) {
+export default function AddIngredients({open, onClose, drinkName, lgDrinkPrice, nmDrinkPrice, clearFeilds}: ModalProps) {
   const [DrinkIngredients, setDrinkIngredients] = useState<number[]>([]);
 
   const [catagory, setCatagory] = useState<number>();
@@ -76,20 +77,13 @@ export default function AddIngredients({open, onClose, drinkName, lgDrinkPrice, 
           },
           body: JSON.stringify({ menuDrinkId: newMenuDrink, ingredientId: DrinkIngredients[idx] }),
         })
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error('Network response was not ok');
-          }
-          return response.json();
-        })
       }
     }
-    onClose();
-  }, [onClose, DrinkIngredients, newMenuDrink]);
+  }, [DrinkIngredients, newMenuDrink]);
 
-  useEffect(() => {
-    addToppings();
-  }, [newMenuDrink, addToppings]);
+  // useEffect(() => {
+  //   addToppings();
+  // }, [newMenuDrink, addToppings]);
 
 
 
@@ -151,7 +145,7 @@ export default function AddIngredients({open, onClose, drinkName, lgDrinkPrice, 
                 </div>
                 <div className='buttonRow2 flex w-full justify-evenly mt-8'>
                     <button className='bg-rose-700 text-slate-200 text-3xl font-semibold rounded-xl w-2/6' onClick={onClose}>Exit</button>
-                    <button className='bg-rose-700 text-slate-200 text-3xl font-semibold rounded-xl w-2/6 h-full' onClick={() => createMenuDrink(drinkName, nmDrinkPrice, lgDrinkPrice)}>Create Drink</button>
+                    <button className='bg-rose-700 text-slate-200 text-3xl font-semibold rounded-xl w-2/6 h-full' onClick={() => {createMenuDrink(drinkName, nmDrinkPrice, lgDrinkPrice), addToppings(),clearFeilds(), onClose()}}>Create Drink</button>
                 </div>
             </div>
         </div>

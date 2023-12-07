@@ -39,7 +39,7 @@ export default function Order() {
       , []);
     return (
         <main className="backgroundS bg-slate-200 bg-cover w-screen flex flex-col h-full">
-                <div className="flex items-center justify-start h-full">
+                <div className="flex items-center justify-startl">
                 <CategoryPage categoryDrinks={drinks} categoryName='Creative Mix'></CategoryPage> 
                 </div>
         </main>

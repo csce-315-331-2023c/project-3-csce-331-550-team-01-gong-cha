@@ -35,7 +35,7 @@ export default function RestockReportIngredient({pk, name, priceNormal, priceLar
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify({name: newName, normalCost: parseFloat(newNormPrice) * 0.8, largeCost: parseFloat(newLargePrice) * 0.8, normConsumerPrice: newNormPrice, lgConsumerPrice: newLargePrice, category: category}),
+            body: JSON.stringify({ name: newName, normalCost: parseFloat(newNormPrice) * 0.8, largeCost: parseFloat(newLargePrice) * 0.8, normConsumerPrice: newNormPrice, lgConsumerPrice: newLargePrice, category: category, isOffered: 'TRUE'}),
           })
           .then(() => {
             setIname('');
@@ -44,12 +44,19 @@ export default function RestockReportIngredient({pk, name, priceNormal, priceLar
             reload();
           })
     }
+    
+    function deleteMenuDrink(){
+        fetch(`http://18.191.166.59:5000/delete-menu-drink/${pk}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+              },
+        })
+        .then(() => {
+            reload();
+        });
+    }
 
-    const Conditional = ({condition, children,}: 
-        {condition: boolean, children: React.ReactNode}) => {
-            if(condition) return <>{children}</>;
-            return <></>;
-    };
 
     const [Iname, setIname] = useState('');
     const [InormalPrice, setInormalPrice] = useState('');
@@ -61,12 +68,13 @@ export default function RestockReportIngredient({pk, name, priceNormal, priceLar
                 <input className='name w-2/6 flex justify-center items-center  text-center rounded-lg outline-none text-rose-700' placeholder={name} type="Iname" id="Iname" value={Iname} onChange={(e) => setIname(e.target.value)}/>
                 <input className='normPrice w-1/5 flex justify-center items-center text-center outline-none text-rose-700' placeholder={priceNormal} type="InormalPrice" id="InormalPrice" value={InormalPrice} onChange={(e) => setInormalPrice(e.target.value)}/>
                 <input className='lgPrice w-1/5 flex justify-center items-center text-center outline-none text-rose-700' placeholder={priceLarge} type="IlargePrice" id="IlargePrice" value={IlargePrice} onChange={(e) => setIlargePrice(e.target.value)}/>
-                <Conditional condition={true}>
-                    <div className='ingredient flex items-center w-1/6'>
-                        <button className="w-full bg-green-600 items-center mr-2 rounded-lg h-5/6" onClick={setInStock}>Yes</button>
-                    </div>
-                </Conditional>
-                <div className='button w-1/6 flex items-center'>
+                <div className='ingredient flex items-center w-1/6'>
+                    <button className="w-full bg-rose-700 items-center mr-2 rounded-lg h-5/6 text-slate-200" onClick={setInStock}>Edit</button>
+                </div>
+                <div className='ingredient flex items-center w-1/6'>
+                    <button className="w-full bg-rose-700 items-center mr-2 rounded-lg h-5/6 text-slate-200" onClick={deleteMenuDrink}>Delete</button>
+                </div>
+                <div className='buttonn w-1/6 flex items-center'>
                     <button className="bg-rose-700 w-full h-5/6 items-center rounded-lg mr-1 text-slate-200" onClick={() => updateMenuDrink(pk, Iname, InormalPrice, IlargePrice)}>Update</button>
                 </div>
             </div>
