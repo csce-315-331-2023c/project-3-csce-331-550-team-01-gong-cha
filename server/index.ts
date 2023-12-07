@@ -1203,43 +1203,41 @@ app.get('/sold-together/:startDate/:endDate', async (req, res) => {
 */
 app.get('/sales-report/:startDate/:endDate', async (req, res) => {
   try {
-      const startDate = req.params.startDate;
-      const endDate = req.params.endDate;
+    const startDate = req.params.startDate;
+    const endDate = req.params.endDate;
 
-      const client = await pool.connect();
+    const client = await pool.connect();
 
-      const querySQL = `
+    const querySQL = `
       SELECT
-      MD.Name AS MenuDrinkName,
-      MD.Norm_Consumer_Price AS MenuDrinkPrice,
-      MD.ID AS MenuDrinkID,
-      COUNT(OD.ID) AS AmountSold
-  FROM
-      Menu_Drink MD
-  LEFT JOIN Order_Drink OD ON MD.ID = OD.Menu_Drink_ID
-  LEFT JOIN Order_Order_Drink OOD ON OD.ID = OOD.Order_Drink_ID
-  LEFT JOIN Orders O ON OOD.Order_ID = O.ID
-  WHERE
-      O.Date BETWEEN '2023-10-01' AND '2023-10-03'
-  GROUP BY
-      MD.Name, MD.Norm_Consumer_Price, MD.ID;
+        MD.ID AS MenuDrinkID,  -- Add this line to include MenuDrinkID in the result
+        MD.Name AS MenuDrinkName,
+        MD.Norm_Consumer_Price AS MenuDrinkPrice,
+        COUNT(OD.ID) AS AmountSold
+      FROM
+        Menu_Drink MD
+      LEFT JOIN Order_Drink OD ON MD.ID = OD.Menu_Drink_ID
+      LEFT JOIN Order_Order_Drink OOD ON OD.ID = OOD.Order_Drink_ID
+      LEFT JOIN Orders O ON OOD.Order_ID = O.ID
+      WHERE
+        O.Date BETWEEN $1 AND $2
+      GROUP BY
+        MD.ID, MD.Name, MD.Norm_Consumer_Price;`;
 
-      `;
+    const result = await client.query(querySQL, [startDate, endDate]);
+    client.release();
 
-      const result = await client.query(querySQL, [startDate, endDate]);
-      client.release();
+    const salesReport = result.rows.map((row) => ({
+      MenuDrinkID: row.menudrinkid, // Include MenuDrinkID in the result
+      MenuDrinkName: row.menudrinkname,
+      MenuDrinkPrice: row.menudrinkprice,
+      AmountSold: row.amountsold,
+    }));
 
-      const salesReport = result.rows.map((row) => ({
-          MenuDrinkName: row.menudrinkname,
-          MenuDrinkPrice: row.menudrinkprice,
-          AmountSold: row.amountsold,
-          MenuDrinkPk: row.menudrinkid
-      }));
-
-      res.json(salesReport);
+    res.json(salesReport);
   } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: 'Internal Server Error' });
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 });
 

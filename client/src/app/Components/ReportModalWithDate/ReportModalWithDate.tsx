@@ -30,6 +30,7 @@ export default function ReportsModal({open, children, onClose, whichReport}: Mod
         MenuDrinkName: string;
         MenuDrinkPrice: number;
         AmountSold: number;
+        MenuDrinkID: number;
     }
 
     interface SoldTogetherItem {
@@ -63,20 +64,62 @@ export default function ReportsModal({open, children, onClose, whichReport}: Mod
                 const salesReportData: SalesReportItem[] = data.map((item: any) => ({
                     MenuDrinkName: item.MenuDrinkName,
                     MenuDrinkPrice: item.MenuDrinkPrice,
-                    AmountSold: item.AmountSold
+                    AmountSold: item.AmountSold,
+                    MenuDrinkID: item.MenuDrinkID
                 }));
                 setSalesReportItems(salesReportData);
             })
     }
 
+    const [ingredientAmounts, setIngredientAmounts] = useState<[string, number][]>([]);
+
     function usageReport(date1: string, date2: string){
         saleReport(date1, date2);
-        const menuDrinkNames = salesReportItems.map((drinkName: SalesReportItem) => (
-            drinkName.MenuDrinkName
+        const menuDrinkIds: [number, number][] = salesReportItems.map((drink: SalesReportItem) => (
+            [drink.MenuDrinkID, drink.AmountSold]
         ));
         
+        menuDrinkIds.forEach((drink: [number, number]) => (
+            
+            fetch(`http://18.191.166.59:5000/get-ingredients-for-menu-drinks/${drink[0]}`)
+            .then((response) => {
+                if (!response.ok) {
+                alert("did not pass");
+                throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then((ingredientIds) => {
+                let localAmount = drink[1];
+                ingredientIds[0].forEach((id: number) => (
+                    fetch(`http://18.191.166.59:5000/get-ingredient-name/${id}`)
+                    .then((response) => {
+                        if (!response.ok) {
+                        alert("did not pass");
+                        throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then((ingredientName) => {
+                        updateIngredientAmounts(ingredientName, localAmount);
 
-        
+                    })
+                ))
+            })
+        ))
+    }
+
+    function updateIngredientAmounts(ingredientName: string, amount: number) {
+        setIngredientAmounts(prevAmounts => {
+            const index = prevAmounts.findIndex(([name]) => name === ingredientName);
+            if (index >= 0) {
+                const updatedAmounts = [...prevAmounts];
+                updatedAmounts[index] = [ingredientName, updatedAmounts[index][1] + amount];
+                return updatedAmounts;
+            } else {
+                return [...prevAmounts, [ingredientName, amount]];
+            }
+        });
     }
 
     function soldTogether(date1: string, date2: string){
