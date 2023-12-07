@@ -13,13 +13,14 @@ import ConfirmOrder from '../ConfirmOrder/ConfirmOrder'
 import "./styles.css"
 import GoogleTranslate from '../../GoogleTranslate/GoogleTranslate';
 import seasonalImage from '../../../../public/DrinkImages/seas.png'
-import coffeeImage from '../../../../public/drinkImages/53.png'
-import bewedImage from '../../../public/drinkImages/49.png'
-import milkImage from '../../../public/drinkImages/30.png'
-import creImage from '../../../public/drinkImages/18.png'
-import foamImage from '../../../public/drinkImages/31.png'
-import slushImage from '../../../public/drinkImages/44.png'
+import coffeImage from '../../../../public/DrinkImages/53.png';
+import beweDImage from '../../../../public/DrinkImages/49.png';
+import milkImage from '../../../../public/DrinkImages/30.png'
+import creImage from '../../../../public/DrinkImages/18.png'
+import foamImage from '../../../../public/DrinkImages/31.png'
+import slushImage from '../../../../public/DrinkImages/44.png'
 import { useSession, signIn, signOut } from 'next-auth/react'
+import OrderModal from '../OrderModal/OrderModal';
 
 // import FullMenu from '../Components/FullMenu/FullMenu'
 import { getCookie, hasCookie, setCookie } from 'cookies-next';
@@ -58,14 +59,16 @@ export default function CategoryPage({categoryDrinks, categoryName}: CategoryPag
   const [acess, setAcess] = useState(false);
   const [first, setFirst] = useState(false);
 
+  const [addingToOrder, setAddingToOrder] = useState(false);
+  const [openOrder, setOpenOrder] = useState(false);
+  const [openOrderEdit, setOrderEdit] = useState(false);
+
   const isDrinkArray = Array.isArray(categoryDrinks) && categoryDrinks.length > 0 && typeof categoryDrinks[0] === 'object' && 'name' in categoryDrinks[0];
   function goBack(){
-    window.location.href = "../";
+    signOut({ callbackUrl: 'http://localhost:3000'});
 }
   const [openModals, setOpenModals] = useState<OpenModals>({});
   const [isOrderPlaced, setIsOrderPlaced] = useState(false);
-
-  //const picture = require(`../../../../public/DrinkImages/${categoryDrinks[1].name}`);
 
   const firstPictures: StaticImageData[] = [milkImage, creImage, foamImage, slushImage];
   const secondPictures: StaticImageData[] = [beweDImage, beweDImage, coffeImage, seasonalImage];
@@ -244,7 +247,7 @@ useEffect(() =>{
                     {acess ? 
                       <div className='topCon flex justify-evenly'>
                         <div className='bg-rose-700 w-3/5 h-16 text-slate-200 flex items-center justify-center text-4xl font-semibold notranslate rounded-xl'>  
-                          <button onClick={() => setMenuOpen(true)}>View Orders</button>
+                          <button onClick={() => setOpenOrder(true)}>View Orders</button>
                         </div>
                       </div>
                     :
@@ -280,6 +283,7 @@ useEffect(() =>{
       <div className="flex flex-col items-center justify-start w-1/2 h-full m-4">
       <div>
         <GoogleTranslate/>
+        <OrderModal open={openOrder} onClose={() => setOpenOrder(false)} setAdding={setAddingToOrder} openEditor={setOrderEdit}>hello</OrderModal>
       </div>
       {isDrinkArray ? (
         // Render this if categoryDrinks is an array of Drink objects
@@ -363,8 +367,6 @@ useEffect(() =>{
       </div>
       </div>
       </div>
-      
-      
       <div className="orderContainer relative bg-slate-100 rounded-3xl border-rose-700 border-4 text-center text-rose-700 font-bold h-11/12">
   <div className="text-4xl p-1 justify-center">Order</div>
   {drinksState.map((drink, key) => (

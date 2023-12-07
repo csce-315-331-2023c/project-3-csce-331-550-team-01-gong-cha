@@ -1,7 +1,5 @@
 "use client"
 
-import "./styles.css"
-
 interface UsageProps {
     ingredientName: string;
     amountUsed: number;
