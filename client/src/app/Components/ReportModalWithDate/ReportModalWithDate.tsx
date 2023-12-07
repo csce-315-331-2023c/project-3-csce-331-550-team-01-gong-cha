@@ -78,7 +78,7 @@ export default function ReportsModal({open, children, onClose, whichReport}: Mod
     
 
     async function usageReport(date1: string, date2: string){
-
+        setUsageItems([]);
         await saleReport(date1, date2);
         const menuDrinkIds: [number, number][] = salesReportItems.map((drink: SalesReportItem) => (
             [drink.MenuDrinkID, drink.AmountSold]
@@ -114,11 +114,12 @@ export default function ReportsModal({open, children, onClose, whichReport}: Mod
             })
         ))
         // alert("finished usage function")
+        console.log(usageItems);
     }
 
     function updateIngredientAmounts(ingredientName: string, amount: number) {
         setUsageItems(prevAmounts => {
-            const index = prevAmounts.findIndex(([name]) => name == ingredientName);
+            const index = prevAmounts.findIndex(pair => pair[0] == ingredientName);
             if (index >= 0) {
                 const updatedAmounts = [...prevAmounts];
                 updatedAmounts[index] = [ingredientName, updatedAmounts[index][1] + amount];
