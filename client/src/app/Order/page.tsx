@@ -14,7 +14,7 @@ import foamImage from '../../../public/drinkImages/31.png'
 import slushImage from '../../../public/drinkImages/44.png'
 import GoogleTranslate from '../GoogleTranslate/GoogleTranslate.js'
 import Modal from '../Components/Modal/Modal'
-import FullMenu from '../Components/FullMenu/FullMenu'
+// import FullMenu from '../Components/FullMenu/FullMenu'
 import { getCookie, hasCookie, setCookie } from 'cookies-next';
 import Router from "next/router";
 import OrderDrink from '../Components/OrderDrink/OrderDrink';
@@ -156,7 +156,6 @@ export default function Order() {
                 )}
                 
                 <CategoryPage categoryDrinks={["Milk Tea" , "Creative Mix", "Milk Foam", "Slush", "Tea Latte", "Brewed Tea", "Coffee", "Seasonal"]} categoryName={""}></CategoryPage> 
-
                 </div>
             </div>
             
