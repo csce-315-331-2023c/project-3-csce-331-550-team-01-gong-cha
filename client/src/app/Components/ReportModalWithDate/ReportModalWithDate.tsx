@@ -6,6 +6,7 @@ import SoldTogetherItem from '../TabelItems/SoldTogetherItem/SoldTogetherItem'
 import ExcessItem from '../TabelItems/excessItens/excessItems'
 import './styles.css'
 import ExcessItems from '../TabelItems/excessItens/excessItems'
+import UsageItem from '../TabelItems/UsageItem/UsageItem'
 
 interface ModalProps {
     open: boolean;
@@ -13,7 +14,6 @@ interface ModalProps {
     onClose: () => void;
     whichReport: number;
 }
-
 
 export default function ReportsModal({open, children, onClose, whichReport}: ModalProps) {
 
@@ -30,6 +30,7 @@ export default function ReportsModal({open, children, onClose, whichReport}: Mod
         MenuDrinkName: string;
         MenuDrinkPrice: number;
         AmountSold: number;
+        MenuDrinkID: number;
     }
 
     interface SoldTogetherItem {
@@ -43,13 +44,19 @@ export default function ReportsModal({open, children, onClose, whichReport}: Mod
         IngredientNumber: number;
     }
 
+    interface UsageItem{
+        ingredientName: string;
+        amountUsed: number;
+    }
+
     const [salesReportItems, setSalesReportItems] = useState<SalesReportItem[]>([]);
     const [soldTogetherItems, setSoldTogetherItems] = useState<SoldTogetherItem[]>([]);
     const [excessItems, setExcessItems] = useState<ExcessItem[]>([]);
+    const [usageItems, setUsageItems] = useState<[string, number][]>([]);
     
 
     function saleReport(date1: string, date2: string){
-        fetch(`http://18.191.166.59:5000/sales-report/:${date1}/:${date2}`) // Replace with the actual API endpoint URL
+        fetch(`http://18.191.166.59:5000/sales-report/${date1}/${date2}`) // Replace with the actual API endpoint URL
             .then((response) => {
                 if (!response.ok) {
                 alert("did not pass");
@@ -63,20 +70,62 @@ export default function ReportsModal({open, children, onClose, whichReport}: Mod
                 const salesReportData: SalesReportItem[] = data.map((item: any) => ({
                     MenuDrinkName: item.MenuDrinkName,
                     MenuDrinkPrice: item.MenuDrinkPrice,
-                    AmountSold: item.AmountSold
+                    AmountSold: item.AmountSold,
+                    MenuDrinkID: item.MenuDrinkID
                 }));
                 setSalesReportItems(salesReportData);
             })
     }
 
+    
+
     function usageReport(date1: string, date2: string){
         saleReport(date1, date2);
-        const menuDrinkNames = salesReportItems.map((drinkName: SalesReportItem) => (
-            drinkName.MenuDrinkName
+        const menuDrinkIds: [number, number][] = salesReportItems.map((drink: SalesReportItem) => (
+            [drink.MenuDrinkID, drink.AmountSold]
         ));
         
+        menuDrinkIds.forEach((drink: [number, number]) => (
+            
+            fetch(`http://18.191.166.59:5000/get-ingredients-for-menu-drinks/${drink[0]}`)
+            .then((response) => {
+                if (!response.ok) {
+                alert("did not pass");
+                throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then((ingredientIds) => {
+                let localAmount = drink[1];
+                ingredientIds[0].forEach((id: number) => (
+                    fetch(`http://18.191.166.59:5000/get-ingredient-name/${id}`)
+                    .then((response) => {
+                        if (!response.ok) {
+                        alert("did not pass");
+                        throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then((ingredientName) => {
+                        updateIngredientAmounts(ingredientName, localAmount);
 
-        
+                    })
+                ))
+            })
+        ))
+    }
+
+    function updateIngredientAmounts(ingredientName: string, amount: number) {
+        setUsageItems(prevAmounts => {
+            const index = prevAmounts.findIndex(([name]) => name === ingredientName);
+            if (index >= 0) {
+                const updatedAmounts = [...prevAmounts];
+                updatedAmounts[index] = [ingredientName, updatedAmounts[index][1] + amount];
+                return updatedAmounts;
+            } else {
+                return [...prevAmounts, [ingredientName, amount]];
+            }
+        });
     }
 
     function soldTogether(date1: string, date2: string){
@@ -141,14 +190,22 @@ export default function ReportsModal({open, children, onClose, whichReport}: Mod
                             </div>
                         </div>
                         <div className="viewer flex-col justify-evenly border-rose-700 border-4 rounded-md h-full w-full overflow-auto">
-                        {salesReportItems.map((salesReportItem, index) => (
+                        {/* {salesReportItems.map((salesReportItem, index) => (
                             <SalesReportItem
                                 key={index}
                                 MenuDrinkName={salesReportItem.MenuDrinkName}
                                 MenuDrinkPrice={salesReportItem.MenuDrinkPrice}
                                 AmountSold={salesReportItem.AmountSold}
                             />
+                        ))} */}
+                        {usageItems.map((usageItem, index) => (
+                            <UsageItem
+                                key={index}
+                                ingredientName={usageItem[0]}
+                                amountUsed={usageItem[1]}
+                            />
                         ))}
+                        
                         </div>
                     </Conditional>
                     <Conditional condition={whichReport === 1}>
@@ -207,7 +264,7 @@ export default function ReportsModal({open, children, onClose, whichReport}: Mod
                             </div>
                         }
                         <Conditional condition={whichReport === 0}>
-                            <button className='button bg-rose-700 h-full mx-8 border-4 border-rose-700 rounded-xl text-slate-200 font-semibold text-2xl' onClick={() => saleReport(startDate, endDate)}>Enter Range</button>
+                            <button className='button bg-rose-700 h-full mx-8 border-4 border-rose-700 rounded-xl text-slate-200 font-semibold text-2xl' onClick={() => usageReport(startDate, endDate)}>Enter Range</button>
                         </Conditional>
                         <Conditional condition={whichReport === 1}>
                             <button className='button bg-rose-700 h-full mx-8 border-4 border-rose-700 rounded-xl text-slate-200 font-semibold text-2xl' onClick={() => soldTogether(startDate, endDate)}>Enter Range</button>
