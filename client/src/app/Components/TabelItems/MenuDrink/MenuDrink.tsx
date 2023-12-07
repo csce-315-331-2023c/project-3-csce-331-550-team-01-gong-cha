@@ -9,13 +9,12 @@ interface MenuDrinkProps {
     priceLarge: string;
     category: string;
     reload: () => void;
+    openEditor: () => void;
+    setPk: (pkD: number) => any;
+    setName: (n: string) => any;
   }
 
-export default function RestockReportIngredient({pk, name, priceNormal, priceLarge, category, reload}: MenuDrinkProps){
-
-    function setInStock(){
-
-    }
+export default function RestockReportIngredient({pk, name, priceNormal, priceLarge, category, reload, openEditor, setName, setPk}: MenuDrinkProps){
 
     function updateMenuDrink(pkk: number, Fname: string, FnormPrice: string, FlargePrice: string){
 
@@ -69,7 +68,7 @@ export default function RestockReportIngredient({pk, name, priceNormal, priceLar
                 <input className='normPrice w-1/5 flex justify-center items-center text-center outline-none text-rose-700' placeholder={priceNormal} type="InormalPrice" id="InormalPrice" value={InormalPrice} onChange={(e) => setInormalPrice(e.target.value)}/>
                 <input className='lgPrice w-1/5 flex justify-center items-center text-center outline-none text-rose-700' placeholder={priceLarge} type="IlargePrice" id="IlargePrice" value={IlargePrice} onChange={(e) => setIlargePrice(e.target.value)}/>
                 <div className='ingredient flex items-center w-1/6'>
-                    <button className="w-full bg-rose-700 items-center mr-2 rounded-lg h-5/6 text-slate-200" onClick={setInStock}>Edit</button>
+                    <button className="w-full bg-rose-700 items-center mr-2 rounded-lg h-5/6 text-slate-200" onClick={() => {setName(name),  setPk(pk), openEditor()}}>Edit</button>
                 </div>
                 <div className='ingredient flex items-center w-1/6'>
                     <button className="w-full bg-rose-700 items-center mr-2 rounded-lg h-5/6 text-slate-200" onClick={deleteMenuDrink}>Delete</button>

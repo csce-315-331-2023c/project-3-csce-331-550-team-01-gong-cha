@@ -14,7 +14,6 @@ interface ModalProps {
     whichReport: number;
 }
 
-
 export default function ReportsModal({open, children, onClose, whichReport}: ModalProps) {
 
     const [startDate, setStartDate] = useState('');
@@ -50,7 +49,7 @@ export default function ReportsModal({open, children, onClose, whichReport}: Mod
     
 
     function saleReport(date1: string, date2: string){
-        fetch(`http://18.191.166.59:5000/sales-report/:${date1}/:${date2}`) // Replace with the actual API endpoint URL
+        fetch(`http://18.191.166.59:5000/sales-report/${date1}/${date2}`) // Replace with the actual API endpoint URL
             .then((response) => {
                 if (!response.ok) {
                 alert("did not pass");

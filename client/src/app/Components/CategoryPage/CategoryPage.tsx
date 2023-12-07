@@ -13,14 +13,13 @@ import ConfirmOrder from '../ConfirmOrder/ConfirmOrder'
 import "./styles.css"
 import GoogleTranslate from '../../GoogleTranslate/GoogleTranslate';
 import seasonalImage from '../../../../public/DrinkImages/seas.png'
-import coffeImage from '../../../../public/DrinkImages/53.png';
-import beweDImage from '../../../../public/DrinkImages/49.png';
-// import coffeeImage from '../../../../../public/DrinkImages/53.png'
-// import beweDImage from '../../../../public/DrinkImages/49.png'
-import milkImage from '../../../../public/DrinkImages/30.png'
-import creImage from '../../../../public/DrinkImages/18.png'
-import foamImage from '../../../../public/DrinkImages/31.png'
-import slushImage from '../../../../public/DrinkImages/44.png'
+import coffeeImage from '../../../../public/drinkImages/53.png'
+import bewedImage from '../../../public/drinkImages/49.png'
+import milkImage from '../../../public/drinkImages/30.png'
+import creImage from '../../../public/drinkImages/18.png'
+import foamImage from '../../../public/drinkImages/31.png'
+import slushImage from '../../../public/drinkImages/44.png'
+import { useSession, signIn, signOut } from 'next-auth/react'
 
 // import FullMenu from '../Components/FullMenu/FullMenu'
 import { getCookie, hasCookie, setCookie } from 'cookies-next';
@@ -55,6 +54,9 @@ interface CategoryPageProps {
   
 export default function CategoryPage({categoryDrinks, categoryName}: CategoryPageProps){
 
+  const { data: session } = useSession();
+  const [acess, setAcess] = useState(false);
+  const [first, setFirst] = useState(false);
 
   const isDrinkArray = Array.isArray(categoryDrinks) && categoryDrinks.length > 0 && typeof categoryDrinks[0] === 'object' && 'name' in categoryDrinks[0];
   function goBack(){
@@ -189,6 +191,21 @@ const [transButton, setTransButton] = useState('');
           return b ? b.pop() : "";
       }
 
+      function getEmail(email: string) {
+        setFirst(true);
+        fetch(`http://18.191.166.59:5000/get-email/${email}`)
+        .then((response) => {
+          if (!response.ok) {
+          alert("did not pass");
+          throw new Error('Network response was not ok');
+          }
+          return response.json();
+        })
+        .then((data) => {
+          setAcess(parseInt(data.exist) >= 2);
+        })
+    }
+
 
 useEffect(() => {
   const storedOrders = JSON.parse(localStorage.getItem('orders') || '[]');
@@ -196,6 +213,14 @@ useEffect(() => {
   setDrinksState(storedOrders);
   setStateUpdate(false);
 }, [stateUpdate])
+
+useEffect(() =>{
+  if(!first && session){
+    setFirst(true);
+    getEmail(session?.user.email);
+  }
+}, [session])
+
     return(
       
       <div className='w-full'>
@@ -209,13 +234,20 @@ useEffect(() => {
     <div className="w-full">
       <div className='flex justify-start align-center items-center font-semibold text-rose-700 text-2xl space-x-48'>
                     {!isDrinkArray ? 
-                    <>
+                    <div className='flex justify-evenly w-full items-center'>
                     <div className='homButton'>
                         <button className='backContainter flex items-center w-full' onClick={goBack}>
-                            <svg className='fill-rose-700 ml-4' xmlns="http://www.w3.org/2000/svg" height="5em" viewBox="0 0 448 512"><path d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288 416 288c17.7 0 32-14.3 32-32s-14.3-32-32-32l-306.7 0L214.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg>
+                            <svg className='fill-rose-700 ml-4' xmlns="http://www.w3.org/2000/svg" height="3em" viewBox="0 0 448 512"><path d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288 416 288c17.7 0 32-14.3 32-32s-14.3-32-32-32l-306.7 0L214.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg>
                             <div className='ml-8 text-5xl text-rose-700 font-semibold'>Home Page</div>
                         </button>
                     </div>
+                    {acess ? 
+                      <div className='topCon flex justify-evenly'>
+                        <div className='bg-rose-700 w-3/5 h-16 text-slate-200 flex items-center justify-center text-4xl font-semibold notranslate rounded-xl'>  
+                          <button onClick={() => setMenuOpen(true)}>View Orders</button>
+                        </div>
+                      </div>
+                    :
                     <div className='topCon flex justify-evenly'>
                         <div className='bg-rose-700 w-2/5 h-16 text-slate-200 flex items-center justify-center text-4xl font-semibold notranslate rounded-xl'>  
                             <button onClick={() => setMenuOpen(true)}>Full Menu</button>
@@ -224,11 +256,8 @@ useEffect(() => {
                             <button onClick={changeLang}>{transButton}</button>
                         </div>
                     </div>
-                
-                <div>
-                    <GoogleTranslate/>
+                    }
                 </div>
-                </>
                         
                     : 
                     <div className="flex">
@@ -249,6 +278,9 @@ useEffect(() => {
         {menuOpen && <FullMenu open={menuOpen} onClose={() => setMenuOpen(false)}>Meer</FullMenu>}
       <div className="overflow-auto flex">
       <div className="flex flex-col items-center justify-start w-1/2 h-full m-4">
+      <div>
+        <GoogleTranslate/>
+      </div>
       {isDrinkArray ? (
         // Render this if categoryDrinks is an array of Drink objects
         (firstHalfCategories as Drink[]).map((drink: Drink) => (

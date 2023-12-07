@@ -8,6 +8,7 @@ import ReportModalWithDate from '../Components/ReportModalWithDate/ReportModalWi
 import { useSession, signIn, signOut } from 'next-auth/react'
 import AddIngredients from '../Components/AddIngredients/AddIngredients'
 import ExcessItems from '../Components/TabelItems/excessItens/excessItems'
+import EditIngredients from '../Components/EditIngredients/EditIngredients'
 import { getCookie, hasCookie, setCookie } from 'cookies-next';
 
 export default function Dashboard() {
@@ -16,6 +17,9 @@ export default function Dashboard() {
   const [first, setFirst] = useState(false);
 
   const [addIngredintOpen, setAddIngredintOpen] = useState(false);
+  const [editIngredientOpen, setEditIngredientOpen] = useState(false);
+  const [editPk, setEditPk] = useState(0);
+  const [editName, setEditName] = useState('');
 
   const { data: session } = useSession();
 
@@ -186,6 +190,7 @@ export default function Dashboard() {
         <ReportModalWithDate open={salesReportOpen} onClose={() => setSalesReportOpen(false)} whichReport={0}>Sales Report</ReportModalWithDate>
         <ReportModalWithDate open={soldTogetherReportOpen} onClose={() => setSoldTogetherReportOpen(false)} whichReport={1}>Sold Together Report</ReportModalWithDate>
         <ReportModalWithDate open={excessReportOpen} onClose={() => setExcessReportOpen(false)} whichReport={2}>Excess Report</ReportModalWithDate>
+        <EditIngredients open={editIngredientOpen} onClose={() => setEditIngredientOpen(false)} drinkName={editName} pkDrink={editPk}></EditIngredients>
       </div>
       <div className='mainContainer w-full flex items-top justify-center'>
         <div className='flex-col align-center items-center justify-center w-full bg-slate-200 rounded-3xl border-rose-700 border-8 mx-6'>
@@ -273,6 +278,9 @@ export default function Dashboard() {
                       priceLarge={menuDrinkItem.priceLarge}
                       category={menuDrinkItem.category}
                       reload={getMenuDrinks}
+                      openEditor={() => setEditIngredientOpen(true)}
+                      setName={setEditName}
+                      setPk={setEditPk}
                   />
               ))}
               </div>

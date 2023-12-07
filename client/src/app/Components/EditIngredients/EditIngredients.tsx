@@ -8,12 +8,10 @@ interface ModalProps {
   open: boolean;
   onClose: () => void;
   drinkName: string;
-  lgDrinkPrice: number;
-  nmDrinkPrice: number;
-  clearFeilds: () => void;
+  pkDrink: number;
 }
 
-export default function AddIngredients({open, onClose, drinkName, lgDrinkPrice, nmDrinkPrice, clearFeilds}: ModalProps) {
+export default function EditIngredients({open, onClose, drinkName, pkDrink}: ModalProps) {
   const [DrinkIngredients, setDrinkIngredients] = useState<number[]>([]);
 
   const [catagory, setCatagory] = useState<number>();
@@ -37,36 +35,14 @@ export default function AddIngredients({open, onClose, drinkName, lgDrinkPrice, 
   interface Ingredient {
     id: number;
     name: string;
+    added: boolean;
   }
   
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
 
   const [newMenuDrink, setNewMenuDrink] = useState();
-  const [created, setCreated] = useState(false);
 
-  function createMenuDrink(nameI: string, normP: number, lgP: number){
-    alert(`${nameI} ${normP} ${lgP} ${catagory}`);
-    const lgTemp = lgP * 0.8;
-    const nTemp = normP * 0.8;
-    fetch('http://18.191.166.59:5000/create-menu-drink', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({name: nameI, normalCost: nTemp, largeCost: lgTemp, normConsumerPrice: normP, lgConsumerPrice: lgP, categoryID: catagory, isOffered: true}),
-    })
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-      return response.json();
-    })
-    .then((data) => {
-      setNewMenuDrink(data['id']);
-    })
-  }
-
-  const addToppings = useCallback((): void => {
+  const addIngredients = useCallback((): void => {
     var idx = 0;
     for(idx; idx < DrinkIngredients.length; idx++){
       if(DrinkIngredients[idx]){
@@ -81,15 +57,19 @@ export default function AddIngredients({open, onClose, drinkName, lgDrinkPrice, 
     }
   }, [DrinkIngredients, newMenuDrink]);
 
-  // useEffect(() => {
-  //   addToppings();
-  // }, [newMenuDrink, addToppings]);
+  function removeIngredients(){
 
+  }
 
+  function updateDrinkIngredients(){
+    // probably call add and remove ingredient
+  }
 
 
   useEffect(() => {
       if (open) {
+        // fetch the ingredients used for that drink
+
         fetch('http://18.191.166.59:5000/ingredients') 
           .then((response) => {
             if (!response.ok) {
@@ -102,12 +82,16 @@ export default function AddIngredients({open, onClose, drinkName, lgDrinkPrice, 
             const ingredientData: Ingredient[] = data.map((item: any) => ({
               id: item.id,
               name: item.ingredient_name,
+              added: false
             }));
             setIngredients(ingredientData);
           })
           .catch((error) => {
             console.error('There was a problem with the fetch operation:', error);
           });
+
+          // update the added to true for ingredients in the array that are part of the menu drink
+
       }
     }, [open]);
 
@@ -116,7 +100,8 @@ export default function AddIngredients({open, onClose, drinkName, lgDrinkPrice, 
     return(
         <div className='Overlay_Styles'>
             <div className='Modal_Styles bg-slate-200 flex items-center justify-start border-8 border-rose-700 rounded-3xl'>
-                <div className='font-semibold text-rose-700 text-4xl mb-4 -mt-8'>Select Ingredients</div>
+                <div className='font-semibold text-rose-700 text-4xl mb-4 -mt-8'>Select Ingredients for:</div>
+                <div className='font-semibold text-rose-700 text-4xl mb-4'>{drinkName}</div>
                 <div className='list border-rose-700 border-4 rounded-md w-full flex justify-center'>
                     <div className="innerList flex-col justify-evenly" style={{overflowY: 'auto' }}>
                         {ingredients.map((ingredient, index) => (
@@ -126,27 +111,14 @@ export default function AddIngredients({open, onClose, drinkName, lgDrinkPrice, 
                                 toppingID={ingredient.id}
                                 addTopping={addIngredient}
                                 removeTopping={removeIngredient}
-                                addedI={false}
+                                addedI={ingredient.added}
                             />
                         ))}
                     </div>
                 </div>
-                <div className='font-semibold text-rose-700 text-4xl mb-4 mt-2'>Select Catagory</div>
-                <div className='buttonRow flex w-full justify-evenly mb-4'>
-                    <button className={`${ButtonStyles[0]} button1 text-2xl font-semibold rounded-xl border-4 border-rose-700`} onClick={() => {setButtons(0), setCatagory(3)}}>Creative Mix</button>
-                    <button className={`${ButtonStyles[1]} button1 text-2xl font-semibold rounded-xl border-4 border-rose-700`} onClick={() => {setButtons(1), setCatagory(4)}}>Brewed Tea</button>
-                    <button className={`${ButtonStyles[2]} button1 text-2xl font-semibold rounded-xl border-4 border-rose-700`} onClick={() => {setButtons(2), setCatagory(5)}}>Milk Foam</button>
-                </div>
-                <div className='buttonRow flex w-full justify-evenly'>
-                    <button className={`${ButtonStyles[3]} button2 text-2xl font-semibold rounded-xl border-4 border-rose-700`} onClick={() => {setButtons(3), setCatagory(1)}}>Milk Tea</button>
-                    <button className={`${ButtonStyles[4]} button2 text-2xl font-semibold rounded-xl border-4 border-rose-700`} onClick={() => {setButtons(4), setCatagory(2)}}>Tea Latte</button>
-                    <button className={`${ButtonStyles[5]} button2 text-2xl font-semibold rounded-xl border-4 border-rose-700`} onClick={() => {setButtons(5), setCatagory(6)}}>Coffee</button>
-                    <button className={`${ButtonStyles[6]} button2 text-2xl font-semibold rounded-xl border-4 border-rose-700`} onClick={() => {setButtons(6), setCatagory(7)}}>Slush</button>
-                    <button className={`${ButtonStyles[7]} button2 text-2xl font-semibold rounded-xl border-4 border-rose-700`} onClick={() => {setButtons(7), setCatagory(8)}}>Seasonal</button>
-                </div>
                 <div className='buttonRow2 flex w-full justify-evenly mt-8'>
                     <button className='bg-rose-700 text-slate-200 text-3xl font-semibold rounded-xl w-2/6' onClick={onClose}>Exit</button>
-                    <button className='bg-rose-700 text-slate-200 text-3xl font-semibold rounded-xl w-2/6 h-full' onClick={() => {createMenuDrink(drinkName, nmDrinkPrice, lgDrinkPrice), addToppings(),clearFeilds(), onClose()}}>Create Drink</button>
+                    <button className='bg-rose-700 text-slate-200 text-3xl font-semibold rounded-xl w-2/6 h-full' onClick={() => {updateDrinkIngredients(), addIngredients(), removeIngredients(), onClose()}}>Update</button>
                 </div>
             </div>
         </div>

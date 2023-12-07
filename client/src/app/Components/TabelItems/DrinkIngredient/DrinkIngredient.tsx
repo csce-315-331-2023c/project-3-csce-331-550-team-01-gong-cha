@@ -9,12 +9,13 @@ interface ToppingProps {
   addTopping: (price: number) => void;
   removeTopping: (price: number) => void;
   toppingID: number;
+  addedI: boolean;
 }
 
-export default function DrinkIngredient({toppingName, addTopping, removeTopping, toppingID}: ToppingProps){
-    const [added, setAdded] = useState(false);
+export default function DrinkIngredient({toppingName, addTopping, removeTopping, toppingID, addedI}: ToppingProps){
+    const [added, setAdded] = useState(addedI);
 
-    const [backColor, setBackColor] = useState('bg-slate-200 text-rose-700 fill-rose-700');
+    const [backColor, setBackColor] = useState(added ?  'bg-rose-700 text-slate-200 fill-slate-200' : 'bg-slate-200 text-rose-700 fill-rose-700');
 
     return(
         
