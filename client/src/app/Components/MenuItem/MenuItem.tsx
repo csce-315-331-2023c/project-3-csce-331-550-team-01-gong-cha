@@ -21,7 +21,7 @@ export default function MenuItem({drinkName, drinkImage, altTxt, thisOnClick}: M
                 alt={altTxt}
             />
             <div className='w-full'>
-                <div className='flex justify-center items-center w-full text-5xl font-semibold text-rose-700 p-20'>
+                <div className='flex justify-center items-center w-full text-5xl font-bold text-rose-700 p-20'>
                     {drinkName}
                 </div>
             </div>

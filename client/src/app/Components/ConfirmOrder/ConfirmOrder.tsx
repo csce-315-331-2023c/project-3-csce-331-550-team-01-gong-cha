@@ -75,7 +75,6 @@ export default function ConfirmOrder({drinks, onClose}: ConfirmOrderProps){
                 return response.json();
             })
             .then(data => {
-                
                 localTotalOrderCost += data.make_cost;
                 localOrderDrinkPks.push(data.generatedKey);
                 const toppingPks = drink.toppings.map(topping => topping.id);
@@ -90,27 +89,24 @@ export default function ConfirmOrder({drinks, onClose}: ConfirmOrderProps){
                 })
             });
         });
-
-        
-    
         Promise.all(orderDrinkPromises).then(() => {
             setTotalOrderPrice(localTotalOrderPrice);
             setTotalOrderCost(localTotalOrderCost);
             setTotalProfit(localTotalOrderPrice - localTotalOrderCost);
     
-            return fetch('http://18.191.166.59:5000/create-order/', {
+            return fetch("http://18.191.166.59:5000/create-order", {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    total_cost: localTotalOrderCost,
+                    cost: localTotalOrderCost,
                     price: localTotalOrderPrice,
                     profit: localTotalOrderPrice - localTotalOrderCost,
-                    tipped: tip * localTotalOrderPrice,
+                    tip: tip * localTotalOrderPrice,
                     takeout: isTakeout,
                     date: currentDate,
                     time: currentTime,
-                    name: "Customer Order"
-                })
+                    name: "Customer Order",
+                    status: 1})
             });
         })
         .then(response => {
@@ -118,6 +114,8 @@ export default function ConfirmOrder({drinks, onClose}: ConfirmOrderProps){
             return response.json();
         })
         .then(data => {
+            alert("I am happening")
+            alert(data.orderID)
             setOrderNumber(data.orderID);
             return fetch('http://18.191.166.59:5000/create-order-order-drink/', {
                 method: 'POST',
