@@ -69,6 +69,16 @@ export default function ReportsModal({open, children, onClose, whichReport}: Mod
             })
     }
 
+    function usageReport(date1: string, date2: string){
+        saleReport(date1, date2);
+        const menuDrinkNames = salesReportItems.map((drinkName: SalesReportItem) => (
+            drinkName.MenuDrinkName
+        ));
+        
+
+        
+    }
+
     function soldTogether(date1: string, date2: string){
         fetch(`http://18.191.166.59:5000/sold-together/:${date1}/:${date2}`) // Replace with the actual API endpoint URL
             .then((response) => {

@@ -1209,19 +1209,21 @@ app.get('/sales-report/:startDate/:endDate', async (req, res) => {
       const client = await pool.connect();
 
       const querySQL = `
-          SELECT
-              MD.Name AS MenuDrinkName,
-              MD.Norm_Consumer_Price AS MenuDrinkPrice,
-              COUNT(OD.ID) AS AmountSold
-          FROM
-              Menu_Drink MD
-          LEFT JOIN Order_Drink OD ON MD.ID = OD.Menu_Drink_ID
-          LEFT JOIN Order_Order_Drink OOD ON OD.ID = OOD.Order_Drink_ID
-          LEFT JOIN Orders O ON OOD.Order_ID = O.ID
-          WHERE
-              O.Date BETWEEN $1 AND $2
-          GROUP BY
-              MD.Name, MD.Norm_Consumer_Price
+      SELECT
+      MD.Name AS MenuDrinkName,
+      MD.Norm_Consumer_Price AS MenuDrinkPrice,
+      MD.ID AS MenuDrinkID,
+      COUNT(OD.ID) AS AmountSold
+  FROM
+      Menu_Drink MD
+  LEFT JOIN Order_Drink OD ON MD.ID = OD.Menu_Drink_ID
+  LEFT JOIN Order_Order_Drink OOD ON OD.ID = OOD.Order_Drink_ID
+  LEFT JOIN Orders O ON OOD.Order_ID = O.ID
+  WHERE
+      O.Date BETWEEN '2023-10-01' AND '2023-10-03'
+  GROUP BY
+      MD.Name, MD.Norm_Consumer_Price, MD.ID;
+
       `;
 
       const result = await client.query(querySQL, [startDate, endDate]);
@@ -1231,6 +1233,7 @@ app.get('/sales-report/:startDate/:endDate', async (req, res) => {
           MenuDrinkName: row.menudrinkname,
           MenuDrinkPrice: row.menudrinkprice,
           AmountSold: row.amountsold,
+          MenuDrinkPk: row.menudrinkid
       }));
 
       res.json(salesReport);
