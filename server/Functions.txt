@@ -169,7 +169,7 @@ This is a list of the functions that we have in index.ts. Date of last update: 1
 
 /sales-report/:startDate/:endDate - This function generates a sales report given the dates
 
-/get-ingredients-for-menu-drink/:menuDrinkID - This function gets all ingredients that are used in a menu drink
+/get-ingredients-for-menu-drinks/:menuDrinkIDs - This function gets all ingredients that are used in a menu drink
 
 /delete-menu-drink-ingredients/:menuDrinkID - This function takes in a menu drink primary key and an array of ingredient primary keys   
     And deletes any menu drink ingredients that match with those pairs. Here is an example
