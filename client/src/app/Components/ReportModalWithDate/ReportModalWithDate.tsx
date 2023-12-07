@@ -6,6 +6,7 @@ import SoldTogetherItem from '../TabelItems/SoldTogetherItem/SoldTogetherItem'
 import ExcessItem from '../TabelItems/excessItens/excessItems'
 import './styles.css'
 import ExcessItems from '../TabelItems/excessItens/excessItems'
+import UsageItem from '../TabelItems/UsageItem/UsageItem'
 
 interface ModalProps {
     open: boolean;
@@ -44,9 +45,15 @@ export default function ReportsModal({open, children, onClose, whichReport}: Mod
         IngredientNumber: number;
     }
 
+    interface UsageItem{
+        ingredientName: string;
+        amountUsed: number;
+    }
+
     const [salesReportItems, setSalesReportItems] = useState<SalesReportItem[]>([]);
     const [soldTogetherItems, setSoldTogetherItems] = useState<SoldTogetherItem[]>([]);
     const [excessItems, setExcessItems] = useState<ExcessItem[]>([]);
+    const [usageItems, setUsageItems] = useState<[string, number][]>([]);
     
 
     function saleReport(date1: string, date2: string){
@@ -71,7 +78,7 @@ export default function ReportsModal({open, children, onClose, whichReport}: Mod
             })
     }
 
-    const [ingredientAmounts, setIngredientAmounts] = useState<[string, number][]>([]);
+    
 
     function usageReport(date1: string, date2: string){
         saleReport(date1, date2);
@@ -110,7 +117,7 @@ export default function ReportsModal({open, children, onClose, whichReport}: Mod
     }
 
     function updateIngredientAmounts(ingredientName: string, amount: number) {
-        setIngredientAmounts(prevAmounts => {
+        setUsageItems(prevAmounts => {
             const index = prevAmounts.findIndex(([name]) => name === ingredientName);
             if (index >= 0) {
                 const updatedAmounts = [...prevAmounts];
@@ -184,14 +191,22 @@ export default function ReportsModal({open, children, onClose, whichReport}: Mod
                             </div>
                         </div>
                         <div className="viewer flex-col justify-evenly border-rose-700 border-4 rounded-md h-full w-full overflow-auto">
-                        {salesReportItems.map((salesReportItem, index) => (
+                        {/* {salesReportItems.map((salesReportItem, index) => (
                             <SalesReportItem
                                 key={index}
                                 MenuDrinkName={salesReportItem.MenuDrinkName}
                                 MenuDrinkPrice={salesReportItem.MenuDrinkPrice}
                                 AmountSold={salesReportItem.AmountSold}
                             />
+                        ))} */}
+                        {usageItems.map((usageItem, index) => (
+                            <UsageItem
+                                key={index}
+                                ingredientName={usageItem[0]}
+                                amountUsed={usageItem[1]}
+                            />
                         ))}
+                        
                         </div>
                     </Conditional>
                     <Conditional condition={whichReport === 1}>
@@ -250,7 +265,7 @@ export default function ReportsModal({open, children, onClose, whichReport}: Mod
                             </div>
                         }
                         <Conditional condition={whichReport === 0}>
-                            <button className='button bg-rose-700 h-full mx-8 border-4 border-rose-700 rounded-xl text-slate-200 font-semibold text-2xl' onClick={() => saleReport(startDate, endDate)}>Enter Range</button>
+                            <button className='button bg-rose-700 h-full mx-8 border-4 border-rose-700 rounded-xl text-slate-200 font-semibold text-2xl' onClick={() => usageReport(startDate, endDate)}>Enter Range</button>
                         </Conditional>
                         <Conditional condition={whichReport === 1}>
                             <button className='button bg-rose-700 h-full mx-8 border-4 border-rose-700 rounded-xl text-slate-200 font-semibold text-2xl' onClick={() => soldTogether(startDate, endDate)}>Enter Range</button>
