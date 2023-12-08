@@ -170,6 +170,7 @@ export default function Dashboard() {
       setFirst(true);
       getEmail(session.user.email); // Now guaranteed to be a string
     }
+    getMenuInital(loaded);
   }, [session]);
 
   return (
