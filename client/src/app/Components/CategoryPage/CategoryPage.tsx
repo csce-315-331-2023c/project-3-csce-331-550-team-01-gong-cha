@@ -292,7 +292,7 @@ useEffect(() => {
       <div>
         <GoogleTranslate/>
         <OrderModal open={openOrder} onClose={() => setOpenOrder(false)} setAdding={setAddingToOrder} openEditor={setOrderDrinkEdit} setOrderID={setOrderID}>hello</OrderModal>
-        {/* <OrderDrinkModal open={openOrderDrinkEdit} onClose={() => setOrderDrinkEdit(false)} setAdding={setAddingToOrder} closeAll={() => {setOrderDrinkEdit(false), setOpenOrder(false)}} OrderId={orderID}  closeEdit={() => setOrderDrinkEdit(false)}>hello</OrderDrinkModal> */}
+        <OrderDrinkModal open={openOrderDrinkEdit} onClose={() => setOrderDrinkEdit(false)} setAdding={setAddingToOrder} closeAll={() => {setOrderDrinkEdit(false), setOpenOrder(false)}} OrderId={orderID}  closeEdit={() => setOrderDrinkEdit(false)}>hello</OrderDrinkModal>
       </div>
       {isDrinkArray ? (
         // Render this if categoryDrinks is an array of Drink objects

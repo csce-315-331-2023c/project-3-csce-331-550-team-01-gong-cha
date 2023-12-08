@@ -46,80 +46,85 @@ export default function OrderDrinkModal({open, children, onClose, setAdding, clo
 
     const [orderDrinkArray, setOrderDrinkArray] = useState<OrderDrink[]>([]);
 
-    function getOrderDrinks(){}
+    //function getOrderDrinks(){}
 
-    // async function getOrderDrinks(){
-    //     const response = await fetch(`http://18.223.2.65:5000/get-order-drinks-for-order/${OrderId}`) // Replace with the actual API endpoint URL
-    //     //console.log(await response.json());
-    //     const orderDrinkJson = await response.json();
+    async function getOrderDrinks(){
+        const response = await fetch(`http://18.223.2.65:5000/get-order-drinks-for-order/${OrderId}`) // Replace with the actual API endpoint URL
+        //console.log(await response.json());
+        const orderDrinkJson = await response.json();
  
-    //     const orderDrinks: OrderDrink[] = [];
+        const orderDrinks: OrderDrink[] = [];
         
-        // for(const id of orderDrinkJson){
-        //     console.log(id);
-        // }
-       // orderDrinkJson.orderDrinkIDs.forEach(async (item: any) => {
+        for(const item of await (await orderDrinkJson).orderDrinkIDs){
+    //         console.log(id);
+    //     }
+    //    orderDrinkJson.orderDrinkIDs.forEach(async (item: any) => {
             
-            // console.log(item);
-    //         const responseOD = await fetch(`http://18.223.2.65:5000/get-order-drink/${item}`)
-    //         //console.log(await responseOD.json());
-    //         const drinkJson = await responseOD.json();
+            //console.log(item);
+            const responseOD = await fetch(`http://18.223.2.65:5000/get-order-drink/${item}`)
+            //console.log(await responseOD.json());
+            const drinkJson = await responseOD.json();
             
-    //         // console.log(drinkJson.orderDrink.menu_drink_id);
-    //         const response3 = await fetch(`http://18.223.2.65:5000/get-drink/${drinkJson.orderDrink.menu_drink_id}`)
-    //         // console.log(await response3.json());
-    //         const name2 = await response3.json();
-    //         // const drinkNameJson = await response.json();
-    //         // const name2 = await drinkNameJson.drinkName;
+            // console.log(drinkJson.orderDrink.menu_drink_id);
+            const response3 = await fetch(`http://18.223.2.65:5000/get-drink/${drinkJson.orderDrink.menu_drink_id}`)
+            // console.log(await response3.json());
+            const name2 = await response3.json();
+            // const drinkNameJson = await response.json();
+            // const name2 = await drinkNameJson.drinkName;
 
-    //         orderDrinks.push({id: drinkJson.orderDrink.id,
-    //             total_price: drinkJson.orderDrink.total_price,
-    //             size: drinkJson.orderDrink.size,
-    //             menu_drink_id: drinkJson.orderDrink.menu_drink_id,
-    //             ice_level: drinkJson.orderDrink.ice_level,
-    //             sugar_level: drinkJson.orderDrink.sugar_level,
-    //             name: name2.drinkName,
-    //         });
-    //     });
+                orderDrinks.push({id: drinkJson.orderDrink.id,
+                total_price: drinkJson.orderDrink.total_price,
+                size: drinkJson.orderDrink.size,
+                menu_drink_id: item,
+                ice_level: drinkJson.orderDrink.ice_level,
+                sugar_level: drinkJson.orderDrink.sugar_level,
+                name: name2.drinkName,
+            });
+        };
         
-    //     setOrderDrinkArray(orderDrinks);
-    //     forceUpdate();
-    // }
+        setOrderDrinkArray(orderDrinks);
+        console.log(orderDrinkArray);
+        //forceUpdate();
+    }
 
     // async function kms(){
     //     await getOrderDrinks();
     //     setOrderDrinkArray([...orderDrinkArray]);
     // }
 
-    // useEffect(() =>{
-    //     // if(!opened && open){
-    //         //setOrderDrinkArray([]);
-    //         getOrderDrinks();
-    //         // setOpened(true);
-    //     // }
-    // }, [])
+    useEffect(() =>{
+        if(!opened && open){
+            console.log("start call");
+            getOrderDrinks();
+            console.log("end call");
+            setOpened(true);
+        }
+    }, [open]);
 
     // useEffect(() =>{
         
     // })
 
     // useEffect(() => {
-        //useForceUpdate();
-        // myDiv = []
-        // orderDrinkArray.forEach((item) => {
-        //     myDiv.push(<OrderDrinkItem
-        //         key={index}
-        //         id={item.id}
-        //         total_price={item.total_price}
-        //         name={item.name}
-        //         menu_drink_id={item.menu_drink_id}
-        //         ice_level={item.ice_level}
-        //         sugar_level={item.sugar_level}
-        //         size={item.size}
-        //     />);
-        // });
-    //     forceUpdate();
-    // }, [orderDrinkArray])
+    //     // useForceUpdate();
+    //     // myDiv = []
+    //     // orderDrinkArray.forEach((item) => {
+    //     //     myDiv.push(<OrderDrinkItem
+    //     //         key={index}
+    //     //         id={item.id}
+    //     //         total_price={item.total_price}
+    //     //         name={item.name}
+    //     //         menu_drink_id={item.menu_drink_id}
+    //     //         ice_level={item.ice_level}
+    //     //         sugar_level={item.sugar_level}
+    //     //         size={item.size}
+    //     //     />);
+    //     // });
+    //     // forceUpdate();
+    //     if(open){
+    //         console.log(orderDrinkArray);
+    //     }
+    // }, [orderDrinkArray, open])
 
     if (!open) return null
 
@@ -157,13 +162,14 @@ export default function OrderDrinkModal({open, children, onClose, setAdding, clo
                                         ice_level={item.ice_level}
                                         sugar_level={item.sugar_level}
                                         size={item.size}
+                                        reload={() => getOrderDrinks()}
                                     />
                                 ))}
                             </div>
                         </div>
                         <div className='buttton1 w-full flex justify-center items-center mt-6'>
-                            <button className='h-5/6 -mt-6 w-2/6 bg-rose-700 rounded-xl text-slate-200 text-4xl font-semibold' onClick={() => {setAdding(true), closeAll()}}>Add Drink</button>
-                            <button className='h-5/6 -mt-6 w-2/6 bg-rose-700 rounded-xl text-slate-200 text-4xl font-semibold' onClick={() => {onClose(), setOpened(false), setOrderDrinkArray([])}}>Exit</button>
+                        <button className='h-5/6 -mt-6 mr-4 w-2/6 bg-rose-700 rounded-xl text-slate-200 text-4xl font-semibold' onClick={() => {onClose(), setOpened(false), setOrderDrinkArray([])}}>Exit</button>
+                            <button className='h-5/6 -mt-6 ml-4 w-2/6 bg-rose-700 rounded-xl text-slate-200 text-4xl font-semibold' onClick={() => {setAdding(true), closeAll()}}>Add Drink</button>
                         </div>
                     </div>
             </div>
