@@ -2,10 +2,10 @@
 
 import React, { useState, useEffect, useCallback } from 'react'
 import Image from 'next/image'
-import coffeeImage from '../../../../public/drinkImages/53.png'
-import milkImage from '../../../../public/drinkImages/30.png'
-import creImage from '../../../../public/drinkImages/18.png'
-import slushImage from '../../../../public/drinkImages/44.png'
+import coffeeImage from '../../../../public/DrinkImagesIMG/53.png'
+import milkImage from '../../../../public/DrinkImagesIMG/30.png'
+import creImage from '../../../../public/DrinkImagesIMG/18.png'
+import slushImage from '../../../../public/DrinkImagesIMG/44.png'
 
 import "./SugStyles.css";
 

@@ -4,7 +4,7 @@ import { useState,useEffect } from "react";
 
 interface OrderDrinkProps {
 
-    key: number;
+    keyy: number;
     drinkName: string;
     sugar: number;
     ice: number;
@@ -19,14 +19,14 @@ interface Topping {
     toppingName: string;
   }
 
-export default function OrderDrink({key, drinkName, sugar, ice, size, price, toppings, toppingAmounts}: OrderDrinkProps){
+export default function OrderDrink({keyy, drinkName, sugar, ice, size, price, toppings, toppingAmounts}: OrderDrinkProps){
 
-    const sizeLabels: { [key: number]: string } = {
+    const sizeLabels: { [keyy: number]: string } = {
         0: "Normal",
         1: "Large"
       };
 
-    const sugarLabels: { [key: number]: string } = {
+    const sugarLabels: { [keyy: number]: string } = {
         0: "0%",
         1: "30%",
         2: "50%",
@@ -34,13 +34,13 @@ export default function OrderDrink({key, drinkName, sugar, ice, size, price, top
         4: "100%",
     }
 
-    const iceLabels: { [key: number]: string } = {
+    const iceLabels: { [keyy: number]: string } = {
         0: "No Ice",
         1: "Less Ice",
         2: "More Ice"
     }
 
-    console.log(toppings);
+    //console.log(toppings);
     return (
         <div className="flex-col w-11/12 bg-rose-800 p-3 text-sm rounded-3xl mt-3 text-slate-100 font-semibold">
             <div className="flex justify-evenly">

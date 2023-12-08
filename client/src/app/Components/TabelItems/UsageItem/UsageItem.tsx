@@ -1,5 +1,7 @@
 "use client"
 
+import React from 'react'
+
 interface UsageProps {
     ingredientName: string;
     amountUsed: number;

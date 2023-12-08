@@ -9,9 +9,10 @@ interface ModalProps {
     onClose: () => void;
     setAdding: (b: boolean) => any;
     openEditor: (b: boolean) => any;
+    setOrderID: (n: number) => any;
 }
 
-export default function OrderModal({open, children, onClose, setAdding, openEditor}: ModalProps){
+export default function OrderModal({open, children, onClose, setAdding, openEditor, setOrderID}: ModalProps){
 
     const [ignored, forceUpdate] = useReducer(x => x + 1, 0);
 
@@ -101,7 +102,7 @@ export default function OrderModal({open, children, onClose, setAdding, openEdit
                                         status={item.status}
                                         openEditor={openEditor}
                                         tip={item.tip}
-                                        setPk={setOPk}
+                                        setPk={setOrderID}
                                     />
                                 ))}
                             </div>

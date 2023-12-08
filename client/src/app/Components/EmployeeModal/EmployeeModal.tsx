@@ -120,7 +120,7 @@ export default function EmployeeModal({open, children, onClose}: ModalProps){
                                     
                                 </div>
                         </div>
-                        <div className='employeeHolder h-4/6'>
+                        <div className='employeeHolder customH'>
                             <div className="ingredientTabel flex-col justify-center items-center border-rose-700 border-4 h-full w-full overflow-auto rounded-xl">
                                 {employeeArray.map((item, index) => (
                                     <EmployeeItem

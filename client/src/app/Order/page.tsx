@@ -54,10 +54,10 @@ interface orderDrink {
 
 export default function Order() {
 
-    // const [transButton, setTransButton] = useState('');
+    const [transButton, setTransButton] = useState('');
 
-    // const { coords, isGeolocationAvailable, isGeolocationEnabled } = 
-    //     useGeolocated({positionOptions: {enableHighAccuracy: false,},userDecisionTimeout: 5000,});
+    const { coords, isGeolocationAvailable, isGeolocationEnabled } = 
+        useGeolocated({positionOptions: {enableHighAccuracy: false,},userDecisionTimeout: 5000,});
 
     const [suggestionOpen, setSuggestionOpen] = useState(false);
     const [menuOpen, setMenuOpen] = useState(false);
@@ -65,42 +65,42 @@ export default function Order() {
     const [raining, setRaining] = useState(false);
     const [suggested, setSuggested] = useState(false);
 
-    // function getData(suggested: boolean){
-    //     if(!suggested){
-    //         if(coords && isGeolocationAvailable && isGeolocationEnabled){
-    //             fetch(`https://api.open-meteo.com/v1/forecast?latitude=${coords?.latitude.toFixed(2)}&longitude=${coords?.longitude.toFixed(2)}&current=temperature_2m,is_day,rain,snowfall&temperature_unit=fahrenheit`) // Replace with the actual API endpoint URL
-    //             .then((response) => {
-    //                 if (!response.ok) {
-    //                     throw new Error('Network response was not ok');
-    //                 }
-    //                 return response.json();
-    //             })
-    //             .then((data) => {
-    //                 if(data?.current?.rain === 1){
-    //                     setRaining(true);
-    //                 }
-    //                 setTempVal(parseFloat(data?.current?.temperature_2m));    
-    //             })
-    //             .then(() => {
-    //                 setSuggestionOpen(true);
-    //                 setSuggested(true);
-    //             })
-    //         }
-    //     }
-    // }
-    // useEffect(() => {
-    //     getData(suggested)  
-    //     if(!hasCookie('googtrans')){
-    //         setTransButton('普通话');
-    //         setCookie('googtrans',decodeURI('/auto/en'));
-    //     }
-    //     if(getCookie('googtrans') === '/auto/en'){
-    //         setTransButton('普通话');
-    //     }
-    //     else{
-    //         setTransButton('English');
-    //     }
-    // });
+    function getData(suggested: boolean){
+        if(!suggested){
+            if(coords && isGeolocationAvailable && isGeolocationEnabled){
+                fetch(`https://api.open-meteo.com/v1/forecast?latitude=${coords?.latitude.toFixed(2)}&longitude=${coords?.longitude.toFixed(2)}&current=temperature_2m,is_day,rain,snowfall&temperature_unit=fahrenheit`) // Replace with the actual API endpoint URL
+                .then((response) => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then((data) => {
+                    if(data?.current?.rain === 1){
+                        setRaining(true);
+                    }
+                    setTempVal(parseFloat(data?.current?.temperature_2m));    
+                })
+                .then(() => {
+                    setSuggestionOpen(true);
+                    setSuggested(true);
+                })
+            }
+        }
+    }
+    useEffect(() => {
+        getData(suggested)  
+        if(!hasCookie('googtrans')){
+            setTransButton('普通话');
+            setCookie('googtrans',decodeURI('/auto/en'));
+        }
+        if(getCookie('googtrans') === '/auto/en'){
+            setTransButton('普通话');
+        }
+        else{
+            setTransButton('English');
+        }
+    });
 
     const [recommended, setRecommended] = useState(false);
     const [selectedData, setSelectedData] = useState<SelectedData>();
@@ -139,6 +139,7 @@ export default function Order() {
 
     return (
         <main className="bg-slate-200 bg-cover h-screen w-screen flex">
+            {suggested && <Suggestion onDataSelect={handleSelectedData} open={suggestionOpen} onClose={() => setSuggestionOpen(false)} temp={tempVal} raning={raining}>hello</Suggestion>}
             <div className='ml-6 catagoryContainer w-full flex-col h-full'>
                 <div className="flex items-center justify-start w-full">
                 {recommended && (
