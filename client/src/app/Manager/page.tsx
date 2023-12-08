@@ -199,9 +199,10 @@ export default function Dashboard() {
           </div>
           <div className='flex items-center justify-center'>
             <div className='ingredientHeader bg-rose-700 font-bold flex justify-start items-center h-14 text-slate-200 rounded-xl'>
-              <div className='name flex justify-center text-center'>
+              <div className='name ml-4 flex justify-center text-center'>
                   Ingredient Name
               </div>
+              <div className="flex items-center w-full ml-10 justify-evenly">
               <div className="currentStock flex justify-center text-center">
                   Current Stock
               </div>
@@ -211,9 +212,14 @@ export default function Dashboard() {
               <div className="amountUsed flex justify-center text-center">
                   Price
               </div>
+              </div>
+              <div className="consumerPrice flex mr-4 justify-center text-center">
+                  Delete
+              </div>
               <div className="consumerPrice flex justify-center text-center">
                   Topping
               </div>
+              
               <div className='button flex justify-center text-center'>
                   Update
               </div>
@@ -250,21 +256,30 @@ export default function Dashboard() {
             </div>
             <div className='flex items-center justify-center'>
               <div className='ingredientHeader bg-rose-700 font-bold w-full flex justify-start items-center text-slate-200 rounded-xl h-14'>
-                <div className='name flex justify-center text-center'>
+                <div className='name flex ml-20 justify-center text-center'>
                     Drink Name
                 </div>
+                <div className="flex items-center prices w-3/4 space-x-10 w-full justify-evenly">
                 <div className="normPrice flex justify-center text-center">
                     Price Normal
                 </div>
                 <div className="lgPrice flex justify-center text-center">
                     Price Large
                 </div>
+                </div>
+                
+                <div className="flex items-center w-full space-x-5 justify-evenly">
                 <div className="ingredient flex justify-center text-center">
-                    In Stock
+                    Edit
+                </div>
+                <div className="ingredient flex justify-center text-center">
+                    Delete
                 </div>
                 <div className='button flex justify-center text-center'>
                     Update
                 </div>
+                </div>
+                
               </div>
             </div>
             <div className='ingredientTableOuter flex justify-center mt-4'>

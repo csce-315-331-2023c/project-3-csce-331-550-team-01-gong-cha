@@ -22,6 +22,10 @@
     z-index: 1000;
 }
 
+.header {
+    width: 98%;
+}
+
 .roww{
     width: 19%;
 }

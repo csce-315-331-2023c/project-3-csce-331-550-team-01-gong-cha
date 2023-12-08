@@ -1,17 +1,17 @@
 .name {
-    width: 40%;
+    width: 100%;
 }
 
 .currentStock {
-    width:10%;
+    width:20%;
 }
 
 .idealStock {
-    width: 10%;
+    width: 20%;
 }
 
 .consumerPrice {
-    width: 10%;
+    width: 20%;
 }
 
 .button{
@@ -23,7 +23,7 @@
 }
 
 .ingredient {
-    width: 10%;
+    width: 20%;
 }
 
 .meer{

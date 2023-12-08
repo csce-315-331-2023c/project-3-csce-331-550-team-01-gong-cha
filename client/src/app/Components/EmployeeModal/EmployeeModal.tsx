@@ -92,6 +92,34 @@ export default function EmployeeModal({open, children, onClose}: ModalProps){
                         <div className='text-5xl text-rose-700 font-bold my-6'>
                             Edit Employees
                         </div>
+                        <div className='flex items-center header justify-center'>
+                                <div className='ingredientHeader bg-rose-700 font-bold w-full flex justify-start items-center text-slate-200 rounded-xl h-14'>
+                                    <div className='name flex justify-center text-center'>
+                                        Employee ID
+                                    </div>
+                                    <div className="flex items-center space-x-10 w-full mr-12 justify-evenly">
+                                    <div className="normPrice flex justify-center mr-24 text-center">
+                                        Name
+                                    </div>
+                                    <div className="lgPrice flex justify-center text-center">
+                                        Email
+                                    </div>
+                                    </div>
+                                    
+                                    <div className="flex items-center w-full ml-8 justify-evenly">
+                                    <div className="ingredient flex justify-center text-center">
+                                        Permissions
+                                    </div>
+                                    <div className="ingredient flex justify-center text-center">
+                                        Update
+                                    </div>
+                                    <div className='button flex justify-center text-center'>
+                                        Delete
+                                    </div>
+                                    </div>
+                                    
+                                </div>
+                        </div>
                         <div className='employeeHolder h-4/6'>
                             <div className="ingredientTabel flex-col justify-center items-center border-rose-700 border-4 h-full w-full overflow-auto rounded-xl">
                                 {employeeArray.map((item, index) => (

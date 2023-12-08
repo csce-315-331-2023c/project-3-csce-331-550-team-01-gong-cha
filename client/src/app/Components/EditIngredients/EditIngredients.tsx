@@ -24,12 +24,23 @@ export default function EditIngredients({open, onClose, drinkName, pkDrink}: Mod
   }
 
   function addIngredient(pk: number){
-    DrinkIngredients.push(pk);
+    setIngredients(prevIngredients => {
+      var mut = [...prevIngredients]
+      const index = prevIngredients.findIndex(ing => ing.id === pk);
+      mut[index].added = true;
+
+      return mut
+    })
   }
 
   function removeIngredient(pk: number){
-    const idx = DrinkIngredients.indexOf(pk);
-    delete DrinkIngredients[idx];
+    setIngredients(prevIngredients => {
+      var mut = [...prevIngredients]
+      const index = prevIngredients.findIndex(ing => ing.id === pk);
+      mut[index].added = false;
+
+      return mut
+    })
   }
 
   interface Ingredient {
@@ -63,36 +74,57 @@ export default function EditIngredients({open, onClose, drinkName, pkDrink}: Mod
 
   function updateDrinkIngredients(){
     // probably call add and remove ingredient
+    const currentIngredients = ingredients.map((ingredient: Ingredient) => {
+      ingredient.id;
+    });
+    // alert(JSON.stringify(currentIngredients));
+    fetch('http://18.191.166.59:5000/create-menu-drink-ingredient', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ menuDrinkId: pkDrink, ingredientId: currentIngredients }),
+        })
   }
 
 
   useEffect(() => {
-      if (open) {
-        // fetch the ingredients used for that drink
-
+    // fetch the ingredients used for that drink
+    async function fetchIngredients() {
+      
+      if (open){
+        let ingredientsForDrink : number[];
+        try{
+          
+        const response = await fetch(`http://18.191.166.59:5000/ingredients-for-menu-drinks/${pkDrink}`)
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const ingredients = await response.json();
+        ingredientsForDrink = ingredients[0];
+        
+        const responseIngredients = await fetch('http://18.191.166.59:5000/ingredients');
         fetch('http://18.191.166.59:5000/ingredients') 
-          .then((response) => {
-            if (!response.ok) {
-              alert("did not pass");
-              throw new Error('Network response was not ok');
-            }
-            return response.json();
-          })
-          .then((data) => {
-            const ingredientData: Ingredient[] = data.map((item: any) => ({
-              id: item.id,
-              name: item.ingredient_name,
-              added: false
-            }));
-            setIngredients(ingredientData);
-          })
-          .catch((error) => {
+          
+          if (!response.ok){
+            throw new Error("Network response was not ok");
+          }
+          const allIngredients = await responseIngredients.json();
+          const ingredientData: Ingredient[] = allIngredients.map((item: any) => ({
+            id: item.id,
+            name: item.ingredient_name,
+            added: ingredientsForDrink ? ingredientsForDrink.some(ing => ing === item.id) : false
+          }))
+          
+          setIngredients(ingredientData);
+        }
+          catch (error) {
             console.error('There was a problem with the fetch operation:', error);
-          });
-
-          // update the added to true for ingredients in the array that are part of the menu drink
-
+          }
+        }
       }
+    
+      fetchIngredients();
     }, [open]);
 
     if (!open) return null;
@@ -117,7 +149,7 @@ export default function EditIngredients({open, onClose, drinkName, pkDrink}: Mod
                     </div>
                 </div>
                 <div className='buttonRow2 flex w-full justify-evenly mt-8'>
-                    <button className='bg-rose-700 text-slate-200 text-3xl font-semibold rounded-xl w-2/6' onClick={onClose}>Exit</button>
+                    <button className='bg-rose-700 text-slate-200 text-3xl font-semibold rounded-xl w-2/6' onClick={() => {onClose(); setIngredients([])}}>Exit</button>
                     <button className='bg-rose-700 text-slate-200 text-3xl font-semibold rounded-xl w-2/6 h-full' onClick={() => {updateDrinkIngredients(), addIngredients(), removeIngredients(), onClose()}}>Update</button>
                 </div>
             </div>
