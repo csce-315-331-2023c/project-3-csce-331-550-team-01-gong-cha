@@ -166,11 +166,10 @@ export default function Dashboard() {
   }
 
   useEffect(() => {
-    if(!first && session){
+    if (!first && session && session.user && session.user.email) {
       setFirst(true);
-      getEmail(session?.user.email);
+      getEmail(session.user.email); // Now guaranteed to be a string
     }
-    getMenuInital(loaded)
   }, [session]);
 
   return (

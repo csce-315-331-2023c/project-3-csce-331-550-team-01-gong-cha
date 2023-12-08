@@ -4,7 +4,7 @@ import { useState,useEffect } from "react";
 
 interface OrderDrinkProps {
 
-    keyy: number;
+    key: number;
     drinkName: string;
     sugar: number;
     ice: number;
@@ -19,14 +19,14 @@ interface Topping {
     toppingName: string;
   }
 
-export default function OrderDrink({keyy, drinkName, sugar, ice, size, price, toppings, toppingAmounts}: OrderDrinkProps){
+export default function OrderDrink({key, drinkName, sugar, ice, size, price, toppings, toppingAmounts}: OrderDrinkProps){
 
-    const sizeLabels: { [keyy: number]: string } = {
+    const sizeLabels: { [key: number]: string } = {
         0: "Normal",
         1: "Large"
       };
 
-    const sugarLabels: { [keyy: number]: string } = {
+    const sugarLabels: { [key: number]: string } = {
         0: "0%",
         1: "30%",
         2: "50%",
@@ -34,7 +34,7 @@ export default function OrderDrink({keyy, drinkName, sugar, ice, size, price, to
         4: "100%",
     }
 
-    const iceLabels: { [keyy: number]: string } = {
+    const iceLabels: { [key: number]: string } = {
         0: "No Ice",
         1: "Less Ice",
         2: "More Ice"
