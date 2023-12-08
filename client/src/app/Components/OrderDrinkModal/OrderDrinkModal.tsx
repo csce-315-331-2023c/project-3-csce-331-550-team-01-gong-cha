@@ -45,13 +45,15 @@ export default function OrderDrinkModal({open, children, onClose, setAdding, clo
     var myDiv = [];
 
     const [orderDrinkArray, setOrderDrinkArray] = useState<OrderDrink[]>([]);
+    
+    function getOrderDrinks(){}
 
-    async function getOrderDrinks(){
-        const response = await fetch(`http://18.223.2.65:5000/get-order-drinks-for-order/${OrderId}`) // Replace with the actual API endpoint URL
-        //console.log(await response.json());
-        const orderDrinkJson = await response.json();
+    // async function getOrderDrinks(){
+    //     const response = await fetch(`http://18.223.2.65:5000/get-order-drinks-for-order/${OrderId}`) // Replace with the actual API endpoint URL
+    //     //console.log(await response.json());
+    //     const orderDrinkJson = await response.json();
  
-        const orderDrinks: OrderDrink[] = [];
+    //     const orderDrinks: OrderDrink[] = [];
         
         // for(const id of orderDrinkJson){
         //     console.log(id);
@@ -89,13 +91,13 @@ export default function OrderDrinkModal({open, children, onClose, setAdding, clo
     //     setOrderDrinkArray([...orderDrinkArray]);
     // }
 
-    useEffect(() =>{
-        // if(!opened && open){
-            //setOrderDrinkArray([]);
-            getOrderDrinks();
-            // setOpened(true);
-        // }
-    }, [])
+    // useEffect(() =>{
+    //     // if(!opened && open){
+    //         //setOrderDrinkArray([]);
+    //         getOrderDrinks();
+    //         // setOpened(true);
+    //     // }
+    // }, [])
 
     // useEffect(() =>{
         
