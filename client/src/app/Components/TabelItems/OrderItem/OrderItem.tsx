@@ -10,7 +10,7 @@ interface MenuDrinkProps {
     date: string;
     time: string;
     status: number;
-    tip: number
+    tip: number;
     openEditor: (b: boolean) => any;
     setPk: (pkD: number) => any;
 }

@@ -35,7 +35,7 @@
 }
 
 .namee{
-    width: 70%;
+    width: 60%;
 }
 
 .exitt{
@@ -60,4 +60,8 @@
 
 .exitt{
     height: 8%;
+}
+
+.customH{
+    height: 60%
 }

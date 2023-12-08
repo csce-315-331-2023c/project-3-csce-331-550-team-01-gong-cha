@@ -134,14 +134,6 @@ export default function ReportsModal({open, children, onClose, whichReport}: Mod
 
     const [ignore, setIgnore] = useState(false);
     function updateIngredientAmounts(ingredientName: string, amount: number) {
-        // if(!usageItems.find((item) => item[0] === ingredientName)){
-        //     //console.log(usageItems);
-        //     usageItems.push([ingredientName, amount]);
-        // }
-        // else{
-        //     const item = usageItems.find((item) => item[0] === ingredientName);
-        //     item[1] = item[1] + 1;
-        // }
         if(!usageItems.find((item) => item[0] === ingredientName)){
             console.log(usageItems);
             var mut = [...usageItems];
@@ -167,8 +159,6 @@ export default function ReportsModal({open, children, onClose, whichReport}: Mod
                 return response.json();
             })
             .then((data) => {
-                // Process the data received from the API and store it in the state
-                
                 const soldTogetherData: SoldTogetherItem[] = data.map((item: any) => ({
                     MenuDrink1: item.MenuDrink1,
                     MenuDrink2: item.MenuDrink2,
@@ -188,7 +178,6 @@ export default function ReportsModal({open, children, onClose, whichReport}: Mod
                 return response.json();
             })
             .then((data) => {
-                // Process the data received from the API and store it in the state
                 const excessData: ExcessItem[] = data.map((item: any) => ({
                     IngredientName: item.Ingredient_Name,
                     IngredientNumber: item.Ingredient_ID
@@ -196,9 +185,8 @@ export default function ReportsModal({open, children, onClose, whichReport}: Mod
                 setExcessItems(excessData);
             })
     }
-
+    
     if (!open) return null
-
 
     return (
         <div>

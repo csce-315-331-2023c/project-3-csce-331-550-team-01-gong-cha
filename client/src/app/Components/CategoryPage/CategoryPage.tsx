@@ -5,24 +5,24 @@ import MenuItem from '../MenuItem/MenuItem';
 import Modal from '../Modal/Modal'
 import defualtDrinkImg from '../../../../public/defualtDrinkImg.png'
 import { useGeolocated } from 'react-geolocated'
-import defualtDrinkImg2 from '/public/DrinkImages/Black Milk Tea.png'
+import defualtDrinkImg2 from '/public/DrinkImagesIMG/Black Milk Tea.png'
 import {DrinkImage} from '../DinkImage/DrinkImage';
 import { useState, useEffect} from 'react';
 import OrderDrink from '../OrderDrink/OrderDrink';
 import ConfirmOrder from '../ConfirmOrder/ConfirmOrder'
 import "./styles.css"
 import GoogleTranslate from '../../GoogleTranslate/GoogleTranslate';
-import seasonalImage from '../../../../public/DrinkImages/seas.png'
-import coffeImage from '../../../../public/DrinkImages/53.png';
-import beweDImage from '../../../../public/DrinkImages/49.png';
-import milkImage from '../../../../public/DrinkImages/30.png'
-import creImage from '../../../../public/DrinkImages/18.png'
-import foamImage from '../../../../public/DrinkImages/31.png'
-import slushImage from '../../../../public/DrinkImages/44.png'
+import seasonalImage from '../../../../public/DrinkImagesIMG/seas.png'
+import coffeImage from '../../../../public/DrinkImagesIMG/53.png';
+import beweDImage from '../../../../public/DrinkImagesIMG/49.png';
+import milkImage from '../../../../public/DrinkImagesIMG/30.png'
+import creImage from '../../../../public/DrinkImagesIMG/18.png'
+import foamImage from '../../../../public/DrinkImagesIMG/31.png'
+import slushImage from '../../../../public/DrinkImagesIMG/44.png'
 import { useSession, signIn, signOut } from 'next-auth/react'
 import OrderModal from '../OrderModal/OrderModal';
 import Suggestion from '../Suggestion/Suggestion';
-
+import OrderDrinkModal from '../OrderDrinkModal/OrderDrinkModal';
 // import FullMenu from '../Components/FullMenu/FullMenu'
 import { getCookie, hasCookie, setCookie } from 'cookies-next';
 import Router from "next/router";
@@ -61,8 +61,10 @@ export default function CategoryPage({categoryDrinks, categoryName}: CategoryPag
   const [first, setFirst] = useState(false);
 
   const [addingToOrder, setAddingToOrder] = useState(false);
+  const [orderID, setOrderID] = useState<number>(0);
   const [openOrder, setOpenOrder] = useState(false);
   const [openOrderEdit, setOrderEdit] = useState(false);
+  const [openOrderDrinkEdit, setOrderDrinkEdit] = useState(false);
 
   const isDrinkArray = Array.isArray(categoryDrinks) && categoryDrinks.length > 0 && typeof categoryDrinks[0] === 'object' && 'name' in categoryDrinks[0];
   function goBack(){
@@ -78,10 +80,10 @@ export default function CategoryPage({categoryDrinks, categoryName}: CategoryPag
 
   if (isDrinkArray) {
     // Assuming categoryDrinks is Drink[], and each element has a 'name' property
-    pictures = categoryDrinks.map(drink => typeof drink === 'object' ? `../../../../public/DrinkImages/${drink.name}` : `../../../../public/DrinkImages/${drink}`);
+    pictures = categoryDrinks.map(drink => typeof drink === 'object' ? `../../../../public/DrinkImagesIMG/${drink.name}` : `../../../../public/DrinkImagesIMG/${drink}`);
 } else {
   // Assuming categoryDrinks is string[]
-  pictures = categoryDrinks.map((name) => `../../../../public/DrinkImages/${name}`);
+  pictures = categoryDrinks.map((name) => `../../../../public/DrinkImagesIMG/${name}`);
 }
 
   const openModal = (category: string) => {
@@ -100,6 +102,7 @@ export default function CategoryPage({categoryDrinks, categoryName}: CategoryPag
     window.location.href = "Order/Catagories/" + category;
 }
 
+const [ignore, setIgnore] = useState(10);
 
 const halfLength = Math.ceil(categoryDrinks.length / 2);
 
@@ -175,7 +178,7 @@ const [transButton, setTransButton] = useState('');
             else{
                 setTransButton('English');
             }
-        });
+        }, [getData, suggested]);
 
         function changeLang(){
           const googtransCookie = getCookie('googtrans');
@@ -287,7 +290,8 @@ useEffect(() => {
       <div className="flex flex-col items-center justify-start w-1/2 h-full m-4">
       <div>
         <GoogleTranslate/>
-        <OrderModal open={openOrder} onClose={() => setOpenOrder(false)} setAdding={setAddingToOrder} openEditor={setOrderEdit}>hello</OrderModal>
+        <OrderModal open={openOrder} onClose={() => setOpenOrder(false)} setAdding={setAddingToOrder} openEditor={setOrderDrinkEdit} setOrderID={setOrderID}>hello</OrderModal>
+        <OrderDrinkModal open={openOrderDrinkEdit} onClose={() => setOrderDrinkEdit(false)} setAdding={setAddingToOrder} closeAll={() => {setOrderDrinkEdit(false), setOpenOrder(false)}} OrderId={orderID}  closeEdit={() => setOrderDrinkEdit(false)}>hello</OrderDrinkModal>
       </div>
       {isDrinkArray ? (
         // Render this if categoryDrinks is an array of Drink objects
