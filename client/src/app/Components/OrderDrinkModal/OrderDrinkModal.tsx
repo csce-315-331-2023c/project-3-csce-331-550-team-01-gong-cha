@@ -1,4 +1,4 @@
-'use clinet'
+'use client'
 import React, { useState, useEffect, useCallback, useReducer } from 'react';
 import './styles.css'
 import OrderDrinkItem from '../TabelItems/OrderDrink/OrderDrink';

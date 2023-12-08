@@ -114,8 +114,6 @@ export default function ConfirmOrder({drinks, onClose}: ConfirmOrderProps){
             return response.json();
         })
         .then(data => {
-            alert("I am happening")
-            alert(data.orderID)
             setOrderNumber(data.orderID);
             return fetch('http://18.191.166.59:5000/create-order-order-drink/', {
                 method: 'POST',

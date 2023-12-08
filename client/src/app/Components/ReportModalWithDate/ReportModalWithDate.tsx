@@ -111,6 +111,7 @@ export default function ReportsModal({open, children, onClose, whichReport}: Mod
     }
 
     async function usageReport(date1: string, date2: string){
+        console.log(usageItems);
         setUsageItems([]);
         await saleReport(date1, date2);
         setOpened(true);
