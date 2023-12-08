@@ -2411,6 +2411,42 @@ app.delete('/delete-order-drink/:orderDrinkID', async (req, res) => {
   }
 });
 
+//change order status
+app.put('/change-order-status/:orderID/:newStatus', async (req, res) => {
+  const orderID = Number(req.params.orderID);
+  const newStatus = Number(req.params.newStatus);
+
+  if (!orderID || isNaN(orderID) || newStatus == undefined || isNaN(newStatus)) {
+    res.status(400).json({ error: 'Invalid parameters' });
+    return;
+  }
+
+  try {
+    const client = await pool.connect();
+
+    // Check if the order exists
+    const checkOrderSQL = 'SELECT * FROM Orders WHERE ID = $1';
+    const checkOrderResult = await client.query(checkOrderSQL, [orderID]);
+
+    if (checkOrderResult.rows.length === 0) {
+      client.release();
+      res.status(404).json({ error: 'Order not found' });
+      return;
+    }
+
+    // Update the order status
+    const updateOrderStatusSQL = 'UPDATE Orders SET Status = $1 WHERE ID = $2';
+    await client.query(updateOrderStatusSQL, [newStatus, orderID]);
+
+    client.release();
+
+    res.json({ message: 'Order status updated successfully' });
+  } catch (error) {
+    console.error('Error updating order status:', error);
+    res.status(500).json({ error: 'An error occurred while updating order status' });
+  }
+});
+
 app.listen(port, () => {
   console.log(`Example listening at  http://localhost:${port}`);
   });

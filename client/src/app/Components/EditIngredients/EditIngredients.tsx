@@ -126,7 +126,7 @@ export default function EditIngredients({open, onClose, drinkName, pkDrink}: Mod
     
       fetchIngredients();
     }, [open]);
-
+    
     if (!open) return null;
 
     return(

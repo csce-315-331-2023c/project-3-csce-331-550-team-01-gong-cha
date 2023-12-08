@@ -83,7 +83,9 @@ export default function EmployeeItem({id, manager_id, name, ismanager, email, is
             'Content-Type': 'application/json',
             },
         });
+        forceUpdate();
         reload();
+        forceUpdate();
     }
 
     async function swapA(){
@@ -93,7 +95,9 @@ export default function EmployeeItem({id, manager_id, name, ismanager, email, is
             'Content-Type': 'application/json',
             },
         });
+        forceUpdate();
         reload();
+        forceUpdate();
     }
 
     useEffect(() => {

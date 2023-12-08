@@ -219,3 +219,6 @@ This is a list of the functions that we have in index.ts. Date of last update: 1
 /get-order-drink/:orderDrinkID - Gets all the info about an order drink given its primary key
 
 /delete-order-drink/:orderDrinkID -Deletes an order drink and also the corresponding order drink ingredients and order order drinks
+
+/change-order-status/:orderID/:newStatus - Takes an order primary key and integer to change the orders status to that integer  
+    Example: http://localhost:4000/change-order-status/6000/1
