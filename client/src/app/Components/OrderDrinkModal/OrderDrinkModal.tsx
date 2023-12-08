@@ -45,7 +45,7 @@ export default function OrderDrinkModal({open, children, onClose, setAdding, clo
     var myDiv = [];
 
     const [orderDrinkArray, setOrderDrinkArray] = useState<OrderDrink[]>([]);
-    
+
     function getOrderDrinks(){}
 
     // async function getOrderDrinks(){
@@ -170,5 +170,4 @@ export default function OrderDrinkModal({open, children, onClose, setAdding, clo
 
         </div>
     );
-
-                                }}
+}
