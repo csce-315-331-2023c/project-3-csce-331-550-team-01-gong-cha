@@ -235,6 +235,7 @@ useEffect(() => {
         <ConfirmOrder 
             drinks={drinksState}
             onClose={() => closeConfirmOrder()}
+            isServer={acess}
         />
     )}
     <div className="w-full flex">
