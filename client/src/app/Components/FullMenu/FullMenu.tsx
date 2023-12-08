@@ -36,7 +36,7 @@ export default function FullMenu({open, children, onClose}: ModalProps){
         
             setCats([]);
             var numDrinks: number = parseInt(await getNumDrink()) + 8;
-            const amountPerRow = parseInt(numDrinks / 5);
+            const amountPerRow = Math.floor(numDrinks / 5);
             const remainder = numDrinks % 5;
 
             var counter: number = 0;

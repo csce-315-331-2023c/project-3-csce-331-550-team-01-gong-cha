@@ -21,6 +21,7 @@ import foamImage from '../../../../public/DrinkImages/31.png'
 import slushImage from '../../../../public/DrinkImages/44.png'
 import { useSession, signIn, signOut } from 'next-auth/react'
 import OrderModal from '../OrderModal/OrderModal';
+import Suggestion from '../Suggestion/Suggestion';
 
 // import FullMenu from '../Components/FullMenu/FullMenu'
 import { getCookie, hasCookie, setCookie } from 'cookies-next';
@@ -217,12 +218,12 @@ useEffect(() => {
   setStateUpdate(false);
 }, [stateUpdate])
 
-useEffect(() =>{
-  if(!first && session){
+useEffect(() => {
+  if (!first && session && session.user && session.user.email) {
     setFirst(true);
-    getEmail(session?.user.email);
+    getEmail(session.user.email); // Now guaranteed to be a string
   }
-}, [session])
+}, [session]);
 
     return(
       
@@ -236,6 +237,9 @@ useEffect(() =>{
     <div className="w-full flex">
     <div className="w-full">
       <div className='flex justify-start align-center items-center font-semibold text-rose-700 text-2xl space-x-48'>
+        {/* {suggested && 
+        <Suggestion
+        onDataSelect={}></Suggestion>} */}
                     {!isDrinkArray ? 
                     <div className='flex justify-evenly w-full items-center'>
                     <div className='homButton'>
@@ -369,10 +373,10 @@ useEffect(() =>{
       </div>
       <div className="orderContainer relative bg-slate-100 rounded-3xl border-rose-700 border-4 text-center text-rose-700 font-bold h-11/12">
   <div className="text-4xl p-1 justify-center">Order</div>
-  {drinksState.map((drink, key) => (
-    <div className="w-full flex justify-center">
+  {drinksState.map((drink, index) => (
+    <div key={index} className="w-full flex justify-center">
       <OrderDrink
-          key = {key}
+          key = {index}
           drinkName= {drink.name}
           ice = {drink.ice}
           sugar = {drink.sugar}
