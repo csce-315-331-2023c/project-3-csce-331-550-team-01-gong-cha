@@ -64,6 +64,7 @@ export default function Dashboard() {
   const [salesReportOpen, setSalesReportOpen] = useState(false)
   const [soldTogetherReportOpen, setSoldTogetherReportOpen] = useState(false)
   const [excessReportOpen, setExcessReportOpen] = useState(false)
+  const [usageReportOpen, setUsageReportOpen] = useState(false)
 
   function getIngredients(){
     fetch(`http://18.191.166.59:5000/ingredients`) // Replace with the actual API endpoint URL
@@ -159,6 +160,7 @@ export default function Dashboard() {
         return response.json();
       })
       .then((data) => {
+        console.log(parseInt(data.exist));
         setAcess(parseInt(data.exist) >= 2);
       })
   }
@@ -181,15 +183,17 @@ export default function Dashboard() {
           <div className='ml-4 text-5xl text-rose-700 font-semibold'>Home</div>
         </button>
         <div className='flex items-center justify-evenly w-full h-full'>
-          <button onClick={() => setRestockReportOpen(true)} className='bg-rose-700 h-4/6 w-1/5 rounded-2xl text-slate-200 text-3xl font-semibold'>Restock Report</button>
-          <button onClick={() => setSalesReportOpen(true)} className='bg-rose-700 h-4/6 w-1/5 rounded-2xl text-slate-200 text-3xl font-semibold'>Sales Report</button>
-          <button onClick={() => setSoldTogetherReportOpen(true)} className='bg-rose-700 h-4/6 w-1/5 rounded-2xl text-slate-200 text-3xl font-semibold'>Sold Together</button>
-          <button onClick={() => setExcessReportOpen(true)} className='bg-rose-700 h-4/6 w-1/5 rounded-2xl text-slate-200 text-3xl font-semibold'>Excess Report</button>
+          <button onClick={() => setRestockReportOpen(true)} className='bg-rose-700 h-4/6 w-1/6 rounded-2xl text-slate-200 text-3xl font-semibold'>Restock Report</button>
+          <button onClick={() => setSalesReportOpen(true)} className='bg-rose-700 h-4/6 w-1/6 rounded-2xl text-slate-200 text-3xl font-semibold'>Sales Report</button>
+          <button onClick={() => setUsageReportOpen(true)} className='bg-rose-700 h-4/6 w-1/6 rounded-2xl text-slate-200 text-3xl font-semibold'>Usage Report</button>
+          <button onClick={() => setSoldTogetherReportOpen(true)} className='bg-rose-700 h-4/6 w-1/6 rounded-2xl text-slate-200 text-3xl font-semibold'>Sold Together</button>
+          <button onClick={() => setExcessReportOpen(true)} className='bg-rose-700 h-4/6 w-1/6 rounded-2xl text-slate-200 text-3xl font-semibold'>Excess Report</button>
         </div>
         <ReportsModal open={restockReportOpen} onClose={() => setRestockReportOpen(false)}>Restock Report</ReportsModal>
         <ReportModalWithDate open={salesReportOpen} onClose={() => setSalesReportOpen(false)} whichReport={0}>Sales Report</ReportModalWithDate>
         <ReportModalWithDate open={soldTogetherReportOpen} onClose={() => setSoldTogetherReportOpen(false)} whichReport={1}>Sold Together Report</ReportModalWithDate>
         <ReportModalWithDate open={excessReportOpen} onClose={() => setExcessReportOpen(false)} whichReport={2}>Excess Report</ReportModalWithDate>
+        <ReportModalWithDate open={usageReportOpen} onClose={() => setUsageReportOpen(false)} whichReport={3}>Usage Report</ReportModalWithDate>
         <EditIngredients open={editIngredientOpen} onClose={() => setEditIngredientOpen(false)} drinkName={editName} pkDrink={editPk}></EditIngredients>
       </div>
       <div className='mainContainer w-full flex items-top justify-center'>

@@ -1,0 +1,71 @@
+.Modal_StylesO {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+    height: 90%;
+    width: 70%;
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+}
+
+
+.Overlay_StylesO {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 1000;
+}
+
+.roww{
+    width: 19%;
+}
+
+.menuu{
+    height: 90%;
+}
+
+.namee{
+    width: 70%;
+}
+
+.exitt{
+    height: 150%;
+}
+
+.employeeHolder{
+    width: 96%;
+}
+
+.nameE{
+    width: 15%;
+}
+
+.emE{
+    width: 25%;
+}
+
+.butB{
+    width: 10%;
+}
+
+.exitt{
+    height: 8%;
+}
+
+.buttton1{
+    height: 10%;
+}
+
+.name {
+    width: 25%;
+}
+
+.prices{
+    width: 15%;
+}

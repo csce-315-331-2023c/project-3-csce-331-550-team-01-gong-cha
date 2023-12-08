@@ -1,12 +1,13 @@
 "use client"
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useReducer } from 'react'
 import SalesReportItem from '../TabelItems/SalesReportItem/SalesReportItem'
 import SoldTogetherItem from '../TabelItems/SoldTogetherItem/SoldTogetherItem'
 import ExcessItem from '../TabelItems/excessItens/excessItems'
 import './styles.css'
 import ExcessItems from '../TabelItems/excessItens/excessItems'
 import UsageItem from '../TabelItems/UsageItem/UsageItem'
+import { useForceUpdate } from 'framer-motion'
 
 interface ModalProps {
     open: boolean;
@@ -19,6 +20,14 @@ export default function ReportsModal({open, children, onClose, whichReport}: Mod
 
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
+    const [seed, setSeed] = useState(1);  
+    
+
+    const [opened, setOpened] = useState(false);
+
+    const reset = () => {
+        setSeed(Math.random());
+    }
 
     const Conditional = ({condition, children,}: 
         {condition: boolean, children: React.ReactNode}) => {
@@ -54,81 +63,97 @@ export default function ReportsModal({open, children, onClose, whichReport}: Mod
     const [excessItems, setExcessItems] = useState<ExcessItem[]>([]);
     const [usageItems, setUsageItems] = useState<[string, number][]>([]);
     
-
     async function saleReport(date1: string, date2: string){
-        fetch(`http://18.191.166.59:5000/sales-report/${date1}/${date2}`) // Replace with the actual API endpoint URL
-            .then((response) => {
-                if (!response.ok) {
-                throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then((data) => {
-                // Process the data received from the API and store it in the state
-                const salesReportData: SalesReportItem[] = data.map((item: any) => ({
-                    MenuDrinkName: item.MenuDrinkName,
-                    MenuDrinkPrice: item.MenuDrinkPrice,
-                    AmountSold: item.AmountSold,
-                    MenuDrinkID: item.MenuDrinkID
-                }));
-                setSalesReportItems(salesReportData);
-            })
+
+        const response = await fetch(`http://18.191.166.59:5000/sales-report/${date1}/${date2}`);
+        const responseJson = await response.json();
+        var salesReportData: SalesReportItem[] = await responseJson.map((item: any) => ({
+            MenuDrinkName: item.MenuDrinkName,
+            MenuDrinkPrice: item.MenuDrinkPrice,
+            AmountSold: parseInt(item.AmountSold),
+            MenuDrinkID: item.MenuDrinkID
+        }));
+        //console.log(salesReportData);
+        setSalesReportItems(salesReportData);
     }
 
-    
+    useEffect(() => {
+        if(whichReport === 3 && opened){
+            setOpened(false);
+            usageReportCalcs()
+        }    
+    }, [salesReportItems, opened])
+
+    async function usageReportCalcs(){
+        const menuDrinkIds: [number, number][] = salesReportItems.map((drink: SalesReportItem) => (
+            [drink.MenuDrinkID, drink.AmountSold]
+        ));
+
+        menuDrinkIds.forEach(async (drink: [number, number]) => {
+
+            const response = await fetch(`http://18.191.166.59:5000/ingredients-for-menu-drinks/${drink[0]}`);
+            const responseJson = await response.json();
+            let localAmount = drink[1];
+            await responseJson[0].forEach(async (id: number) => {
+                    
+                const response2 = await fetch(`http://18.191.166.59:5000/get-ingredient-name/${id}`);
+                const response2Json = await response2.json();
+                updateIngredientAmounts(response2Json.ingredientName, localAmount);
+            })
+        })
+        console.log(usageItems);
+        reset();
+        setIgnore(!ignore);
+        // setUsageItems((items) => {
+        //     return [...items, ["why", 2]];
+        // });
+        //window.location.reload();
+    }
 
     async function usageReport(date1: string, date2: string){
         setUsageItems([]);
         await saleReport(date1, date2);
-        const menuDrinkIds: [number, number][] = salesReportItems.map((drink: SalesReportItem) => (
-            [drink.MenuDrinkID, drink.AmountSold]
-        ));
-        // alert(JSON.stringify(menuDrinkIds) + "something");
-        menuDrinkIds.forEach((drink: [number, number]) => (
-            
-            fetch(`http://18.191.166.59:5000/ingredients-for-menu-drinks/${drink[0]}`)
-            .then((response) => {
-                if (!response.ok) {
-                // alert("did not pass 1");
-                throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then((ingredientIds) => {
-                let localAmount = drink[1];
-                
-                ingredientIds[0].forEach((id: number) => (
-                    
-                    fetch(`http://18.191.166.59:5000/get-ingredient-name/${id}`)
-                    .then((response) => {
-                        if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                        }
-                        return response.json();
-                    })
-                    .then((ingredient) => {
-                        updateIngredientAmounts(ingredient, localAmount);
-
-                    })
-                ))
-            })
-        ))
-        // alert("finished usage function")
-        console.log(usageItems);
+        setOpened(true);
+        // await usageReportCalcs();
+        // setUsageItems(usageItems);
+        // console.log(usageItems);
+        // reset();
     }
 
+    useEffect(() => {
+        // setUsageItems((items) => {
+        //     return [...items];
+        // });
+        reset();
+    }, [usageItems])
+
+    useEffect(() => {
+
+    });
+
+    const [ignore, setIgnore] = useState(false);
     function updateIngredientAmounts(ingredientName: string, amount: number) {
-        setUsageItems(prevAmounts => {
-            const index = prevAmounts.findIndex(pair => pair[0] == ingredientName);
-            if (index >= 0) {
-                const updatedAmounts = [...prevAmounts];
-                updatedAmounts[index] = [ingredientName, updatedAmounts[index][1] + amount];
-                return updatedAmounts;
-            } else {
-                return [...prevAmounts, [ingredientName, amount]];
-            }
-            
-        });
+        // if(!usageItems.find((item) => item[0] === ingredientName)){
+        //     //console.log(usageItems);
+        //     usageItems.push([ingredientName, amount]);
+        // }
+        // else{
+        //     const item = usageItems.find((item) => item[0] === ingredientName);
+        //     item[1] = item[1] + 1;
+        // }
+        if(!usageItems.find((item) => item[0] === ingredientName)){
+            console.log(usageItems);
+            var mut = [...usageItems];
+            mut.push([ingredientName, amount]);
+            setUsageItems(mut); 
+        }
+        else{
+            var mut = [...usageItems];
+            var neww = mut.find((item) => item[0] === ingredientName);
+            neww[1] = neww[1] + 1;
+            setUsageItems(mut); 
+        }
+        useForceUpdate();
     }
     
 
@@ -174,6 +199,7 @@ export default function ReportsModal({open, children, onClose, whichReport}: Mod
 
     if (!open) return null
 
+
     return (
         <div>
             <div className='Overlay_Styles'>
@@ -194,23 +220,14 @@ export default function ReportsModal({open, children, onClose, whichReport}: Mod
                             </div>
                         </div>
                         <div className="viewer flex-col justify-evenly border-rose-700 border-4 rounded-md h-full w-full overflow-auto">
-                        {/* {usageItems.map((usageItem, index) => (
+                        {salesReportItems.map((salesReportItem, index) => (
                             <SalesReportItem
                                 key={index}
-                                MenuDrinkName={usageItem[0]}
-                                MenuDrinkPrice={usageItem[1]}
-                                AmountSold={1}
-                            />
-                        ))} */}
-
-                        {usageItems.map((usageItem, index) => (
-                            <UsageItem
-                                key={index}
-                                ingredientName={usageItem[0].ingredientName}
-                                amountUsed={usageItem[1]}
+                                MenuDrinkName={salesReportItem.MenuDrinkName}
+                                MenuDrinkPrice={salesReportItem.MenuDrinkPrice}
+                                AmountSold={salesReportItem.AmountSold}
                             />
                         ))}
-                        
                         </div>
                     </Conditional>
                     <Conditional condition={whichReport === 1}>
@@ -256,6 +273,27 @@ export default function ReportsModal({open, children, onClose, whichReport}: Mod
                         ))}
                         </div>
                     </Conditional>
+                    <Conditional condition={whichReport === 3}>
+                        <div className='w-full'>
+                            <div className='bg-rose-700 font-bold text-slate-200 text-xl w-full flex justify-center h-14 rounded-xl mb-2'>
+                                <div className='flex justify-center items-center w-4/6'>
+                                    Ingredient Name
+                                </div>
+                                <div className='flex justify-center items-center w-1/6'>
+                                    Amount
+                                </div>
+                            </div>
+                        </div>
+                        <div className="flex-col justify-evenly border-white border-2 rounded-md h-full w-full overflow-auto">
+                            {usageItems.map((usageItem, index) => (
+                                <UsageItem
+                                    key={index}
+                                    ingredientName={usageItem[0]}
+                                    amountUsed={usageItem[1]}
+                                />
+                            ))}
+                        </div>
+                    </Conditional>
                 
                     <div className='h-1/6 w-full mb-8 mt-10 flex justify-center'>
                        
@@ -269,13 +307,16 @@ export default function ReportsModal({open, children, onClose, whichReport}: Mod
                             </div>
                         }
                         <Conditional condition={whichReport === 0}>
-                            <button className='button bg-rose-700 h-full mx-8 border-4 border-rose-700 rounded-xl text-slate-200 font-semibold text-2xl' onClick={() => usageReport(startDate, endDate)}>Enter Range</button>
+                            <button className='button bg-rose-700 h-full mx-8 border-4 border-rose-700 rounded-xl text-slate-200 font-semibold text-2xl' onClick={() => saleReport(startDate, endDate)}>Enter Range</button>
                         </Conditional>
                         <Conditional condition={whichReport === 1}>
                             <button className='button bg-rose-700 h-full mx-8 border-4 border-rose-700 rounded-xl text-slate-200 font-semibold text-2xl' onClick={() => soldTogether(startDate, endDate)}>Enter Range</button>
                         </Conditional>
                         <Conditional condition={whichReport === 2}>
                             <button className='button bg-rose-700 h-full mx-8 border-4 border-rose-700 rounded-xl text-slate-200 font-semibold text-2xl' onClick={() => excess(startDate)}>Enter Range</button>
+                        </Conditional>
+                        <Conditional condition={whichReport === 3}>
+                            <button className='button bg-rose-700 h-full mx-8 border-4 border-rose-700 rounded-xl text-slate-200 font-semibold text-2xl' onClick={() => usageReport(startDate, endDate)}>Enter Range</button>
                         </Conditional>
                     </div>
                     <div className='w-full -mt-2 flex justify-center'>
