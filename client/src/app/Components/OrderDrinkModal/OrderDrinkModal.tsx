@@ -56,33 +56,33 @@ export default function OrderDrinkModal({open, children, onClose, setAdding, clo
         // for(const id of orderDrinkJson){
         //     console.log(id);
         // }
-        orderDrinkJson.orderDrinkIDs.forEach(async (item: any) => {
+       // orderDrinkJson.orderDrinkIDs.forEach(async (item: any) => {
             
             // console.log(item);
-            const responseOD = await fetch(`http://18.223.2.65:5000/get-order-drink/${item}`)
-            //console.log(await responseOD.json());
-            const drinkJson = await responseOD.json();
+    //         const responseOD = await fetch(`http://18.223.2.65:5000/get-order-drink/${item}`)
+    //         //console.log(await responseOD.json());
+    //         const drinkJson = await responseOD.json();
             
-            // console.log(drinkJson.orderDrink.menu_drink_id);
-            const response3 = await fetch(`http://18.223.2.65:5000/get-drink/${drinkJson.orderDrink.menu_drink_id}`)
-            // console.log(await response3.json());
-            const name2 = await response3.json();
-            // const drinkNameJson = await response.json();
-            // const name2 = await drinkNameJson.drinkName;
+    //         // console.log(drinkJson.orderDrink.menu_drink_id);
+    //         const response3 = await fetch(`http://18.223.2.65:5000/get-drink/${drinkJson.orderDrink.menu_drink_id}`)
+    //         // console.log(await response3.json());
+    //         const name2 = await response3.json();
+    //         // const drinkNameJson = await response.json();
+    //         // const name2 = await drinkNameJson.drinkName;
 
-            orderDrinks.push({id: drinkJson.orderDrink.id,
-                total_price: drinkJson.orderDrink.total_price,
-                size: drinkJson.orderDrink.size,
-                menu_drink_id: drinkJson.orderDrink.menu_drink_id,
-                ice_level: drinkJson.orderDrink.ice_level,
-                sugar_level: drinkJson.orderDrink.sugar_level,
-                name: name2.drinkName,
-            });
-        });
+    //         orderDrinks.push({id: drinkJson.orderDrink.id,
+    //             total_price: drinkJson.orderDrink.total_price,
+    //             size: drinkJson.orderDrink.size,
+    //             menu_drink_id: drinkJson.orderDrink.menu_drink_id,
+    //             ice_level: drinkJson.orderDrink.ice_level,
+    //             sugar_level: drinkJson.orderDrink.sugar_level,
+    //             name: name2.drinkName,
+    //         });
+    //     });
         
-        setOrderDrinkArray(orderDrinks);
-        forceUpdate();
-    }
+    //     setOrderDrinkArray(orderDrinks);
+    //     forceUpdate();
+    // }
 
     // async function kms(){
     //     await getOrderDrinks();
@@ -169,4 +169,4 @@ export default function OrderDrinkModal({open, children, onClose, setAdding, clo
         </div>
     );
 
-}
+                                }}
