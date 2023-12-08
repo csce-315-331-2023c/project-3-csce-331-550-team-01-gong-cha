@@ -143,7 +143,10 @@ export default function ReportsModal({open, children, onClose, whichReport}: Mod
         else{
             var mut = [...usageItems];
             var neww = mut.find((item) => item[0] === ingredientName);
-            neww[1] = neww[1] + 1;
+            if (neww){
+                neww[1] = neww[1] + 1;
+            }
+            
             setUsageItems(mut); 
         }
     }

@@ -45,7 +45,7 @@ export default function AddIngredients({open, onClose, drinkName, lgDrinkPrice, 
   const [created, setCreated] = useState(false);
 
   function createMenuDrink(nameI: string, normP: number, lgP: number){
-    alert(`${nameI} ${normP} ${lgP} ${catagory}`);
+    // alert(`${nameI} ${normP} ${lgP} ${catagory}`);
     const lgTemp = lgP * 0.8;
     const nTemp = normP * 0.8;
     fetch('http://18.191.166.59:5000/create-menu-drink', {
@@ -93,7 +93,7 @@ export default function AddIngredients({open, onClose, drinkName, lgDrinkPrice, 
         fetch('http://18.191.166.59:5000/ingredients') 
           .then((response) => {
             if (!response.ok) {
-              alert("did not pass");
+              // alert("did not pass");
               throw new Error('Network response was not ok');
             }
             return response.json();

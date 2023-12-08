@@ -42,7 +42,7 @@ export default function RestockReportIngredient({pk, FIName, CurrentStock, Ideal
             body: JSON.stringify({name: newName, currentAmount: newCurStock, idealAmount: newIdealStock, consumerPrice: newPrice, isIngredient: isIngred}),
           })
           .then((response) => {
-            alert(response);
+            // alert(response);
             setIName('');
             setCurrentStock('');
             setIdealStock('');

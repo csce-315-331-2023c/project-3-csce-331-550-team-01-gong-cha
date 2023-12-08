@@ -23,7 +23,7 @@ export default function Order() {
           fetch('http://18.191.166.59:5000/drinks-from-category/8') // Replace with the actual API endpoint URL
             .then((response) => {
               if (!response.ok) {
-                alert("did not pass");
+                // alert("did not pass");
                 throw new Error('Network response was not ok');
               }
               return response.json();
