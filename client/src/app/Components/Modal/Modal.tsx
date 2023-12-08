@@ -115,7 +115,7 @@ export default function Modal({ open, children, onClose, drinkName, lgDrinkPrice
   
   useEffect(() => {
       if (open && currentModal == 1) {
-        fetch('http://18.191.166.59:5000/ingredients') 
+        fetch('http://18.223.2.65:5000/ingredients') 
           .then((response) => {
             if (!response.ok) {
               alert("did not pass");

@@ -34,7 +34,7 @@ export default function RestockReportIngredient({pk, FIName, CurrentStock, Ideal
         if(price === newPrice){ newPrice = FConsumerPrice; }
         else{ newPrice = price; }
 
-        fetch(`http://18.191.166.59:5000/update-ingredient/${pkk}`, {
+        fetch(`http://18.223.2.65:5000/update-ingredient/${pkk}`, {
             method: 'PUT',
             headers: {
               'Content-Type': 'application/json',
@@ -53,7 +53,7 @@ export default function RestockReportIngredient({pk, FIName, CurrentStock, Ideal
     }
 
     function deleteTopping(iPk: number){
-        fetch(`http://18.191.166.59:5000/delete-ingredient/${iPk}`, {
+        fetch(`http://18.223.2.65:5000/delete-ingredient/${iPk}`, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
@@ -65,7 +65,7 @@ export default function RestockReportIngredient({pk, FIName, CurrentStock, Ideal
     }
 
     function setTopping(iPk: number){
-        fetch(`http://18.191.166.59:5000/change-is-ingredient/${iPk}`, {
+        fetch(`http://18.223.2.65:5000/change-is-ingredient/${iPk}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',

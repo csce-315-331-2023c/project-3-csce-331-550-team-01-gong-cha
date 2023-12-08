@@ -117,7 +117,7 @@ export default function Order() {
         window.location.href = "../";
     }
     function setStateUpdate(state: boolean){
-        setRecommended(false);}
+        setRecommended(state);}
 
     function changeLang(){
         const googtransCookie = getCookie('googtrans');

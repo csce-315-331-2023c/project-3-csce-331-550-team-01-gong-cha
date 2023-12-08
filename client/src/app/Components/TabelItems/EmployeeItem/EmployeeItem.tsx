@@ -32,7 +32,7 @@ export default function EmployeeItem({id, manager_id, name, ismanager, email, is
         const newNameVar = newName === '' ? name : newName;
         const newEmailVar = newEmail === '' ? email : newEmail;
 
-        fetch(`http://18.191.166.59:5000/update-employee/${id}`, {
+        fetch(`http://18.223.2.65:5000/update-employee/${id}`, {
             method: 'PUT',
             headers: {
             'Content-Type': 'application/json',
@@ -53,7 +53,7 @@ export default function EmployeeItem({id, manager_id, name, ismanager, email, is
     }
 
     function deleteEmployee(){
-        fetch(`http://18.191.166.59:5000/delete-employee/${id}`, {
+        fetch(`http://18.223.2.65:5000/delete-employee/${id}`, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
@@ -77,7 +77,7 @@ export default function EmployeeItem({id, manager_id, name, ismanager, email, is
     }
 
     async function swapM(){
-        await fetch(`http://18.191.166.59:5000/change-manager/${id}`, {
+        await fetch(`http://18.223.2.65:5000/change-manager/${id}`, {
             method: 'PUT',
             headers: {
             'Content-Type': 'application/json',
@@ -89,7 +89,7 @@ export default function EmployeeItem({id, manager_id, name, ismanager, email, is
     }
 
     async function swapA(){
-        await fetch(`http://18.191.166.59:5000/change-admin/${id}`, {
+        await fetch(`http://18.223.2.65:5000/change-admin/${id}`, {
             method: 'PUT',
             headers: {
             'Content-Type': 'application/json',

@@ -200,10 +200,10 @@ const [transButton, setTransButton] = useState('');
 
       function getEmail(email: string) {
         setFirst(true);
-        fetch(`http://18.191.166.59:5000/get-email/${email}`)
+        fetch(`http://18.223.2.65:5000/get-email/${email}`)
         .then((response) => {
           if (!response.ok) {
-          alert("did not pass");
+          // alert("did not pass");
           throw new Error('Network response was not ok');
           }
           return response.json();

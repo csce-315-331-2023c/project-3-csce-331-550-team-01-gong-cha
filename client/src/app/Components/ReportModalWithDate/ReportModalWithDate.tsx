@@ -65,7 +65,7 @@ export default function ReportsModal({open, children, onClose, whichReport}: Mod
     
     async function saleReport(date1: string, date2: string){
 
-        const response = await fetch(`http://18.191.166.59:5000/sales-report/${date1}/${date2}`);
+        const response = await fetch(`http://18.223.2.65:5000/sales-report/${date1}/${date2}`);
         const responseJson = await response.json();
         var salesReportData: SalesReportItem[] = await responseJson.map((item: any) => ({
             MenuDrinkName: item.MenuDrinkName,
@@ -91,12 +91,12 @@ export default function ReportsModal({open, children, onClose, whichReport}: Mod
 
         menuDrinkIds.forEach(async (drink: [number, number]) => {
 
-            const response = await fetch(`http://18.191.166.59:5000/ingredients-for-menu-drinks/${drink[0]}`);
+            const response = await fetch(`http://18.223.2.65:5000/ingredients-for-menu-drinks/${drink[0]}`);
             const responseJson = await response.json();
             let localAmount = drink[1];
             await responseJson[0].forEach(async (id: number) => {
                     
-                const response2 = await fetch(`http://18.191.166.59:5000/get-ingredient-name/${id}`);
+                const response2 = await fetch(`http://18.223.2.65:5000/get-ingredient-name/${id}`);
                 const response2Json = await response2.json();
                 updateIngredientAmounts(response2Json.ingredientName, localAmount);
             })
@@ -153,10 +153,10 @@ export default function ReportsModal({open, children, onClose, whichReport}: Mod
     
 
     function soldTogether(date1: string, date2: string){
-        fetch(`http://18.191.166.59:5000/sold-together/:${date1}/:${date2}`) // Replace with the actual API endpoint URL
+        fetch(`http://18.223.2.65:5000/sold-together/:${date1}/:${date2}`) // Replace with the actual API endpoint URL
             .then((response) => {
                 if (!response.ok) {
-                alert("did not pass");
+                // alert("did not pass");
                 throw new Error('Network response was not ok');
                 }
                 return response.json();
@@ -172,10 +172,10 @@ export default function ReportsModal({open, children, onClose, whichReport}: Mod
     }
 
     function excess(date1: string){
-        fetch(`http://18.191.166.59:5000/excess-report/:${date1}`) // Replace with the actual API endpoint URL
+        fetch(`http://18.223.2.65:5000/excess-report/:${date1}`) // Replace with the actual API endpoint URL
             .then((response) => {
                 if (!response.ok) {
-                alert("did not pass");
+                // alert("did not pass");
                 throw new Error('Network response was not ok');
                 }
                 return response.json();

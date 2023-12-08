@@ -47,7 +47,7 @@ export default function OrderDrinkModal({open, children, onClose, setAdding, clo
     const [orderDrinkArray, setOrderDrinkArray] = useState<OrderDrink[]>([]);
 
     async function getOrderDrinks(){
-        const response = await fetch(`http://18.191.166.59:5000/get-order-drinks-for-order/${OrderId}`) // Replace with the actual API endpoint URL
+        const response = await fetch(`http://18.223.2.65:5000/get-order-drinks-for-order/${OrderId}`) // Replace with the actual API endpoint URL
         //console.log(await response.json());
         const orderDrinkJson = await response.json();
  
@@ -59,12 +59,12 @@ export default function OrderDrinkModal({open, children, onClose, setAdding, clo
         orderDrinkJson.orderDrinkIDs.forEach(async (item: any) => {
             
             // console.log(item);
-            const responseOD = await fetch(`http://18.191.166.59:5000/get-order-drink/${item}`)
+            const responseOD = await fetch(`http://18.223.2.65:5000/get-order-drink/${item}`)
             //console.log(await responseOD.json());
             const drinkJson = await responseOD.json();
             
             // console.log(drinkJson.orderDrink.menu_drink_id);
-            const response3 = await fetch(`http://18.191.166.59:5000/get-drink/${drinkJson.orderDrink.menu_drink_id}`)
+            const response3 = await fetch(`http://18.223.2.65:5000/get-drink/${drinkJson.orderDrink.menu_drink_id}`)
             // console.log(await response3.json());
             const name2 = await response3.json();
             // const drinkNameJson = await response.json();
