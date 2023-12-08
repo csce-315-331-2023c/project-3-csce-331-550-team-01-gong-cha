@@ -3,19 +3,20 @@
 }
 
 .currentStock {
-    width:10%;
+    width:20%;
+    margin-right: 2px;
 }
 
 .idealStock {
-    width: 10%;
+    width: 20%;
 }
 
 .amountUsed {
-    width: 10%;
+    width: 20%;
 }
 
 .consumerPrice {
-    width: 10%;
+    width: 20%;
 }
 
 .button{
@@ -56,4 +57,8 @@
 
 .createIng {
     height: 15%;
+}
+
+.prices {
+    margin-left: 4rem;
 }
