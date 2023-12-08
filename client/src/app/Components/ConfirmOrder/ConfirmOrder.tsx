@@ -6,7 +6,7 @@ import Modal from '../Modal/Modal'
 import defualtDrinkImg from '../../../../public/defualtDrinkImg.png'
 import defualtDrinkImg2 from '/public/DrinkImages/Black Milk Tea.png'
 import {DrinkImage} from '../DinkImage/DrinkImage';
-import { useState, useEffect} from 'react';
+import { useState, useEffect, ChangeEvent} from 'react';
 import OrderDrink from '../OrderDrink/OrderDrink';
 
 
@@ -31,10 +31,11 @@ interface orderDrink {
 interface ConfirmOrderProps{
     drinks: orderDrink[]
     onClose: () => void;
+    isServer: boolean;
 }
 
 
-export default function ConfirmOrder({drinks, onClose}: ConfirmOrderProps){
+export default function ConfirmOrder({drinks, onClose, isServer}: ConfirmOrderProps){
     const [tip, setTip] = useState(0);
     const [isTakeout, setTakeOut] = useState(false);
     const [orderNumber, setOrderNumber] = useState(0);
@@ -47,6 +48,10 @@ export default function ConfirmOrder({drinks, onClose}: ConfirmOrderProps){
     const date = today.getDate();
     const currentDate = year + "-" + month + "-" + date;
     const currentTime = today.getHours() + ":" + today.getMinutes();
+    const [name, setName] = useState("Customer");
+    const handleCustomerNameChange = (event: ChangeEvent<HTMLInputElement>) => {
+        setName(event.target.value);
+      };
     function handleTip(percent: number){
         setTip(percent);
     }
@@ -105,7 +110,7 @@ export default function ConfirmOrder({drinks, onClose}: ConfirmOrderProps){
                     takeout: isTakeout,
                     date: currentDate,
                     time: currentTime,
-                    name: "Customer Order",
+                    name: `${name}'s Order`,
                     status: 1})
             });
         })
@@ -151,7 +156,8 @@ export default function ConfirmOrder({drinks, onClose}: ConfirmOrderProps){
     const modals = [(
         <>
   <div className="Overlay_Styles"></div>
-  <div className="Modal_Styles bg-slate-200 justify-evenly text-rose-800 font-semibold text-4xl space-y-1flex flex-col h-full">
+  <div className="Modal_Styles bg-slate-200 justify-evenly text-rose-800 font-semibold text-4xl space-y-1flex flex-col">
+    
     <div className="flex-grow-container overflow-auto h-full">
       {drinks.map((drink, key) => (
         <OrderDrink
@@ -166,6 +172,16 @@ export default function ConfirmOrder({drinks, onClose}: ConfirmOrderProps){
         />
       ))}
     </div>
+    {isServer && (
+        <div>
+          <input
+            type="text"
+            placeholder="Customer Name"
+            // value={name}
+            onChange={handleCustomerNameChange}
+          />
+        </div>
+      )}
     <div className="flex-grow flex flex-col justify-between">
       <div className="flex-col justify-evenly h-1/6">
         <div>Tip</div>
@@ -198,7 +214,8 @@ export default function ConfirmOrder({drinks, onClose}: ConfirmOrderProps){
                 <div className="Overlay_Styles"></div>
                 <div className="Modal_Styles bg-rose-700 border-rose-900 border-8 justify-evenly ">
                     <div className="justify-evenly h-full flex-col text-5xl space-y-60 text-white font-semibolds">
-                    <p className="mb-10">Thank You for Choosing Gong Cha!</p>
+                    {isServer ? <p className="mb-10">Thank You {name} for Choosing Gong Cha!</p> :
+                    <p className="mb-10">Thank You for Choosing Gong Cha!</p>}
                     Your Order Number is #{orderNumber}
                     <div>
                     <button onClick={() => {onClose; goBack();}} className="border-white border-2 rounded-3xl w-1/4 text-white bg-rose-700 hover:bg-slate-100 hover:text-rose-700">Exit</button>
