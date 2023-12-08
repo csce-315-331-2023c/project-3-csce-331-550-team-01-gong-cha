@@ -13,32 +13,37 @@ interface MenuDrinkProps {
     tip: number;
     openEditor: (b: boolean) => any;
     setPk: (pkD: number) => any;
+    reload: () => void;
 }
 
-export default function OrderItem({id, name, price, takeout, date, time, status, tip, openEditor, setPk}: MenuDrinkProps){
+export default function OrderItem({id, name, price, takeout, date, time, status, tip, openEditor, setPk, reload}: MenuDrinkProps){
 
     const [Istatus, setIlargePrice] = useState('');
     const [IstatusBS, setIlargePriceBS] = useState(status === 1 ? 'bg-rose-700' : 'bg-green-600');
     const [IstatusB, setIlargePriceB] = useState(status === 1 ? 'Fufill' : 'Fufilled');
-    
-    function deleteMenuDrink(){
-        fetch(`http://18.223.2.65:5000/delete-menu-drink/${id}`, {
+
+    function deleteOrder(){
+        fetch(`http://18.223.2.65:5000/delete-order/${id}`, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
-              },
+            },
         })
         .then(() => {
-            //reload();
+            reload();
         });
     }
 
-    function deleteOrder(){
-
-    }
-
     function setStatus(s: number){
-
+        fetch(`http://18.223.2.65:5000/change-order-status/${id}/2`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(() => {
+            reload();
+        });
     }
 
     return(

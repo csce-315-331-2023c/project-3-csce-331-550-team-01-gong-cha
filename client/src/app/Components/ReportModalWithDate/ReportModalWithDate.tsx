@@ -102,8 +102,9 @@ export default function ReportsModal({open, children, onClose, whichReport}: Mod
             })
         })
         console.log(usageItems);
-        reset();
-        setIgnore(!ignore);
+        // reset();
+        // setIgnore(!ignore);
+        // setUsageItems()
         // setUsageItems((items) => {
         //     return [...items, ["why", 2]];
         // });
@@ -121,34 +122,47 @@ export default function ReportsModal({open, children, onClose, whichReport}: Mod
         // reset();
     }
 
-    useEffect(() => {
-        // setUsageItems((items) => {
-        //     return [...items];
-        // });
-        reset();
-    }, [usageItems])
+    // useEffect(() => {
+    //     // setUsageItems((items) => {
+    //     //     return [...items];
+    //     // });
+    //     // reset();
+    // }, [usageItems])
 
-    useEffect(() => {
+    // useEffect(() => {
 
-    });
+    // });
 
     const [ignore, setIgnore] = useState(false);
+
     function updateIngredientAmounts(ingredientName: string, amount: number) {
         if(!usageItems.find((item) => item[0] === ingredientName)){
-            console.log(usageItems);
-            var mut = [...usageItems];
-            mut.push([ingredientName, amount]);
-            setUsageItems(mut); 
+            //console.log(usageItems);
+            usageItems.push([ingredientName, amount]);
         }
         else{
-            var mut = [...usageItems];
-            var neww = mut.find((item) => item[0] === ingredientName);
-            if (neww){
-                neww[1] = neww[1] + 1;
+            const item = usageItems.find((item) => item[0] === ingredientName);
+            if (item){
+                item[1] = item[1] + 1;
             }
-            
-            setUsageItems(mut); 
         }
+        setIgnore(!ignore);
+
+        // if(!usageItems.find((item) => item[0] === ingredientName)){
+        //     console.log(usageItems);
+        //     var mut = [...usageItems];
+        //     mut.push([ingredientName, amount]);
+        //     setUsageItems(mut); 
+        // }
+        // else{
+        //     var mut = [...usageItems];
+        //     var neww = mut.find((item) => item[0] === ingredientName);
+        //     if (neww){
+        //         neww[1] = neww[1] + 1;
+        //     }
+            
+        //     setUsageItems(mut); 
+        // }
     }
     
 

@@ -81,7 +81,7 @@ export default function OrderDrinkModal({open, children, onClose, setAdding, clo
         });
         
         setOrderDrinkArray(orderDrinks);
-        //useForceUpdate();
+        forceUpdate();
     }
 
     // async function kms(){
@@ -90,18 +90,18 @@ export default function OrderDrinkModal({open, children, onClose, setAdding, clo
     // }
 
     useEffect(() =>{
-        if(!opened && open){
+        // if(!opened && open){
             //setOrderDrinkArray([]);
             getOrderDrinks();
-            setOpened(true);
-        }
+            // setOpened(true);
+        // }
     }, [])
 
     // useEffect(() =>{
         
     // })
 
-    useEffect(() => {
+    // useEffect(() => {
         //useForceUpdate();
         // myDiv = []
         // orderDrinkArray.forEach((item) => {
@@ -116,8 +116,8 @@ export default function OrderDrinkModal({open, children, onClose, setAdding, clo
         //         size={item.size}
         //     />);
         // });
-        forceUpdate();
-    }, [orderDrinkArray])
+    //     forceUpdate();
+    // }, [orderDrinkArray])
 
     if (!open) return null
 
@@ -161,7 +161,7 @@ export default function OrderDrinkModal({open, children, onClose, setAdding, clo
                         </div>
                         <div className='buttton1 w-full flex justify-center items-center mt-6'>
                             <button className='h-5/6 -mt-6 w-2/6 bg-rose-700 rounded-xl text-slate-200 text-4xl font-semibold' onClick={() => {setAdding(true), closeAll()}}>Add Drink</button>
-                            <button className='h-5/6 -mt-6 w-2/6 bg-rose-700 rounded-xl text-slate-200 text-4xl font-semibold' onClick={() => {onClose(), setOpened(false)}}>Exit</button>
+                            <button className='h-5/6 -mt-6 w-2/6 bg-rose-700 rounded-xl text-slate-200 text-4xl font-semibold' onClick={() => {onClose(), setOpened(false), setOrderDrinkArray([])}}>Exit</button>
                         </div>
                     </div>
             </div>

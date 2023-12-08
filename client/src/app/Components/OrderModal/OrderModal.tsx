@@ -103,6 +103,7 @@ export default function OrderModal({open, children, onClose, setAdding, openEdit
                                         openEditor={openEditor}
                                         tip={item.tip}
                                         setPk={setOrderID}
+                                        reload={() => {setOrderArray([]), getOrders()}}
                                     />
                                 ))}
                             </div>

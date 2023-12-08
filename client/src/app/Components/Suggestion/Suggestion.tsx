@@ -122,7 +122,7 @@ export default function Suggestion({onDataSelect, open, children, onClose, temp,
                         src={drinkImage}
                         alt={"Drink Image"}
                     />
-                    <div className='flex w-full justify-center h-full mt-4'>
+                    <div className='flex w-full justify-center h-1/6 mt-4'>
                         <button className='bg-rose-700 rounded-lg w-2/5 mr-8 text-slate-200 h-full' onClick={() => onClose()}>No Thanks</button>
                         <button className='bg-rose-700 rounded-lg w-2/5 ml-8 text-slate-200 text-xl' onClick={() => {sendDataBack(); onClose()}}>Add to Order</button>
                     </div>
