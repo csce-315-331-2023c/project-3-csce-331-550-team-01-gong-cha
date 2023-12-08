@@ -48,7 +48,7 @@ export default function AddIngredients({open, onClose, drinkName, lgDrinkPrice, 
     // alert(`${nameI} ${normP} ${lgP} ${catagory}`);
     const lgTemp = lgP * 0.8;
     const nTemp = normP * 0.8;
-    fetch('http://18.191.166.59:5000/create-menu-drink', {
+    fetch('http://18.223.2.65:5000/create-menu-drink', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -70,7 +70,7 @@ export default function AddIngredients({open, onClose, drinkName, lgDrinkPrice, 
     var idx = 0;
     for(idx; idx < DrinkIngredients.length; idx++){
       if(DrinkIngredients[idx]){
-        fetch('http://18.191.166.59:5000/create-menu-drink-ingredient', {
+        fetch('http://18.223.2.65:5000/create-menu-drink-ingredient', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -90,7 +90,7 @@ export default function AddIngredients({open, onClose, drinkName, lgDrinkPrice, 
 
   useEffect(() => {
       if (open) {
-        fetch('http://18.191.166.59:5000/ingredients') 
+        fetch('http://18.223.2.65:5000/ingredients') 
           .then((response) => {
             if (!response.ok) {
               // alert("did not pass");

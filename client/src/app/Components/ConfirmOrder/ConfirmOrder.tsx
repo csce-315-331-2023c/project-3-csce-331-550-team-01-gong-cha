@@ -65,7 +65,7 @@ export default function ConfirmOrder({drinks, onClose}: ConfirmOrderProps){
     
         const orderDrinkPromises = existingOrders.map((drink: orderDrink) => {
             localTotalOrderPrice += drink.totalPrice;
-            return fetch('http://18.191.166.59:5000/create-order-drink/', {
+            return fetch('http://18.223.2.65:5000/create-order-drink/', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ Total_Price: drink.totalPrice, Size: drink.sz, Menu_Drink_ID: drink.id, Ice_Level: drink.ice, Sugar_Level: drink.sugar })
@@ -78,7 +78,7 @@ export default function ConfirmOrder({drinks, onClose}: ConfirmOrderProps){
                 localTotalOrderCost += data.make_cost;
                 localOrderDrinkPks.push(data.generatedKey);
                 const toppingPks = drink.toppings.map(topping => topping.id);
-                fetch(`http://18.191.166.59:5000/create-ingredient-order-drink`,{
+                fetch(`http://18.223.2.65:5000/create-ingredient-order-drink`,{
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ toppingPKs: toppingPks, toppingAmounts: drink.toppingAmounts, orderDrinkPK: data.generatedKey})
@@ -94,7 +94,7 @@ export default function ConfirmOrder({drinks, onClose}: ConfirmOrderProps){
             setTotalOrderCost(localTotalOrderCost);
             setTotalProfit(localTotalOrderPrice - localTotalOrderCost);
     
-            return fetch("http://18.191.166.59:5000/create-order", {
+            return fetch("http://18.223.2.65:5000/create-order", {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -115,7 +115,7 @@ export default function ConfirmOrder({drinks, onClose}: ConfirmOrderProps){
         })
         .then(data => {
             setOrderNumber(data.orderID);
-            return fetch('http://18.191.166.59:5000/create-order-order-drink/', {
+            return fetch('http://18.223.2.65:5000/create-order-order-drink/', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

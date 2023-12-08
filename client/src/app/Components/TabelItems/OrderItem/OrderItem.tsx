@@ -22,7 +22,7 @@ export default function OrderItem({id, name, price, takeout, date, time, status,
     const [IstatusB, setIlargePriceB] = useState(status === 1 ? 'Fufill' : 'Fufilled');
     
     function deleteMenuDrink(){
-        fetch(`http://18.191.166.59:5000/delete-menu-drink/${id}`, {
+        fetch(`http://18.223.2.65:5000/delete-menu-drink/${id}`, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',

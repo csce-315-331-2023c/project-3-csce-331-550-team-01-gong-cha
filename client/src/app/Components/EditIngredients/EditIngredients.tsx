@@ -57,7 +57,7 @@ export default function EditIngredients({open, onClose, drinkName, pkDrink}: Mod
     var idx = 0;
     for(idx; idx < DrinkIngredients.length; idx++){
       if(DrinkIngredients[idx]){
-        fetch('http://18.191.166.59:5000/create-menu-drink-ingredient', {
+        fetch('http://18.223.2.65:5000/create-menu-drink-ingredient', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -78,7 +78,7 @@ export default function EditIngredients({open, onClose, drinkName, pkDrink}: Mod
       ingredient.id;
     });
     // alert(JSON.stringify(currentIngredients));
-    fetch('http://18.191.166.59:5000/create-menu-drink-ingredient', {
+    fetch('http://18.223.2.65:5000/create-menu-drink-ingredient', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -96,15 +96,15 @@ export default function EditIngredients({open, onClose, drinkName, pkDrink}: Mod
         let ingredientsForDrink : number[];
         try{
           
-        const response = await fetch(`http://18.191.166.59:5000/ingredients-for-menu-drinks/${pkDrink}`)
+        const response = await fetch(`http://18.223.2.65:5000/ingredients-for-menu-drinks/${pkDrink}`)
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
         const ingredients = await response.json();
         ingredientsForDrink = ingredients[0];
         
-        const responseIngredients = await fetch('http://18.191.166.59:5000/ingredients');
-        fetch('http://18.191.166.59:5000/ingredients') 
+        const responseIngredients = await fetch('http://18.223.2.65:5000/ingredients');
+        fetch('http://18.223.2.65:5000/ingredients') 
           
           if (!response.ok){
             throw new Error("Network response was not ok");

@@ -74,12 +74,12 @@ export default function FullMenu({open, children, onClose}: ModalProps){
     }, [getDrinks, getNumDrink, cats]); //getDrinks, getNumDrink, cats
 
     async function getDrinks(pk: number){
-        const response = await fetch(`http://18.191.166.59:5000/drinks-from-category/${pk}`);
+        const response = await fetch(`http://18.223.2.65:5000/drinks-from-category/${pk}`);
         return await response.json();
     }
 
     async function getNumDrink(){
-        const response = await fetch('http://18.191.166.59:5000/get-offered-menu-drinks', {method: "GET"}) // Replace with the actual API endpoint URL
+        const response = await fetch('http://18.223.2.65:5000/get-offered-menu-drinks', {method: "GET"}) // Replace with the actual API endpoint URL
         const val = await response.json()
         const num = await val.offered_menu_drinks_count;
         return num

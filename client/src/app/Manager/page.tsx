@@ -67,10 +67,10 @@ export default function Dashboard() {
   const [usageReportOpen, setUsageReportOpen] = useState(false)
 
   function getIngredients(){
-    fetch(`http://18.191.166.59:5000/ingredients`) // Replace with the actual API endpoint URL
+    fetch(`http://18.223.2.65:5000/ingredients`) // Replace with the actual API endpoint URL
         .then((response) => {
             if (!response.ok) {
-            alert("did not pass");
+            // alert("did not pass");
             throw new Error('Network response was not ok');
             }
             return response.json();
@@ -92,7 +92,7 @@ export default function Dashboard() {
   }
 
   function createIngredient(nameI: string, curA: string, idealA: string, consumP: string, isIng: boolean){
-    fetch('http://18.191.166.59:5000/create-ingredient', {
+    fetch('http://18.223.2.65:5000/create-ingredient', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -110,10 +110,10 @@ export default function Dashboard() {
   }
 
   function getMenuDrinks(){
-    fetch(`http://18.191.166.59:5000/menu-drink`) // Replace with the actual API endpoint URL
+    fetch(`http://18.223.2.65:5000/menu-drink`) // Replace with the actual API endpoint URL
         .then((response) => {
             if (!response.ok) {
-            alert("did not pass");
+            // alert("did not pass");
             throw new Error('Network response was not ok');
             }
             return response.json();
@@ -151,10 +151,10 @@ export default function Dashboard() {
 
   function getEmail(email: string) {
       setFirst(true);
-      fetch(`http://18.191.166.59:5000/get-email/${email}`)
+      fetch(`http://18.223.2.65:5000/get-email/${email}`)
       .then((response) => {
         if (!response.ok) {
-        alert("did not pass");
+        // alert("did not pass");
         throw new Error('Network response was not ok');
         }
         return response.json();

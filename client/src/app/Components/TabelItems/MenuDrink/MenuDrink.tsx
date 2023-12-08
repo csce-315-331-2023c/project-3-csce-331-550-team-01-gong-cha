@@ -29,7 +29,7 @@ export default function RestockReportIngredient({pk, name, priceNormal, priceLar
         if(FnormPrice === newNormPrice){ newNormPrice = priceNormal; }
         else{ newNormPrice = FnormPrice; }
 
-        fetch(`http://18.191.166.59:5000/update-menu-drink/${pkk}`, {
+        fetch(`http://18.223.2.65:5000/update-menu-drink/${pkk}`, {
             method: 'PUT',
             headers: {
               'Content-Type': 'application/json',
@@ -45,7 +45,7 @@ export default function RestockReportIngredient({pk, name, priceNormal, priceLar
     }
     
     function deleteMenuDrink(){
-        fetch(`http://18.191.166.59:5000/delete-menu-drink/${pk}`, {
+        fetch(`http://18.223.2.65:5000/delete-menu-drink/${pk}`, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',

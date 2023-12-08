@@ -34,7 +34,7 @@ export default function EmployeeModal({open, children, onClose}: ModalProps){
     };
 
     async function getEmployees(){
-        const response = await fetch(`http://18.191.166.59:5000/employees`) // Replace with the actual API endpoint URL
+        const response = await fetch(`http://18.223.2.65:5000/employees`) // Replace with the actual API endpoint URL
 
         const employeeA = await response.json();
  
@@ -56,7 +56,7 @@ export default function EmployeeModal({open, children, onClose}: ModalProps){
         const isAdText = employeeIsA ? "TRUE" : 'FALSE';
         const isMaText = employeeIsM ? "TRUE" : 'FALSE';
 
-        await fetch(`http://18.191.166.59:5000/create-employee`, {
+        await fetch(`http://18.223.2.65:5000/create-employee`, {
                 method: 'POST',
                 headers: {
                 'Content-Type': 'application/json',

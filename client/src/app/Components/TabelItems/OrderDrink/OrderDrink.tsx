@@ -19,7 +19,7 @@ export default function OrderDrink({id, name, sugar_level, ice_level, menu_drink
     const [sugarT, setSugar] = useState<string>(sugar_level === 0 ? "0%" : sugar_level === 1 ? "30%" : sugar_level === 2 ? "50%" : sugar_level === 3 ? "70%" : "100%");
     
     function deleteOrderDrink(){
-        fetch(`http://18.191.166.59:5000/delete-menu-drink/${id}`, {
+        fetch(`http://18.223.2.65:5000/delete-menu-drink/${id}`, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',

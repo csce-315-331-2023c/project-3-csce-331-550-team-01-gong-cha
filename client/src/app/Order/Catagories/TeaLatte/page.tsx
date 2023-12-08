@@ -24,7 +24,7 @@ export default function Order() {
 
     function getDrinks(){
       if(!loaded){
-        fetch('http://18.191.166.59:5000/drinks-from-category/5') // Replace with the actual API endpoint URL
+        fetch('http://18.223.2.65:5000/drinks-from-category/5') // Replace with the actual API endpoint URL
             .then((response) => {
               if (!response.ok) {
                 // alert("did not pass");

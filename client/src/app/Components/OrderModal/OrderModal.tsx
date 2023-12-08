@@ -41,7 +41,7 @@ export default function OrderModal({open, children, onClose, setAdding, openEdit
     const [date, setDate] = useState<string>('');
 
     async function getOrders(){
-        const response = await fetch(`http://18.191.166.59:5000/get-orders-of-day/${date}`) // Replace with the actual API endpoint URL
+        const response = await fetch(`http://18.223.2.65:5000/get-orders-of-day/${date}`) // Replace with the actual API endpoint URL
 
         const orderA = await response.json();
  

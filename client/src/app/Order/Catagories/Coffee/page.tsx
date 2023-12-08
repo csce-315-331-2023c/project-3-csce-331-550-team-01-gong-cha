@@ -21,7 +21,7 @@ export default function Order() {
     const [drinks, setDrinks] = useState([]);
     useEffect(() => {
         
-          fetch('http://18.191.166.59:5000/drinks-from-category/6') // Replace with the actual API endpoint URL
+          fetch('http://18.223.2.65:5000/drinks-from-category/6') // Replace with the actual API endpoint URL
             .then((response) => {
               if (!response.ok) {
                 // alert("did not pass");
